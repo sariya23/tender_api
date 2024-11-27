@@ -71,6 +71,12 @@ func TestGetAllTendersSuccess(t *testing.T) {
 // TestGetAllTendersByServiceTypeSuccess - проверяет, что
 // при наличии квери параметра srv_type возвращаются тендеры
 // с только указанной сферой услуг.
+//
+// Ожидаемое поведение:
+//
+// - Код 200;
+//
+// - В теле ответа json {"message": "ok", "tenders": <список тендеров>, "service_type": "op"}
 func TestGetAllTendersByServiceTypeSuccess(t *testing.T) {
 	ctx := context.Background()
 	mockTenderGetter := new(MockTenderGetter)
