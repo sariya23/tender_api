@@ -12,8 +12,9 @@ import (
 )
 
 type Response struct {
-	Message string          `json:"message"`
-	Tenders []models.Tedner `json:"tenders"`
+	Message     string          `json:"message"`
+	Tenders     []models.Tedner `json:"tenders"`
+	ServiceType string          `json:"service_type"`
 }
 
 type TenderGetter interface {
@@ -40,13 +41,14 @@ func GetTenders(ctx context.Context, logger *slog.Logger, tenderGetter TenderGet
 		if err != nil {
 			if errors.Is(err, storage.ErrNoTenderPresence) {
 				logger.Info("no tenders found")
-				c.JSON(http.StatusOK, Response{Message: "no tenders found", Tenders: []models.Tedner{}})
+				c.JSON(http.StatusOK, Response{Message: "no tenders found", Tenders: []models.Tedner{}, ServiceType: serviceType})
+				return
 			}
 			logger.Error("cannot get tenders", slog.String("err", err.Error()))
 			c.JSON(http.StatusBadRequest, Response{Message: "internal error", Tenders: []models.Tedner{}})
 			return
 		}
 		logger.Info("success get tenders")
-		c.JSON(http.StatusOK, Response{Message: "ok", Tenders: tenders})
+		c.JSON(http.StatusOK, Response{Message: "ok", Tenders: tenders, ServiceType: serviceType})
 	}
 }
