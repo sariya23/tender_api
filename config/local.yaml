@@ -1,4 +1,4 @@
-server_address: 0.0.0.0:8000
+server_address: localhost:8000
 postgress_conn: postgres://nikita:1234@localhost:5432/tender
 postgres_jdbc_conn: jdbc:postgresql://localhost:5432/tender
 postgres_username: nikita
