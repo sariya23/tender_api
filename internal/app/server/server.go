@@ -24,6 +24,7 @@ func New(logger *slog.Logger, addr string) *ServerApp {
 	{
 		routes.BindRoutes(api)
 		routes.TenderRoutes(api)
+		routes.PingRoutes(api)
 	}
 	srv := &http.Server{Addr: addr, Handler: r}
 	return &ServerApp{
