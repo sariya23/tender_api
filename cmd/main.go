@@ -17,7 +17,7 @@ func main() {
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	log.Info("starting app at", slog.String("addr", cfg.ServerAddress))
 
-	app := app.New(log, cfg.ServerAddress)
+	app := app.New(ctx, log, cfg.ServerAddress, cfg.PostgresConn)
 	go app.HttpServer.MustRun()
 	log.Info("http server is running", slog.String("addr", cfg.ServerAddress))
 

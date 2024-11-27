@@ -18,12 +18,12 @@ type ServerApp struct {
 	server *http.Server
 }
 
-func New(logger *slog.Logger, addr string) *ServerApp {
+func New(ctx context.Context, logger *slog.Logger, addr string, tenderProvider routes.TenderProveder) *ServerApp {
 	r := gin.Default()
 	api := r.Group("api")
 	{
 		routes.BindRoutes(api)
-		routes.TenderRoutes(api)
+		routes.TenderRoutes(ctx, logger, tenderProvider, api)
 		routes.PingRoutes(api)
 	}
 	srv := &http.Server{Addr: addr, Handler: r}

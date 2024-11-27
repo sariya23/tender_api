@@ -1,8 +1,10 @@
 package app
 
 import (
+	"context"
 	"log/slog"
 	serverapp "tender/internal/app/server"
+	"tender/internal/storage/postgres"
 )
 
 type App struct {
@@ -10,8 +12,9 @@ type App struct {
 	Conn       string
 }
 
-func New(logger *slog.Logger, addr string) *App {
-	srv := serverapp.New(logger, addr)
+func New(ctx context.Context, logger *slog.Logger, addr string, dbURL string) *App {
+	conn := postgres.MustNewConnection(ctx, dbURL)
+	srv := serverapp.New(ctx, logger, addr, conn)
 	return &App{
 		HttpServer: srv,
 		Conn:       "qwe",
