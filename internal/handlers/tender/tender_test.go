@@ -20,14 +20,14 @@ type MockTenderGetter struct {
 	mock.Mock
 }
 
-func (m *MockTenderGetter) Tenders(ctx context.Context) ([]models.Tedner, error) {
+func (m *MockTenderGetter) Tenders(ctx context.Context) ([]models.Tender, error) {
 	args := m.Called(ctx)
-	return args.Get(0).([]models.Tedner), args.Error(1)
+	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
-func (m *MockTenderGetter) TendersByServiceType(ctx context.Context, serviceType string) ([]models.Tedner, error) {
+func (m *MockTenderGetter) TendersByServiceType(ctx context.Context, serviceType string) ([]models.Tender, error) {
 	args := m.Called(ctx, serviceType)
-	return args.Get(0).([]models.Tedner), args.Error(1)
+	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
 // TestGetAllTendersSuccess проверяет, что
@@ -42,9 +42,9 @@ func TestGetAllTendersSuccess(t *testing.T) {
 	ctx := context.Background()
 	mockTenderGetter := new(MockTenderGetter)
 	logger := slogdiscard.NewDiscardLogger()
-	mockTenders := []models.Tedner{
-		{Name: "Tender 1", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 1, CreatorUsername: "qwe"},
-		{Name: "Tender 2", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 2, CreatorUsername: "zxc"},
+	mockTenders := []models.Tender{
+		{TenderName: "Tender 1", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 1, CreatorUsername: "qwe"},
+		{TenderName: "Tender 2", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 2, CreatorUsername: "zxc"},
 	}
 	h := tender.GetTenders(ctx, logger, mockTenderGetter)
 	gin.SetMode(gin.TestMode)
@@ -58,7 +58,7 @@ func TestGetAllTendersSuccess(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, resp.Code)
 
-	var responseBody tender.Response
+	var responseBody tender.GetTendersResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
 	require.NoError(t, err)
 	require.Equal(t, mockTenders, responseBody.Tenders)
@@ -81,9 +81,9 @@ func TestGetAllTendersByServiceTypeSuccess(t *testing.T) {
 	ctx := context.Background()
 	mockTenderGetter := new(MockTenderGetter)
 	logger := slogdiscard.NewDiscardLogger()
-	mockTenders := []models.Tedner{
-		{Name: "Tender 1", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 1, CreatorUsername: "qwe"},
-		{Name: "Tender 2", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 2, CreatorUsername: "zxc"},
+	mockTenders := []models.Tender{
+		{TenderName: "Tender 1", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 1, CreatorUsername: "qwe"},
+		{TenderName: "Tender 2", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 2, CreatorUsername: "zxc"},
 	}
 	h := tender.GetTenders(ctx, logger, mockTenderGetter)
 	gin.SetMode(gin.TestMode)
@@ -97,7 +97,7 @@ func TestGetAllTendersByServiceTypeSuccess(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, resp.Code)
 
-	var responseBody tender.Response
+	var responseBody tender.GetTendersResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
 	require.NoError(t, err)
 	require.Equal(t, mockTenders, responseBody.Tenders)
@@ -119,7 +119,7 @@ func TestNoTendersFound(t *testing.T) {
 	ctx := context.Background()
 	mockTenderGetter := new(MockTenderGetter)
 	logger := slogdiscard.NewDiscardLogger()
-	mockTenders := []models.Tedner{}
+	mockTenders := []models.Tender{}
 	h := tender.GetTenders(ctx, logger, mockTenderGetter)
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
@@ -131,7 +131,7 @@ func TestNoTendersFound(t *testing.T) {
 	router.ServeHTTP(resp, req)
 
 	require.Equal(t, http.StatusOK, resp.Code)
-	var responseBody tender.Response
+	var responseBody tender.GetTendersResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
 	require.NoError(t, err)
 	require.Empty(t, mockTenders, responseBody.Tenders)

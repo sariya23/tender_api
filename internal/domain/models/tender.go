@@ -1,10 +1,10 @@
 package models
 
-type Tedner struct {
-	Name            string
-	Description     string
-	ServiceType     string
-	Status          string
-	OrganizationId  int
-	CreatorUsername string
+type Tender struct {
+	TenderName      string `json:"name"`
+	Description     string `json:"creatorUsername"`
+	ServiceType     string `json:"serviceType"`
+	Status          string `json:"status"`
+	OrganizationId  int    `json:"organizationId"`
+	CreatorUsername string `json:"creatorUsername"`
 }
