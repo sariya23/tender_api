@@ -192,11 +192,10 @@ func GetUserTenders(ctx context.Context, logger *slog.Logger, userTenderGetter U
 	return func(c *gin.Context) {
 		const op = "handlers.tender.GetUserTenders"
 		logger := logger.With("op", op)
-		logger.Info("request to /api/tender/my")
-
 		username := c.Query("username")
+		logger.Info(fmt.Sprintf("request to /api/tender/my?username=%v", username))
 		if username == "" {
-			logger.Info("username not specified so redirect ro get all tenders")
+			logger.Info("username not specified - redirect to get all tenders")
 			c.Redirect(http.StatusMovedPermanently, "/api/tender/")
 			return
 		}
@@ -205,7 +204,7 @@ func GetUserTenders(ctx context.Context, logger *slog.Logger, userTenderGetter U
 		if err != nil {
 			if errors.Is(err, storage.ErrNoTenderForThisUser) {
 				logger.Warn("no tenders for this user", slog.String("username", username))
-				c.JSON(http.StatusBadRequest, GetUserTendersResponse{Message: "not tenders for this user"})
+				c.JSON(http.StatusOK, GetUserTendersResponse{Message: "no tenders for this user"})
 				return
 			}
 			logger.Error("unexpected error", slog.String("err", err.Error()))
