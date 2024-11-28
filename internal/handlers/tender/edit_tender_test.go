@@ -71,3 +71,68 @@ func TestEditTender_Success(t *testing.T) {
 	require.Equal(t, mockTender, responseBody.UpdatedTender)
 	require.Equal(t, "ok", responseBody.Message)
 }
+
+// TestCannotEditTender_IdNotInt проверяет, что если
+// tender_id в URL не число, то возвращается код 400 и сообщение.
+func TestCannotEditTender_IdNotInt(t *testing.T) {
+	ctx := context.Background()
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderEditor := new(MockTenderEditor)
+
+	mockUpdateTender := models.Tender{
+		TenderName: "New name",
+	}
+	mockTenderEditor.On("EditTender", ctx, 1, mockUpdateTender).Return(nil, nil)
+
+	h := tender.EditTender(ctx, logger, mockTenderEditor)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.PATCH("/api/tender/:tender_id/edit", h)
+
+	req := httptest.NewRequest(http.MethodPatch, "/api/tender/abobus/edit", nil)
+	resp := httptest.NewRecorder()
+	router.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+	var responseBody tender.EditTenderResponse
+	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
+	require.NoError(t, err)
+
+	require.Empty(t, responseBody.UpdatedTender)
+	require.Equal(t, "cannot parse tender id", responseBody.Message)
+}
+
+func TestCannotEditTender_WrongFields(t *testing.T) {
+	ctx := context.Background()
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderEditor := new(MockTenderEditor)
+
+	reqData := struct {
+		Aboba  string
+		Status string
+	}{
+		Aboba:  "qwe",
+		Status: "qwe",
+	}
+
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(reqData)
+	require.NoError(t, err)
+
+	h := tender.EditTender(ctx, logger, mockTenderEditor)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.PATCH("/api/tender/:tender_id/edit", h)
+
+	req := httptest.NewRequest(http.MethodPatch, "/api/tender/1/edit", &buf)
+	resp := httptest.NewRecorder()
+	router.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+	// var responseBody tender.EditTenderResponse
+	// err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
+	// require.NoError(t, err)
+
+	// require.Empty(t, responseBody.UpdatedTender)
+	// require.Equal(t, "cannot parse tender id", responseBody.Message)
+}

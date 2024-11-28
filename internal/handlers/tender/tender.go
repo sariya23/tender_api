@@ -260,7 +260,7 @@ func EditTender(ctx context.Context, logger *slog.Logger, tenderEditor TenderEdi
 		logger.Info("unmarshal body")
 		if err != nil {
 			logger.Error("cannot unmarshall body", slog.String("err", err.Error()))
-			logMsg, respMsg, code := handleErrorWhileEditTender(err)
+			logMsg, respMsg, code := handleErrorWhileUnmarshallCreateTenderRequest(err)
 			logger.Error(logMsg, slog.String("err", err.Error()))
 			c.JSON(code, CreateTenderResponse{Message: respMsg})
 			return
@@ -276,7 +276,7 @@ func EditTender(ctx context.Context, logger *slog.Logger, tenderEditor TenderEdi
 			CreatorUsername: req.CreatorUsername,
 		})
 		if err != nil {
-			logMsg, respMsg, code := handleErrorWhileUnmarshallCreateTenderRequest(err)
+			logMsg, respMsg, code := handleErrorWhileEditTender(err)
 			logger.Error(logMsg, slog.String("err", err.Error()))
 			c.JSON(code, EditTenderResponse{Message: respMsg})
 			return
