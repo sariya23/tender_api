@@ -18,7 +18,7 @@ type ServerApp struct {
 	server *http.Server
 }
 
-func New(ctx context.Context, logger *slog.Logger, addr string, tenderProvider routes.TenderProveder) *ServerApp {
+func New(ctx context.Context, logger *slog.Logger, addr string, tenderProvider routes.TenderProvider) *ServerApp {
 	r := gin.Default()
 	api := r.Group("api")
 	{

@@ -30,13 +30,18 @@ type CreateTenderResponse struct {
 	Message string        `json:"message"`
 }
 
+type GetUserTendersResponse struct {
+	Message string          `json:"message"`
+	Tenders []models.Tender `json:"tenders"`
+}
+
 type TenderGetter interface {
 	Tenders(ctx context.Context) ([]models.Tender, error)
 	TendersByServiceType(ctx context.Context, serviceType string) ([]models.Tender, error)
 }
 
 type TenderCreater interface {
-	Create(ctx context.Context, tender models.Tender) (models.Tender, error)
+	CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error)
 }
 
 type UserProvider interface {
@@ -49,6 +54,10 @@ type OrganizationProvider interface {
 
 type UserResponsibler interface {
 	CheckUserResponsible(ctx context.Context, username string, organizationId int) error
+}
+
+type UserTenderGetter interface {
+	UserTenders(ctx context.Context, username string) ([]models.Tender, error)
 }
 
 func GetTenders(ctx context.Context, logger *slog.Logger, tenderGetter TenderGetter) gin.HandlerFunc {
@@ -166,7 +175,7 @@ func CreateTender(
 		logger.Info("user responsible", slog.String("username", username), slog.Int("org_id", orgId))
 
 		logger.Info("processing create tender")
-		tender, err := tenderCreater.Create(ctx, req.Tender)
+		tender, err := tenderCreater.CreateTender(ctx, req.Tender)
 		if err != nil {
 			logger.Error("cannot create tender", slog.String("err", err.Error()))
 			c.JSON(
@@ -176,6 +185,35 @@ func CreateTender(
 		}
 		logger.Info("tender created success", slog.String("tender name", req.Tender.TenderName))
 		c.JSON(http.StatusOK, CreateTenderResponse{Tender: tender, Message: "ok"})
+	}
+}
+
+func GetUserTenders(ctx context.Context, logger *slog.Logger, userTenderGetter UserTenderGetter) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		const op = "handlers.tender.GetUserTenders"
+		logger := logger.With("op", op)
+		logger.Info("request to /api/tender/my")
+
+		username := c.Query("username")
+		if username == "" {
+			logger.Info("username not specified so redirect ro get all tenders")
+			c.Redirect(http.StatusMovedPermanently, "/api/tender/")
+			return
+		}
+
+		tenders, err := userTenderGetter.UserTenders(ctx, username)
+		if err != nil {
+			if errors.Is(err, storage.ErrNoTenderForThisUser) {
+				logger.Warn("no tenders for this user", slog.String("username", username))
+				c.JSON(http.StatusBadRequest, GetUserTendersResponse{Message: "not tenders for this user"})
+				return
+			}
+			logger.Error("unexpected error", slog.String("err", err.Error()))
+			c.JSON(http.StatusInternalServerError, GetTendersResponse{Message: "internal error"})
+			return
+		}
+		logger.Info("success get tenders", slog.String("username", username), "tenders", tenders)
+		c.JSON(http.StatusOK, GetUserTendersResponse{Message: "ok", Tenders: tenders})
 	}
 }
 

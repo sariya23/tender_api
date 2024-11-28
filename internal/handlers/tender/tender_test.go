@@ -35,7 +35,7 @@ type MockTenderCreater struct {
 	mock.Mock
 }
 
-func (m *MockTenderCreater) Create(ctx context.Context, tender models.Tender) (models.Tender, error) {
+func (m *MockTenderCreater) CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error) {
 	args := m.Called(ctx, tender)
 	return args.Get(0).(models.Tender), args.Error(1)
 }

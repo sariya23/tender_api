@@ -8,14 +8,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TenderProveder interface {
+type TenderProvider interface {
 	tn.TenderGetter
+	tn.TenderCreater
+	tn.UserProvider
+	tn.UserResponsibler
+	tn.UserTenderGetter
+	tn.OrganizationProvider
 }
 
-func TenderRoutes(ctx context.Context, logger *slog.Logger, conn TenderProveder, r *gin.RouterGroup) {
+func TenderRoutes(ctx context.Context, logger *slog.Logger, conn TenderProvider, r *gin.RouterGroup) {
 	tender := r.Group("/tender")
 	{
-		tender.GET("/")
-		tender.POST("/new", tn.GetTenders(ctx, logger, conn))
+		tender.GET("/", tn.GetTenders(ctx, logger, conn))
+		tender.POST("/new", tn.CreateTender(ctx, logger, conn, conn, conn, conn))
+		tender.GET("/my", tn.GetUserTenders(ctx, logger, conn))
 	}
 }
