@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -52,7 +53,7 @@ func TestGetUserTenders_Success(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, http.StatusOK, resp.Code)
 	var responseBody tender.GetUserTendersResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
 	require.NoError(t, err)
@@ -76,7 +77,7 @@ func TestGetUserTenders_Redirect(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusMovedPermanently, resp.Code)
+	assert.Equal(t, http.StatusMovedPermanently, resp.Code)
 
 	location := resp.Header().Get("Location")
 	require.Equal(t, "/api/tender/", location)
@@ -100,7 +101,7 @@ func TestGetUserTenders_NoTendersForUser(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, http.StatusOK, resp.Code)
 	var responseBody tender.GetUserTendersResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
 	require.NoError(t, err)

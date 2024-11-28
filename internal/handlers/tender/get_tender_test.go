@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -56,7 +57,7 @@ func TestGetAllTendersSuccess(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, http.StatusOK, resp.Code)
 
 	var responseBody tender.GetTendersResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -95,7 +96,7 @@ func TestGetAllTendersByServiceTypeSuccess(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, http.StatusOK, resp.Code)
 
 	var responseBody tender.GetTendersResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -130,7 +131,7 @@ func TestNoTendersFound(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, http.StatusOK, resp.Code)
 	var responseBody tender.GetTendersResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
 	require.NoError(t, err)

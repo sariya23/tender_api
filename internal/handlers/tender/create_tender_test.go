@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -94,7 +95,7 @@ func TestCreateTender_Success(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, http.StatusOK, resp.Code)
 
 	var responseBody tender.CreateTenderResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -123,7 +124,7 @@ func TestCannotCreateTender_BlankBody(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 
 	var responseBody tender.CreateTenderResponse
 	err := json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -172,7 +173,7 @@ func TestCannotCreateTender_InvalidTypes(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 
 	var responseBody tender.CreateTenderResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -213,7 +214,7 @@ func TestCannotCreateTender_InvalidRequest(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 
 	var responseBody tender.CreateTenderResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -258,7 +259,7 @@ func TestCannotCreateTender_NoKeyFields(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 
 	var responseBody tender.CreateTenderResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -304,7 +305,7 @@ func TestCannotCreateTender_NoUser(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 
 	var responseBody tender.CreateTenderResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -351,7 +352,7 @@ func TestCannotCreateTender_NoOrganization(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 
 	var responseBody tender.CreateTenderResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
@@ -398,7 +399,7 @@ func TestCannotCreateTender_NoUserResponsobility(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	require.Equal(t, http.StatusBadRequest, resp.Code)
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 
 	var responseBody tender.CreateTenderResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &responseBody)
