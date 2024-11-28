@@ -15,6 +15,7 @@ type TenderProvider interface {
 	tn.UserResponsibler
 	tn.UserTenderGetter
 	tn.OrganizationProvider
+	tn.TenderEditor
 }
 
 func TenderRoutes(ctx context.Context, logger *slog.Logger, conn TenderProvider, r *gin.RouterGroup) {
@@ -23,5 +24,6 @@ func TenderRoutes(ctx context.Context, logger *slog.Logger, conn TenderProvider,
 		tender.GET("/", tn.GetTenders(ctx, logger, conn))
 		tender.POST("/new", tn.CreateTender(ctx, logger, conn, conn, conn, conn))
 		tender.GET("/my", tn.GetUserTenders(ctx, logger, conn))
+		tender.PATCH("/:tender_id/edit", tn.EditTender(ctx, logger, conn))
 	}
 }

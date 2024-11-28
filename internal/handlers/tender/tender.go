@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"tender/internal/domain/models"
 	"tender/internal/storage"
 
@@ -35,6 +36,20 @@ type GetUserTendersResponse struct {
 	Tenders []models.Tender `json:"tenders"`
 }
 
+type EditTenderRequest struct {
+	TenderName      string `json:"name"`
+	Description     string `json:"description"`
+	ServiceType     string `json:"serviceType"`
+	Status          string `json:"status"`
+	OrganizationId  int    `json:"organizationId"`
+	CreatorUsername string `json:"creatorUsername"`
+}
+
+type EditTenderResponse struct {
+	UpdatedTender models.Tender `json:"updated_tender"`
+	Message       string        `json:"message"`
+}
+
 type TenderGetter interface {
 	Tenders(ctx context.Context) ([]models.Tender, error)
 	TendersByServiceType(ctx context.Context, serviceType string) ([]models.Tender, error)
@@ -58,6 +73,10 @@ type UserResponsibler interface {
 
 type UserTenderGetter interface {
 	UserTenders(ctx context.Context, username string) ([]models.Tender, error)
+}
+
+type TenderEditor interface {
+	EditTender(ctx context.Context, tenderId int, newTender models.Tender) (models.Tender, error)
 }
 
 func GetTenders(ctx context.Context, logger *slog.Logger, tenderGetter TenderGetter) gin.HandlerFunc {
@@ -117,14 +136,14 @@ func CreateTender(
 		err := c.ShouldBindBodyWithJSON(&req)
 		if err != nil {
 			logger.Error("cannot unmarshall body", slog.String("err", err.Error()))
-			logMsg, respMsg, code := handleErrorWhileUnmarshallBody(err)
+			logMsg, respMsg, code := handleErrorWhileUnmarshallCreateTenderRequest(err)
 			logger.Error(logMsg, slog.String("err", err.Error()))
 			c.JSON(code, CreateTenderResponse{Message: respMsg})
 			return
 		}
 		logger.Info("success unmarhsall", slog.String("tender", fmt.Sprintf("%+v", req.Tender)))
 
-		err = validateStruct(req)
+		err = validateCreateTenderRequest(req)
 		if err != nil {
 			logger.Error("invalid request struct", slog.String("err", err.Error()))
 			c.JSON(http.StatusBadRequest, CreateTenderResponse{Message: "invalid fields"})
@@ -216,7 +235,58 @@ func GetUserTenders(ctx context.Context, logger *slog.Logger, userTenderGetter U
 	}
 }
 
-func handleErrorWhileUnmarshallBody(err error) (logMessage string, reponseMessage string, code int) {
+func EditTender(ctx context.Context, logger *slog.Logger, tenderEditor TenderEditor) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		const op = "handlers.tender.EditTender"
+		logger := logger.With("op", op)
+		logger.Info(fmt.Sprintf("request to /api/tender/%v/edit/", c.Param("tender_id")))
+		tenderId, err := strconv.Atoi(c.Param("tender_id"))
+		if err != nil {
+			logger.Error("cannot parse tender id to int", slog.String("err", err.Error()))
+			c.JSON(http.StatusBadRequest, EditTenderResponse{Message: "cannot parse tender id"})
+			return
+		}
+
+		b := c.Request.Body
+		defer func() {
+			if err := b.Close(); err != nil {
+				logger.Error("cannot close body", slog.String("err", err.Error()))
+				return
+			}
+		}()
+
+		var req EditTenderRequest
+		err = c.ShouldBindBodyWithJSON(&req)
+		logger.Info("unmarshal body")
+		if err != nil {
+			logger.Error("cannot unmarshall body", slog.String("err", err.Error()))
+			logMsg, respMsg, code := handleErrorWhileEditTender(err)
+			logger.Error(logMsg, slog.String("err", err.Error()))
+			c.JSON(code, CreateTenderResponse{Message: respMsg})
+			return
+		}
+		logger.Info("success unmarhsall", slog.String("new tender data", fmt.Sprintf("%+v", req)))
+
+		editedTender, err := tenderEditor.EditTender(ctx, tenderId, models.Tender{
+			TenderName:      req.TenderName,
+			Description:     req.Description,
+			ServiceType:     req.ServiceType,
+			Status:          req.Status,
+			OrganizationId:  req.OrganizationId,
+			CreatorUsername: req.CreatorUsername,
+		})
+		if err != nil {
+			logMsg, respMsg, code := handleErrorWhileUnmarshallCreateTenderRequest(err)
+			logger.Error(logMsg, slog.String("err", err.Error()))
+			c.JSON(code, EditTenderResponse{Message: respMsg})
+			return
+		}
+		logger.Info("edit success")
+		c.JSON(http.StatusOK, EditTenderResponse{Message: "ok", UpdatedTender: editedTender})
+	}
+}
+
+func handleErrorWhileUnmarshallCreateTenderRequest(err error) (logMessage string, reponseMessage string, code int) {
 	var syntaxError *json.SyntaxError
 	var unmarshalTypeError *json.UnmarshalTypeError
 	switch {
@@ -232,7 +302,19 @@ func handleErrorWhileUnmarshallBody(err error) (logMessage string, reponseMessag
 	}
 }
 
-func validateStruct(req CreateTenderRequest) error {
+func handleErrorWhileEditTender(err error) (logMessage string, reponseMessage string, code int) {
+	if errors.Is(err, storage.ErrUserNotFound) {
+		return "new user not exists", "new user not found", http.StatusBadRequest
+	} else if errors.Is(err, storage.ErrOrganizationNotFound) {
+		return "new organization not found", "new organization not found", http.StatusBadRequest
+	} else if errors.Is(err, storage.ErrUserNotReponsibleForOrg) {
+		return "new user not respobsible for organization", "new user not respobsible for organization", http.StatusBadRequest
+	}
+	return "unexpected error", "internal error", http.StatusInternalServerError
+
+}
+
+func validateCreateTenderRequest(req CreateTenderRequest) error {
 	validate := validator.New()
 	err := validate.Struct(req)
 	if err != nil {

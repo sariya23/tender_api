@@ -42,3 +42,7 @@ func (s *Storage) CheckUserResponsible(ctx context.Context, username string, org
 func (s *Storage) UserTenders(ctx context.Context, username string) ([]models.Tender, error) {
 	panic("impl me")
 }
+
+func (s *Storage) EditTender(ctx context.Context, tenderId int, newTender models.Tender) (models.Tender, error) {
+	panic("impl me")
+}
