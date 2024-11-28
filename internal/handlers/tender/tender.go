@@ -2,14 +2,17 @@ package tender
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"tender/internal/domain/models"
 	"tender/internal/storage"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator"
 )
 
 type GetTendersResponse struct {
@@ -19,7 +22,7 @@ type GetTendersResponse struct {
 }
 
 type CreateTenderRequest struct {
-	Tender models.Tender `json:"tender"`
+	Tender models.Tender `json:"tender" validate:"required"`
 }
 
 type CreateTenderResponse struct {
@@ -33,19 +36,19 @@ type TenderGetter interface {
 }
 
 type TenderCreater interface {
-	Create(ctx context.Context, tender models.Tender) error
+	Create(ctx context.Context, tender models.Tender) (models.Tender, error)
 }
 
 type UserProvider interface {
-	GetUserByUsername(ctx context.Context, username string) error
+	UserByUsername(ctx context.Context, username string) error
 }
 
 type OrganizationProvider interface {
-	GetOrganizationById(ctx context.Context, ogranizationId int) error
+	OrganizationById(ctx context.Context, ogranizationId int) error
 }
 
 type UserResponsibler interface {
-	CheckUserResponsible(ctx context.Context, username string, organixationId int) error
+	CheckUserResponsible(ctx context.Context, username string, organizationId int) error
 }
 
 func GetTenders(ctx context.Context, logger *slog.Logger, tenderGetter TenderGetter) gin.HandlerFunc {
@@ -85,7 +88,7 @@ func CreateTender(
 	tenderCreater TenderCreater,
 	userProvider UserProvider,
 	organizationProvider OrganizationProvider,
-	userREponsilber UserResponsibler,
+	userResponsibler UserResponsibler,
 ) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		const op = "handlers.tender.CreateTender"
@@ -105,16 +108,23 @@ func CreateTender(
 		err := c.ShouldBindBodyWithJSON(&req)
 		if err != nil {
 			logger.Error("cannot unmarshall body", slog.String("err", err.Error()))
-			c.JSON(
-				http.StatusInternalServerError,
-				CreateTenderResponse{Message: "internal error"})
+			logMsg, respMsg, code := handleErrorWhileUnmarshallBody(err)
+			logger.Error(logMsg, slog.String("err", err.Error()))
+			c.JSON(code, CreateTenderResponse{Message: respMsg})
 			return
 		}
 		logger.Info("success unmarhsall", slog.String("tender", fmt.Sprintf("%+v", req.Tender)))
 
+		err = validateStruct(req)
+		if err != nil {
+			logger.Error("invalid request struct", slog.String("err", err.Error()))
+			c.JSON(http.StatusBadRequest, CreateTenderResponse{Message: "invalid fields"})
+			return
+		}
+
 		logger.Info("checking existens of user")
 		username := req.Tender.CreatorUsername
-		err = userProvider.GetUserByUsername(ctx, username)
+		err = userProvider.UserByUsername(ctx, username)
 		if err != nil {
 			if errors.Is(err, storage.ErrUserNotFound) {
 				logger.Warn("user not found", slog.String("username", username))
@@ -126,22 +136,23 @@ func CreateTender(
 		}
 		logger.Info("user exist")
 
-		logger.Info("checking existens of existens")
+		logger.Info("checking existens of organization")
 		orgId := req.Tender.OrganizationId
-		err = organizationProvider.GetOrganizationById(ctx, orgId)
+		err = organizationProvider.OrganizationById(ctx, orgId)
 		if err != nil {
 			if errors.Is(err, storage.ErrOrganizationNotFound) {
 				logger.Warn("organization not found", slog.Int("org_id", orgId))
-				c.JSON(http.StatusBadRequest, CreateTenderResponse{Message: "org not found"})
+				c.JSON(http.StatusBadRequest, CreateTenderResponse{Message: "organization not found"})
 				return
 			}
 			logger.Error("cannot find org", slog.String("err", err.Error()))
 			c.JSON(http.StatusInternalServerError, CreateTenderResponse{Message: "internal error"})
 		}
 		logger.Info("org exist")
-
+		// TODO: посмотреть получится ли отправлять один запрос. Не проверять наличие юзера и организации, а получать
+		// в случае чего ошибку из проверки ответсвенности.
 		logger.Info("checking responsible of user in organization")
-		err = userREponsilber.CheckUserResponsible(ctx, username, orgId)
+		err = userResponsibler.CheckUserResponsible(ctx, username, orgId)
 		if err != nil {
 			if errors.Is(err, storage.ErrUserNotReponsibleForOrg) {
 				logger.Warn("user not responsible for organization", slog.String("username", username), slog.Int("org_id", orgId))
@@ -155,7 +166,7 @@ func CreateTender(
 		logger.Info("user responsible", slog.String("username", username), slog.Int("org_id", orgId))
 
 		logger.Info("processing create tender")
-		err = tenderCreater.Create(ctx, req.Tender)
+		tender, err := tenderCreater.Create(ctx, req.Tender)
 		if err != nil {
 			logger.Error("cannot create tender", slog.String("err", err.Error()))
 			c.JSON(
@@ -164,6 +175,32 @@ func CreateTender(
 			)
 		}
 		logger.Info("tender created success", slog.String("tender name", req.Tender.TenderName))
-		c.JSON(http.StatusOK, CreateTenderResponse{Tender: req.Tender, Message: "ok"})
+		c.JSON(http.StatusOK, CreateTenderResponse{Tender: tender, Message: "ok"})
 	}
+}
+
+func handleErrorWhileUnmarshallBody(err error) (logMessage string, reponseMessage string, code int) {
+	var syntaxError *json.SyntaxError
+	var unmarshalTypeError *json.UnmarshalTypeError
+	switch {
+	case errors.As(err, &syntaxError):
+		return fmt.Sprintf("JSON syntax error at byte %d", syntaxError.Offset), "syntax error", http.StatusBadRequest
+	case errors.As(err, &unmarshalTypeError):
+		return fmt.Sprintf("JSON type error: field '%s' expects %s but got %s",
+			unmarshalTypeError.Field, unmarshalTypeError.Type, unmarshalTypeError.Value), "JSON type error", http.StatusBadRequest
+	case errors.Is(err, io.EOF):
+		return "empty json body", "empty json body", http.StatusBadRequest
+	default:
+		return "smth went wrong", "internal error", http.StatusInternalServerError
+	}
+}
+
+func validateStruct(req CreateTenderRequest) error {
+	validate := validator.New()
+	err := validate.Struct(req)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
