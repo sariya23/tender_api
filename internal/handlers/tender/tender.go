@@ -247,23 +247,17 @@ func EditTender(ctx context.Context, logger *slog.Logger, tenderEditor TenderEdi
 			return
 		}
 
-		b := c.Request.Body
-		defer func() {
-			if err := b.Close(); err != nil {
-				logger.Error("cannot close body", slog.String("err", err.Error()))
-				return
-			}
-		}()
+		body, err := c.GetRawData()
+		if err != nil {
+			logger.Error("cannot get body data", slog.String("err", err.Error()))
+			c.JSON(http.StatusInternalServerError, EditTenderResponse{Message: "internal error"})
+			return
+		}
 
 		var req EditTenderRequest
-		err = c.ShouldBindBodyWithJSON(&req)
-		logger.Info("unmarshal body")
+		err = nil
 		if err != nil {
-			logger.Error("cannot unmarshall body", slog.String("err", err.Error()))
-			logMsg, respMsg, code := handleErrorWhileUnmarshallCreateTenderRequest(err)
-			logger.Error(logMsg, slog.String("err", err.Error()))
-			c.JSON(code, CreateTenderResponse{Message: respMsg})
-			return
+			fmt.Println(body)
 		}
 		logger.Info("success unmarhsall", slog.String("new tender data", fmt.Sprintf("%+v", req)))
 

@@ -1,6 +1,7 @@
 package validator_test
 
 import (
+	"fmt"
 	"tender/internal/lib/validator"
 	"testing"
 
@@ -31,7 +32,9 @@ func TestValidateEditRequest_Success(t *testing.T) {
 	for _, ts := range cases {
 		t.Run(ts.Name, func(t *testing.T) {
 			var s EditTenderRequest
-			err := validator.ValidateEditRequest([]byte(ts.JSON), &s)
+			err := validator.ValidateEditRequest(
+				[]byte(ts.JSON), &s, []string{"TenderName", "Description", "ServiceType", "Status", "OrganizationId", "CreatorUsername"},
+				[]string{"string", "string", "string", "string", "int", "string"})
 			require.NoError(t, err)
 		})
 	}
@@ -60,8 +63,30 @@ func TestValidateEditRequest_FailUInknownField(t *testing.T) {
 	for _, ts := range cases {
 		t.Run(ts.Name, func(t *testing.T) {
 			var s EditTenderRequest
-			err := validator.ValidateEditRequest([]byte(ts.JSON), &s)
+			err := validator.ValidateEditRequest(
+				[]byte(ts.JSON), &s, []string{"TenderName", "Description", "ServiceType", "Status", "OrganizationId", "CreatorUsername"},
+				[]string{"string", "string", "string", "string", "int", "string"})
 			require.ErrorIs(t, err, validator.ErrUnknownField)
 		})
 	}
+}
+
+// TestValidateEditRequest_FailTypeMissmatch проверяет, что
+// что прилетит неверный тип у поля, то вернется ошибка ErrTypeMismatch.
+func TestValidateEditRequest_FailTypeMissmatch(t *testing.T) {
+	type EditTenderRequest struct {
+		TenderName      string `json:"name"`
+		Description     string `json:"description"`
+		ServiceType     string `json:"serviceType"`
+		Status          string `json:"status"`
+		OrganizationId  int    `json:"organizationId"`
+		CreatorUsername string `json:"creatorUsername"`
+	}
+	j := `{"TenderName": 123}`
+	var s EditTenderRequest
+	err := validator.ValidateEditRequest(
+		[]byte(j), &s, []string{"TenderName", "Description", "ServiceType", "Status", "OrganizationId", "CreatorUsername"},
+		[]string{"string", "string", "string", "string", "int", "string"})
+	fmt.Printf("%+v\n", s)
+	require.ErrorIs(t, err, validator.ErrTypeMismatch)
 }
