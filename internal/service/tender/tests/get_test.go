@@ -66,8 +66,8 @@ func TestGetTendersByServiceType_Success(t *testing.T) {
 	}
 
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo)
-	mockTenderRepo.On("GetByServiceType", ctx).Return(expectedTenders, nil)
-	tenders, err := tenderService.GetTenders(ctx, "all")
+	mockTenderRepo.On("GetByServiceType", ctx, "qwe").Return(expectedTenders, nil)
+	tenders, err := tenderService.GetTenders(ctx, "qwe")
 	require.NoError(t, err)
 	require.Equal(t, expectedTenders, tenders)
 }

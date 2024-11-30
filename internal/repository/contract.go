@@ -16,9 +16,9 @@ type TenderRepository interface {
 
 type EmployeeRepository interface {
 	GetByUsername(ctx context.Context, username string) (models.Employee, error)
-	GetById(ctx context.Context, id int64) (models.Employee, error)
+	GetById(ctx context.Context, id int) (models.Employee, error)
 }
 
 type OrganizationRepository interface {
-	GetById(ctx context.Context, orgId int64) (models.Organization, error)
+	GetById(ctx context.Context, orgId int) (models.Organization, error)
 }

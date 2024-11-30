@@ -50,7 +50,7 @@ func (m *MockEmployeeRepo) GetByUsername(ctx context.Context, username string) (
 	return args.Get(0).(models.Employee), args.Error(1)
 }
 
-func (m *MockEmployeeRepo) GetById(ctx context.Context, id int64) (models.Employee, error) {
+func (m *MockEmployeeRepo) GetById(ctx context.Context, id int) (models.Employee, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(models.Employee), args.Error(1)
 }
@@ -59,7 +59,7 @@ type MockOrgRepo struct {
 	mock.Mock
 }
 
-func (m *MockOrgRepo) GetById(ctx context.Context, orgId int64) (models.Organization, error) {
+func (m *MockOrgRepo) GetById(ctx context.Context, orgId int) (models.Organization, error) {
 	args := m.Called(ctx, orgId)
 	return args.Get(0).(models.Organization), args.Error(1)
 }
