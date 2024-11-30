@@ -17,10 +17,10 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 
 	if serviceType == "all" {
 		logger.Info("get all tenders")
-		tenders, err = s.tenderRepo.GetAll(ctx)
+		tenders, err = s.tenderRepo.GetAllTenders(ctx)
 	} else {
 		logger.Info("get tenders with service type", slog.String("service type", serviceType))
-		tenders, err = s.tenderRepo.GetByServiceType(ctx, serviceType)
+		tenders, err = s.tenderRepo.GetTendersByServiceType(ctx, serviceType)
 	}
 
 	if err != nil {
@@ -35,7 +35,7 @@ func (s *TenderService) GetUserTenders(ctx context.Context, username string) ([]
 	const op = "internal.service.tender.getall.GetUserTenders"
 	logger := s.logger.With("op", op)
 
-	_, err := s.employeeRepo.GetByUsername(ctx, username)
+	_, err := s.employeeRepo.GetEmployeeByUsername(ctx, username)
 	if err != nil {
 		logger.Error("cannot get user with username", slog.String("username", username), slog.String("err", err.Error()))
 		return []models.Tender{}, err

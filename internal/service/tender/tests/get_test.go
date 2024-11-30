@@ -28,7 +28,7 @@ func TestGetAllTenders_Success(t *testing.T) {
 		{TenderName: "Tender 2", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 2, CreatorUsername: "zxc"},
 	}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetAll", ctx).Return(expectedTenders, nil)
+	mockTenderRepo.On("GetAllTenders", ctx).Return(expectedTenders, nil)
 
 	// Act
 	tenders, err := tenderService.GetTenders(ctx, "all")
@@ -50,7 +50,7 @@ func TestGetAllTenders_FailGetAllTenders(t *testing.T) {
 	logger := slogdiscard.NewDiscardLogger()
 	repoErr := errors.New("some error")
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetAll", ctx).Return([]models.Tender{}, repoErr)
+	mockTenderRepo.On("GetAllTenders", ctx).Return([]models.Tender{}, repoErr)
 
 	// Act
 	tenders, err := tenderService.GetTenders(ctx, "all")
@@ -76,7 +76,7 @@ func TestGetTendersByServiceType_Success(t *testing.T) {
 		{TenderName: "Tender 2", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 2, CreatorUsername: "zxc"},
 	}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetByServiceType", ctx, "qwe").Return(expectedTenders, nil)
+	mockTenderRepo.On("GetTendersByServiceType", ctx, "qwe").Return(expectedTenders, nil)
 
 	// Act
 	tenders, err := tenderService.GetTenders(ctx, "qwe")

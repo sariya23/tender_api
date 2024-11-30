@@ -7,22 +7,22 @@ import (
 )
 
 type TenderRepository interface {
-	Create(ctx context.Context, tender models.Tender) (models.Tender, error)
-	GetAll(ctx context.Context) ([]models.Tender, error)
-	GetByServiceType(ctx context.Context, serviceType string) ([]models.Tender, error)
+	CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error)
+	GetAllTenders(ctx context.Context) ([]models.Tender, error)
+	GetTendersByServiceType(ctx context.Context, serviceType string) ([]models.Tender, error)
 	GetUserTenders(ctx context.Context, username string) ([]models.Tender, error)
-	Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error)
-	Rollback(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error)
-	GetById(ctx context.Context, tenderId int) (models.Tender, error)
+	EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error)
+	RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error)
+	GetTenderById(ctx context.Context, tenderId int) (models.Tender, error)
 }
 
 type EmployeeRepository interface {
-	GetByUsername(ctx context.Context, username string) (models.Employee, error)
-	GetById(ctx context.Context, id int) (models.Employee, error)
+	GetEmployeeByUsername(ctx context.Context, username string) (models.Employee, error)
+	GetEmployeeById(ctx context.Context, id int) (models.Employee, error)
 }
 
 type OrganizationRepository interface {
-	GetById(ctx context.Context, orgId int) (models.Organization, error)
+	GetOrganizationById(ctx context.Context, orgId int) (models.Organization, error)
 }
 
 type EmployeeResponsibler interface {

@@ -15,7 +15,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	var updatedOrg models.Organization
 	var err error
 
-	currTender, err := s.tenderRepo.GetById(ctx, tenderId)
+	currTender, err := s.tenderRepo.GetTenderById(ctx, tenderId)
 	if err != nil {
 		logger.Error(
 			"cannot get tender by id",
@@ -31,7 +31,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	// Нужно проверить, что если пользователь обновлися, то
 	// он есть базе.
 	if updatedUsername != nil {
-		updatedEmpl, err = s.employeeRepo.GetByUsername(ctx, *updatedUsername)
+		updatedEmpl, err = s.employeeRepo.GetEmployeeByUsername(ctx, *updatedUsername)
 		if err != nil {
 			logger.Error(
 				"cannot get employee by username",
@@ -45,7 +45,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	// Нужно проверить, что если обновалась организация, то
 	// она есть в базе.
 	if updatedOrgId != nil {
-		updatedOrg, err = s.orgRepo.GetById(ctx, *updatedOrgId)
+		updatedOrg, err = s.orgRepo.GetOrganizationById(ctx, *updatedOrgId)
 		if err != nil {
 			logger.Error(
 				"cannot get org by id",
@@ -89,7 +89,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	// Нужно проверить, что если поменялась только огранизация, то
 	// текущий пользователь ответсвенный за новую организацию.
 	if updatedUsername == nil && updatedOrgId != nil {
-		currEmpl, err = s.employeeRepo.GetByUsername(ctx, currTender.CreatorUsername)
+		currEmpl, err = s.employeeRepo.GetEmployeeByUsername(ctx, currTender.CreatorUsername)
 		if err != nil {
 			logger.Error("cannot get employee by id", slog.String("err", err.Error()))
 			return models.TenderToUpdate{}, err
@@ -105,7 +105,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 		}
 	}
 
-	updatedTender, err := s.tenderRepo.Edit(ctx, tenderId, updateTender)
+	updatedTender, err := s.tenderRepo.EditTender(ctx, tenderId, updateTender)
 
 	if err != nil {
 		logger.Error("cannot update tender", slog.String("err", err.Error()))

@@ -39,9 +39,9 @@ func TestCreateTenders_Success(t *testing.T) {
 		CreatorUsername: "qwe",
 	}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("Create", ctx, tenderToCreate).Return(exptectedTender, nil)
-	mockEmployeeRepo.On("GetByUsername", ctx, "qwe").Return(models.Employee{}, nil)
-	mockOrgRepo.On("GetById", ctx, 1).Return(models.Organization{}, nil)
+	mockTenderRepo.On("CreateTender", ctx, tenderToCreate).Return(exptectedTender, nil)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, nil)
+	mockOrgRepo.On("GetOrganizationById", ctx, 1).Return(models.Organization{}, nil)
 	mockResponsibler.On("CheckResponsibility", ctx, 0, 1).Return(nil)
 
 	// Act
@@ -73,8 +73,8 @@ func TestCreateTenders_FailEmployeeNotFound(t *testing.T) {
 	repoErr := errors.New("some error")
 	exptectedTender := models.Tender{}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("Create", ctx, tenderToCreate).Return(exptectedTender, nil)
-	mockEmployeeRepo.On("GetByUsername", ctx, "qwe").Return(models.Employee{}, repoErr)
+	mockTenderRepo.On("CreateTender", ctx, tenderToCreate).Return(exptectedTender, nil)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, repoErr)
 
 	// Act
 	tender, err := tenderService.CreateTender(ctx, tenderToCreate)
@@ -105,9 +105,9 @@ func TestCreateTenders_FailOrgNotFound(t *testing.T) {
 	repoErr := errors.New("some error")
 	exptectedTender := models.Tender{}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("Create", ctx, tenderToCreate).Return(exptectedTender, nil)
-	mockEmployeeRepo.On("GetByUsername", ctx, "qwe").Return(models.Employee{}, nil)
-	mockOrgRepo.On("GetById", ctx, 1).Return(models.Organization{}, repoErr)
+	mockTenderRepo.On("CreateTender", ctx, tenderToCreate).Return(exptectedTender, nil)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, nil)
+	mockOrgRepo.On("GetOrganizationById", ctx, 1).Return(models.Organization{}, repoErr)
 
 	// Act
 	tender, err := tenderService.CreateTender(ctx, tenderToCreate)
@@ -138,9 +138,9 @@ func TestCreateTenders_FailEmployeeNotResponsibleForOrganization(t *testing.T) {
 	repoErr := errors.New("some error")
 	exptectedTender := models.Tender{}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("Create", ctx, tenderToCreate).Return(exptectedTender, nil)
-	mockEmployeeRepo.On("GetByUsername", ctx, "qwe").Return(models.Employee{}, nil)
-	mockOrgRepo.On("GetById", ctx, 1).Return(models.Organization{}, nil)
+	mockTenderRepo.On("CreateTender", ctx, tenderToCreate).Return(exptectedTender, nil)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, nil)
+	mockOrgRepo.On("GetOrganizationById", ctx, 1).Return(models.Organization{}, nil)
 	mockResponsibler.On("CheckResponsibility", ctx, 0, 1).Return(repoErr)
 
 	// Act
