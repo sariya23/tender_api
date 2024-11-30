@@ -7,6 +7,7 @@ import (
 	"github.com/sariya23/tender/internal/domain/models"
 )
 
+// CreateTender создает тендер с данными, переданными в tender.
 func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error) {
 	const op = "internal.service.tender.create.CreateTender"
 	logger := s.logger.With("op", op)

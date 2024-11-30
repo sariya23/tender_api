@@ -6,6 +6,7 @@ import (
 	"github.com/sariya23/tender/internal/repository"
 )
 
+// TenderService позволяет взаимодействовать с тендерами.
 type TenderService struct {
 	logger               *slog.Logger
 	tenderRepo           repository.TenderRepository

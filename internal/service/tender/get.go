@@ -8,6 +8,7 @@ import (
 	"github.com/sariya23/tender/internal/domain/models"
 )
 
+// GetTenders возвращает список тендеров, который удовлетворяют переданному serviceType.
 func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]models.Tender, error) {
 	const op = "internal.service.tender.getall.GetTenders"
 	logger := s.logger.With("op", op)
@@ -31,6 +32,7 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 	return tenders, nil
 }
 
+// GetUserTenders возвращает список тендоров, которые связаны с переданным юзером.
 func (s *TenderService) GetUserTenders(ctx context.Context, username string) ([]models.Tender, error) {
 	const op = "internal.service.tender.getall.GetUserTenders"
 	logger := s.logger.With("op", op)
