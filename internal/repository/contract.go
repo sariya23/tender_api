@@ -22,3 +22,7 @@ type EmployeeRepository interface {
 type OrganizationRepository interface {
 	GetById(ctx context.Context, orgId int) (models.Organization, error)
 }
+
+type EmployeeResponsibler interface {
+	CheckResponsibility(ctx context.Context, emplId int, orgId int) error
+}

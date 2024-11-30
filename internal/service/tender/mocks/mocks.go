@@ -63,3 +63,12 @@ func (m *MockOrgRepo) GetById(ctx context.Context, orgId int) (models.Organizati
 	args := m.Called(ctx, orgId)
 	return args.Get(0).(models.Organization), args.Error(1)
 }
+
+type MockEmployeeResponsibler struct {
+	mock.Mock
+}
+
+func (m *MockEmployeeResponsibler) CheckResponsibility(ctx context.Context, emplId int, orgId int) error {
+	args := m.Called(ctx, emplId, orgId)
+	return args.Error(0)
+}
