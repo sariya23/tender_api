@@ -31,13 +31,18 @@ func (m *MockTenderRepo) GetUserTenders(ctx context.Context, username string) ([
 	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
-func (m *MockTenderRepo) Edit(ctx context.Context, updateTender models.Tender) (models.Tender, error) {
+func (m *MockTenderRepo) Edit(ctx context.Context, updateTender models.TenderToUpdate) (models.TenderToUpdate, error) {
 	args := m.Called(ctx, updateTender)
-	return args.Get(0).(models.Tender), args.Error(1)
+	return args.Get(0).(models.TenderToUpdate), args.Error(1)
 }
 
 func (m *MockTenderRepo) Rollback(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error) {
 	args := m.Called(ctx, tenderId, toVersionRollback)
+	return args.Get(0).(models.Tender), args.Error(1)
+}
+
+func (m *MockTenderRepo) GetById(ctx context.Context, tenderId int) (models.Tender, error) {
+	args := m.Called(ctx, tenderId)
 	return args.Get(0).(models.Tender), args.Error(1)
 }
 
