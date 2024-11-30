@@ -15,12 +15,14 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 		logger.Error("cannot get user with username", slog.String("username", tender.CreatorUsername), slog.String("err", err.Error()))
 		return models.Tender{}, err
 	}
+	logger.Info("success check employee by username")
 
 	_, err = s.orgRepo.GetById(ctx, tender.OrganizationId)
 	if err != nil {
 		logger.Error("cannot get organization with id", slog.Int("org is", tender.OrganizationId), slog.String("err", err.Error()))
 		return models.Tender{}, err
 	}
+	logger.Info("success check organization by id")
 	err = s.employeeResponsibler.CheckResponsibility(ctx, empl.ID, tender.OrganizationId)
 	if err != nil {
 		logger.Error(
@@ -31,11 +33,12 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 		)
 		return models.Tender{}, err
 	}
-
+	logger.Info("success check employee responsible")
 	createdTender, err := s.tenderRepo.Create(ctx, tender)
 	if err != nil {
 		logger.Error("cannot create tender", slog.String("err", err.Error()))
 		return models.Tender{}, err
 	}
+	logger.Info("success create tender")
 	return createdTender, nil
 }
