@@ -7,6 +7,17 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// MockTenderServiceProvider реализует интерфейс TenderServiceProvider
+// для целей тестирования. Он позволяет задавать ожидаемые результаты
+// методов:
+//
+// - CreateTender
+//
+// - GetTenders
+//
+// - GetUserTenders
+//
+// - Edit
 type MockTenderServiceProvider struct {
 	mock.Mock
 }

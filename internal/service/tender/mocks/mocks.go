@@ -7,6 +7,23 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// MockTenderRepo реализует интерфейс TenderRepository
+// для целей тестирования. Он позволяет задавать ожидаемые результаты
+// методов:
+//
+// - CreateTender
+//
+// - GetAllTenders
+//
+// - GetTendersByServiceType
+//
+// - GetUserTenders
+//
+// - EditTender
+//
+// - RollbackTender
+//
+// - GetTenderById
 type MockTenderRepo struct {
 	mock.Mock
 }
@@ -46,6 +63,13 @@ func (m *MockTenderRepo) GetTenderById(ctx context.Context, tenderId int) (model
 	return args.Get(0).(models.Tender), args.Error(1)
 }
 
+// MockTenderRepo реализует интерфейс MockEmployeeRepo
+// для целей тестирования. Он позволяет задавать ожидаемые результаты
+// методов:
+//
+// - GetEmployeeByUsername
+//
+// - GetEmployeeById
 type MockEmployeeRepo struct {
 	mock.Mock
 }
@@ -60,6 +84,11 @@ func (m *MockEmployeeRepo) GetEmployeeById(ctx context.Context, id int) (models.
 	return args.Get(0).(models.Employee), args.Error(1)
 }
 
+// MockOrgRepo реализует интерфейс OrganizationRepository
+// для целей тестирования. Он позволяет задавать ожидаемые результаты
+// методов:
+//
+// - GetOrganizationById
 type MockOrgRepo struct {
 	mock.Mock
 }
@@ -69,6 +98,11 @@ func (m *MockOrgRepo) GetOrganizationById(ctx context.Context, orgId int) (model
 	return args.Get(0).(models.Organization), args.Error(1)
 }
 
+// MockEmployeeResponsibler реализует интерфейс EmployeeResponsibler
+// для целей тестирования. Он позволяет задавать ожидаемые результаты
+// методов:
+//
+// - CheckResponsibility
 type MockEmployeeResponsibler struct {
 	mock.Mock
 }
