@@ -2,7 +2,8 @@ package tender
 
 import (
 	"log/slog"
-	"tender/internal/repository"
+
+	"github.com/sariya23/tender/internal/repository"
 )
 
 type TenderService struct {

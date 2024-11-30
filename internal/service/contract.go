@@ -2,7 +2,8 @@ package service
 
 import (
 	"context"
-	"tender/internal/domain/models"
+
+	"github.com/sariya23/tender/internal/domain/models"
 )
 
 type TenderServiceProvider interface {

@@ -3,10 +3,10 @@ package ping_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"tender/internal/handlers/ping"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sariya23/tender/internal/handlers/ping"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"tender/internal/domain/models"
+
+	"github.com/sariya23/tender/internal/domain/models"
 )
 
 type TenderRepository interface {

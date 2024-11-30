@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"tender/internal/domain/models"
-	"tender/internal/repository"
-	"tender/internal/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sariya23/tender/internal/domain/models"
+	"github.com/sariya23/tender/internal/repository"
+	"github.com/sariya23/tender/internal/service"
 )
 
 type TenderService struct {

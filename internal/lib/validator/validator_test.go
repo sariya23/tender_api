@@ -2,9 +2,9 @@ package validator_test
 
 import (
 	"fmt"
-	"tender/internal/lib/validator"
 	"testing"
 
+	"github.com/sariya23/tender/internal/lib/validator"
 	"github.com/stretchr/testify/require"
 )
 

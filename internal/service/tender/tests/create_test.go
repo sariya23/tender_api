@@ -3,12 +3,12 @@ package tests
 import (
 	"context"
 	"errors"
-	"tender/internal/domain/models"
-	"tender/internal/lib/logger/slogdiscard"
-	"tender/internal/service/tender"
-	"tender/internal/service/tender/mocks"
 	"testing"
 
+	"github.com/sariya23/tender/internal/domain/models"
+	"github.com/sariya23/tender/internal/lib/logger/slogdiscard"
+	"github.com/sariya23/tender/internal/service/tender"
+	"github.com/sariya23/tender/internal/service/tender/mocks"
 	"github.com/stretchr/testify/require"
 )
 

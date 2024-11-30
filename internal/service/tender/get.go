@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"tender/internal/domain/models"
+
+	"github.com/sariya23/tender/internal/domain/models"
 )
 
 func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]models.Tender, error) {

@@ -3,7 +3,8 @@ package tender
 import (
 	"context"
 	"log/slog"
-	"tender/internal/domain/models"
+
+	"github.com/sariya23/tender/internal/domain/models"
 )
 
 func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error) {

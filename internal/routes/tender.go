@@ -3,20 +3,9 @@ package routes
 import (
 	"context"
 	"log/slog"
-	tn "tender/internal/handlers/tender"
 
 	"github.com/gin-gonic/gin"
 )
-
-type TenderProvider interface {
-	tn.TenderGetter
-	tn.TenderCreater
-	tn.UserProvider
-	tn.UserResponsibler
-	tn.UserTenderGetter
-	tn.OrganizationProvider
-	tn.TenderEditor
-}
 
 func TenderRoutes(ctx context.Context, logger *slog.Logger, conn TenderProvider, r *gin.RouterGroup) {
 	tender := r.Group("/tender")
