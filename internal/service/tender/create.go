@@ -10,7 +10,7 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 	const op = "internal.service.tender.create.CreateTender"
 	logger := s.logger.With("op", op)
 
-	_, err := s.employeeRepo.GetByUsername(ctx, tender.CreatorUsername)
+	empl, err := s.employeeRepo.GetByUsername(ctx, tender.CreatorUsername)
 	if err != nil {
 		logger.Error("cannot get user with username", slog.String("username", tender.CreatorUsername), slog.String("err", err.Error()))
 		return models.Tender{}, err
@@ -19,6 +19,16 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 	_, err = s.orgRepo.GetById(ctx, tender.OrganizationId)
 	if err != nil {
 		logger.Error("cannot get organization with id", slog.Int("org is", tender.OrganizationId), slog.String("err", err.Error()))
+		return models.Tender{}, err
+	}
+	err = s.employeeResponsibler.CheckResponsibility(ctx, empl.ID, tender.OrganizationId)
+	if err != nil {
+		logger.Error(
+			"cannot check that employee responble for organization",
+			slog.Int("empl id", empl.ID),
+			slog.Int("org id", tender.OrganizationId),
+			slog.String("err", err.Error()),
+		)
 		return models.Tender{}, err
 	}
 

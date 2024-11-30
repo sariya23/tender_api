@@ -6,11 +6,11 @@ import (
 )
 
 type TenderService struct {
-	logger                  *slog.Logger
-	tenderRepo              repository.TenderRepository
-	employeeRepo            repository.EmployeeRepository
-	orgRepo                 repository.OrganizationRepository
-	employeeOrgResponsibler repository.EmployeeResponsibler
+	logger               *slog.Logger
+	tenderRepo           repository.TenderRepository
+	employeeRepo         repository.EmployeeRepository
+	orgRepo              repository.OrganizationRepository
+	employeeResponsibler repository.EmployeeResponsibler
 }
 
 func New(
@@ -21,10 +21,10 @@ func New(
 	employeeOrgResponsibler repository.EmployeeResponsibler,
 ) *TenderService {
 	return &TenderService{
-		logger:                  logger,
-		tenderRepo:              tenderRepo,
-		employeeRepo:            employeeRepo,
-		orgRepo:                 orgRepo,
-		employeeOrgResponsibler: employeeOrgResponsibler,
+		logger:               logger,
+		tenderRepo:           tenderRepo,
+		employeeRepo:         employeeRepo,
+		orgRepo:              orgRepo,
+		employeeResponsibler: employeeOrgResponsibler,
 	}
 }

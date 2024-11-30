@@ -16,6 +16,7 @@ import (
 // если передать serviceType = all, то вернутся
 // все тендеры, которые есть.
 func TestGetAllTenders_Success(t *testing.T) {
+	// Arrange
 	ctx := context.Background()
 	mockTenderRepo := new(mocks.MockTenderRepo)
 	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
@@ -29,8 +30,10 @@ func TestGetAllTenders_Success(t *testing.T) {
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("GetAll", ctx).Return(expectedTenders, nil)
 
+	// Act
 	tenders, err := tenderService.GetTenders(ctx, "all")
 
+	// Assert
 	require.NoError(t, err)
 	require.Equal(t, expectedTenders, tenders)
 }
@@ -38,6 +41,7 @@ func TestGetAllTenders_Success(t *testing.T) {
 // TestGetAllTenders_FailGetAllTenders проверяет, что в случае
 // какой-то ошибки возвращается пустой список тендеров и ошибка.
 func TestGetAllTenders_FailGetAllTenders(t *testing.T) {
+	// Arrange
 	ctx := context.Background()
 	mockTenderRepo := new(mocks.MockTenderRepo)
 	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
@@ -46,10 +50,13 @@ func TestGetAllTenders_FailGetAllTenders(t *testing.T) {
 	logger := slogdiscard.NewDiscardLogger()
 	expectedTenders := []models.Tender{}
 	repoErr := errors.New("some error")
-
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("GetAll", ctx).Return(expectedTenders, repoErr)
+
+	// Act
 	tenders, err := tenderService.GetTenders(ctx, "all")
+
+	// Assert
 	require.Error(t, err)
 	require.Equal(t, expectedTenders, tenders)
 }
@@ -58,6 +65,7 @@ func TestGetAllTenders_FailGetAllTenders(t *testing.T) {
 // если передать serviceType = all, то вернутся
 // все тендеры, которые есть.
 func TestGetTendersByServiceType_Success(t *testing.T) {
+	// Arrange
 	ctx := context.Background()
 	mockTenderRepo := new(mocks.MockTenderRepo)
 	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
@@ -68,10 +76,13 @@ func TestGetTendersByServiceType_Success(t *testing.T) {
 		{TenderName: "Tender 1", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 1, CreatorUsername: "qwe"},
 		{TenderName: "Tender 2", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 2, CreatorUsername: "zxc"},
 	}
-
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("GetByServiceType", ctx, "qwe").Return(expectedTenders, nil)
+
+	// Act
 	tenders, err := tenderService.GetTenders(ctx, "qwe")
+
+	// Assert
 	require.NoError(t, err)
 	require.Equal(t, expectedTenders, tenders)
 }
