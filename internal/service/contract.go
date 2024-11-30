@@ -6,6 +6,8 @@ import (
 	"github.com/sariya23/tender/internal/domain/models"
 )
 
+// TenderServiceProvider представляет набор методов, которые нужны
+// для взаимодействия с тендерами.
 type TenderServiceProvider interface {
 	CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error)
 	GetTenders(ctx context.Context, serviceType string) ([]models.Tender, error)
