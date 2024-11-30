@@ -3,10 +3,10 @@ package models
 type Tender struct {
 	TenderName      string `json:"name" validate:"required"`
 	Description     string `json:"description" validate:"required"`
-	ServiceType     string `json:"serviceType" validate:"required"`
+	ServiceType     string `json:"service_type" validate:"required"`
 	Status          string `json:"status" validate:"required"`
-	OrganizationId  int    `json:"organizationId" validate:"required"`
-	CreatorUsername string `json:"creatorUsername" validate:"required"`
+	OrganizationId  int    `json:"organization_id" validate:"required"`
+	CreatorUsername string `json:"creator_username" validate:"required"`
 }
 
 type TenderToUpdate struct {
