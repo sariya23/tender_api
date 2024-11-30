@@ -31,8 +31,8 @@ func (m *MockTenderRepo) GetUserTenders(ctx context.Context, username string) ([
 	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
-func (m *MockTenderRepo) Edit(ctx context.Context, updateTender models.TenderToUpdate) (models.TenderToUpdate, error) {
-	args := m.Called(ctx, updateTender)
+func (m *MockTenderRepo) Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error) {
+	args := m.Called(ctx, tenderId, updateTender)
 	return args.Get(0).(models.TenderToUpdate), args.Error(1)
 }
 

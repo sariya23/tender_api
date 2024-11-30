@@ -24,7 +24,7 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 
 	if err != nil {
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
-		return nil, fmt.Errorf("cannot get tenders: %w", err)
+		return []models.Tender{}, fmt.Errorf("cannot get tenders: %w", err)
 	}
 	logger.Info("success get tenders")
 	return tenders, nil
@@ -37,13 +37,13 @@ func (s *TenderService) GetUserTenders(ctx context.Context, username string) ([]
 	_, err := s.employeeRepo.GetByUsername(ctx, username)
 	if err != nil {
 		logger.Error("cannot get user with username", slog.String("username", username), slog.String("err", err.Error()))
-		return nil, err
+		return []models.Tender{}, err
 	}
 	logger.Info("success check employee by username")
 	tenders, err := s.tenderRepo.GetUserTenders(ctx, username)
 	if err != nil {
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
-		return nil, err
+		return []models.Tender{}, err
 	}
 	logger.Info("success get employee tenders")
 	return tenders, nil

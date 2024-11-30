@@ -15,7 +15,6 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	var err error
 
 	currTender, err := s.tenderRepo.GetById(ctx, tenderId)
-
 	if err != nil {
 		logger.Error(
 			"cannot get tender by id",
@@ -105,7 +104,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 		}
 	}
 
-	updatedTender, err := s.tenderRepo.Edit(ctx, updateTender)
+	updatedTender, err := s.tenderRepo.Edit(ctx, tenderId, updateTender)
 
 	if err != nil {
 		logger.Error("cannot update tender", slog.String("err", err.Error()))

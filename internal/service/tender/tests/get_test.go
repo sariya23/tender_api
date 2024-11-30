@@ -50,14 +50,14 @@ func TestGetAllTenders_FailGetAllTenders(t *testing.T) {
 	logger := slogdiscard.NewDiscardLogger()
 	repoErr := errors.New("some error")
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetAll", ctx).Return(nil, repoErr)
+	mockTenderRepo.On("GetAll", ctx).Return([]models.Tender{}, repoErr)
 
 	// Act
 	tenders, err := tenderService.GetTenders(ctx, "all")
 
 	// Assert
 	require.Error(t, err)
-	require.Nil(t, tenders)
+	require.Empty(t, tenders)
 }
 
 // TestGetAllTenders_Success проверяет, что
