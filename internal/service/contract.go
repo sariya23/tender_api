@@ -7,7 +7,7 @@ import (
 )
 
 type TenderServiceProvider interface {
-	CreateTender(ctx context.Context, tender models.Tender)
+	CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error)
 	GetTenders(ctx context.Context, serviceType string) ([]models.Tender, error)
 	GetUserTenders(ctx context.Context, username string) ([]models.Tender, error)
 	Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error)
