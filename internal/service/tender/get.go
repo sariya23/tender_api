@@ -28,9 +28,9 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 	}
 
 	if err != nil {
-		if errors.Is(err, repository.ErrNoTendersWithThisServiceType) {
+		if errors.Is(err, repository.ErrTendersWithThisServiceTypeNotFound) {
 			logger.Warn("no tenders found", slog.String("err", err.Error()))
-			return []models.Tender{}, fmt.Errorf("no tenders found: %w", service.ErrNoTendersFound)
+			return []models.Tender{}, fmt.Errorf("%w: no tenders found: %w", repository.ErrTendersWithThisServiceTypeNotFound, service.ErrTendersNotFound)
 		}
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
 		return []models.Tender{}, fmt.Errorf("cannot get tenders: %w", err)
@@ -48,20 +48,20 @@ func (s *TenderService) GetUserTenders(ctx context.Context, username string) ([]
 	if err != nil {
 		if errors.Is(err, repository.ErrEmployeeNotFound) {
 			logger.Warn("employee not found", slog.String("username", username))
-			return []models.Tender{}, service.ErrEmployeeNotFound
+			return []models.Tender{}, fmt.Errorf("%w: %w", repository.ErrEmployeeNotFound, service.ErrEmployeeNotFound)
 		}
 		logger.Error("cannot get user", slog.String("username", username), slog.String("err", err.Error()))
-		return []models.Tender{}, err
+		return []models.Tender{}, fmt.Errorf("cannot get user: %w", err)
 	}
 	logger.Info("success check employee by username")
 	tenders, err := s.tenderRepo.GetUserTenders(ctx, username)
 	if err != nil {
-		if errors.Is(err, repository.ErrNoUserTenders) {
+		if errors.Is(err, repository.ErrEmployeeTendersNotFound) {
 			logger.Warn("no tenders for user", slog.String("username", username), slog.String("err", err.Error()))
-			return []models.Tender{}, service.ErrUserTendersNotFound
+			return []models.Tender{}, fmt.Errorf("%w: %w", repository.ErrEmployeeTendersNotFound, service.ErrEmployeeTendersNotFound)
 		}
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
-		return []models.Tender{}, err
+		return []models.Tender{}, fmt.Errorf("cannot get tenders: %w", err)
 	}
 	logger.Info("success get employee tenders")
 	return tenders, nil

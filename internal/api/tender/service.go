@@ -40,7 +40,7 @@ func (s *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
 		tenders, err := s.tenderService.GetTenders(ctx, serviceType)
 
 		if err != nil {
-			if errors.Is(err, repository.ErrNoTendersWithThisServiceType) {
+			if errors.Is(err, repository.ErrTendersWithThisServiceTypeNotFound) {
 				c.JSON(http.StatusBadRequest, GetTendersResponse{Message: fmt.Sprintf("no tenders found with service type: %s", serviceType)})
 				return
 			} else {

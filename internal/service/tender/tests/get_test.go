@@ -2,11 +2,11 @@ package tests
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/logger/slogdiscard"
+	"github.com/sariya23/tender/internal/service"
 	"github.com/sariya23/tender/internal/service/tender"
 	"github.com/sariya23/tender/internal/service/tender/mocks"
 	"github.com/stretchr/testify/require"
@@ -48,15 +48,14 @@ func TestGetAllTenders_FailGetAllTenders(t *testing.T) {
 	mockOrgRepo := new(mocks.MockOrgRepo)
 	mockResponsibler := new(mocks.MockEmployeeResponsibler)
 	logger := slogdiscard.NewDiscardLogger()
-	repoErr := errors.New("some error")
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetAllTenders", ctx).Return([]models.Tender{}, repoErr)
+	mockTenderRepo.On("GetAllTenders", ctx).Return([]models.Tender{}, service.ErrTendersNotFound)
 
 	// Act
 	tenders, err := tenderService.GetTenders(ctx, "all")
 
 	// Assert
-	require.Error(t, err)
+	require.ErrorIs(t, err, service.ErrTendersNotFound)
 	require.Empty(t, tenders)
 }
 

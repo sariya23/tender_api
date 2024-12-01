@@ -3,7 +3,9 @@ package service
 import "errors"
 
 var (
-	ErrNoTendersFound      = errors.New("no tenders found")
-	ErrEmployeeNotFound    = errors.New("employee not found")
-	ErrUserTendersNotFound = errors.New("user tenders not found")
+	ErrTendersNotFound                       = errors.New("no tenders found")
+	ErrEmployeeNotFound                      = errors.New("employee not found")
+	ErrEmployeeTendersNotFound               = errors.New("employee tenders not found")
+	ErrOrganizationNotFound                  = errors.New("organization not found")
+	ErrEmployeeNotResponsibleForOrganization = errors.New("employee not responsible for organization")
 )

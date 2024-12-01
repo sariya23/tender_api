@@ -2,11 +2,11 @@ package tests
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/logger/slogdiscard"
+	"github.com/sariya23/tender/internal/repository"
 	"github.com/sariya23/tender/internal/service/tender"
 	"github.com/sariya23/tender/internal/service/tender/mocks"
 	"github.com/stretchr/testify/require"
@@ -70,17 +70,16 @@ func TestCreateTenders_FailEmployeeNotFound(t *testing.T) {
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
-	repoErr := errors.New("some error")
 	exptectedTender := models.Tender{}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("CreateTender", ctx, tenderToCreate).Return(exptectedTender, nil)
-	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, repoErr)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, repository.ErrEmployeeNotFound)
 
 	// Act
 	tender, err := tenderService.CreateTender(ctx, tenderToCreate)
 
 	// Assert
-	require.Error(t, err)
+	require.ErrorIs(t, err, repository.ErrEmployeeNotFound)
 	require.Empty(t, tender)
 }
 
@@ -102,18 +101,17 @@ func TestCreateTenders_FailOrgNotFound(t *testing.T) {
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
-	repoErr := errors.New("some error")
 	exptectedTender := models.Tender{}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("CreateTender", ctx, tenderToCreate).Return(exptectedTender, nil)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, nil)
-	mockOrgRepo.On("GetOrganizationById", ctx, 1).Return(models.Organization{}, repoErr)
+	mockOrgRepo.On("GetOrganizationById", ctx, 1).Return(models.Organization{}, repository.ErrOrganizationNotFound)
 
 	// Act
 	tender, err := tenderService.CreateTender(ctx, tenderToCreate)
 
 	// Assert
-	require.Error(t, err)
+	require.ErrorIs(t, err, repository.ErrOrganizationNotFound)
 	require.Empty(t, tender)
 }
 
@@ -135,18 +133,17 @@ func TestCreateTenders_FailEmployeeNotResponsibleForOrganization(t *testing.T) {
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
-	repoErr := errors.New("some error")
 	exptectedTender := models.Tender{}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("CreateTender", ctx, tenderToCreate).Return(exptectedTender, nil)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, nil)
 	mockOrgRepo.On("GetOrganizationById", ctx, 1).Return(models.Organization{}, nil)
-	mockResponsibler.On("CheckResponsibility", ctx, 0, 1).Return(repoErr)
+	mockResponsibler.On("CheckResponsibility", ctx, 0, 1).Return(repository.ErrEmployeeNotResponsibleForOrganization)
 
 	// Act
 	tender, err := tenderService.CreateTender(ctx, tenderToCreate)
 
 	// Assert
-	require.Error(t, err)
+	require.ErrorIs(t, err, repository.ErrEmployeeNotResponsibleForOrganization)
 	require.Empty(t, tender)
 }
