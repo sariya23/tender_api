@@ -3,7 +3,7 @@ package unmarshal_test
 import (
 	"testing"
 
-	"github.com/sariya23/tender/internal/api/tender"
+	"github.com/sariya23/tender/internal/api"
 	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/unmarshal"
 	"github.com/stretchr/testify/require"
@@ -22,7 +22,7 @@ func TestCreateRequest_SuccessAllFields(t *testing.T) {
 			"creator_username": "qwe"			
 		}
 	}`
-	expectedReq := tender.CreateTenderRequest{
+	expectedReq := api.CreateTenderRequest{
 		Tender: models.Tender{
 			TenderName:      "qwe",
 			Description:     "qwe",
@@ -32,7 +32,7 @@ func TestCreateRequest_SuccessAllFields(t *testing.T) {
 			CreatorUsername: "qwe",
 		},
 	}
-	var req tender.CreateTenderRequest
+	var req api.CreateTenderRequest
 
 	// Act
 	req, err := unmarshal.CreateRequest([]byte(reqBody), req)
@@ -54,7 +54,7 @@ func TestCreateRequest_SuccessPartFields(t *testing.T) {
 			"creator_username": "qwe"			
 		}
 	}`
-	expectedReq := tender.CreateTenderRequest{
+	expectedReq := api.CreateTenderRequest{
 		Tender: models.Tender{
 			TenderName:      "",
 			Description:     "qwe",
@@ -64,7 +64,7 @@ func TestCreateRequest_SuccessPartFields(t *testing.T) {
 			CreatorUsername: "qwe",
 		},
 	}
-	var req tender.CreateTenderRequest
+	var req api.CreateTenderRequest
 
 	// Act
 	req, err := unmarshal.CreateRequest([]byte(reqBody), req)
@@ -122,8 +122,8 @@ func TestCreateRequest_FailSyntaxError(t *testing.T) {
 	}
 	for _, ts := range cases {
 		t.Run(ts.name, func(t *testing.T) {
-			expectedReq := tender.CreateTenderRequest{}
-			var req tender.CreateTenderRequest
+			expectedReq := api.CreateTenderRequest{}
+			var req api.CreateTenderRequest
 
 			req, err := unmarshal.CreateRequest([]byte(ts.body), req)
 
@@ -173,8 +173,8 @@ func TestCreateRequest_FailTypeErr(t *testing.T) {
 	}
 	for _, ts := range cases {
 		t.Run(ts.name, func(t *testing.T) {
-			expectedReq := tender.CreateTenderRequest{}
-			var req tender.CreateTenderRequest
+			expectedReq := api.CreateTenderRequest{}
+			var req api.CreateTenderRequest
 
 			req, err := unmarshal.CreateRequest([]byte(ts.body), req)
 

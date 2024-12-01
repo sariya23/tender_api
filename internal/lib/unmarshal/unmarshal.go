@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sariya23/tender/internal/api/tender"
+	"github.com/sariya23/tender/internal/api"
 )
 
-func CreateRequest(body []byte, req tender.CreateTenderRequest) (tender.CreateTenderRequest, error) {
+func CreateRequest(body []byte, req api.CreateTenderRequest) (api.CreateTenderRequest, error) {
 	err := json.Unmarshal(body, &req)
 
 	if err != nil {
@@ -16,11 +16,11 @@ func CreateRequest(body []byte, req tender.CreateTenderRequest) (tender.CreateTe
 		var typeErr *json.UnmarshalTypeError
 
 		if errors.As(err, &syntaxErr) {
-			return tender.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrSyntax)
+			return api.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrSyntax)
 		} else if errors.As(err, &typeErr) {
-			return tender.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrType)
+			return api.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrType)
 		} else {
-			return tender.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrUnknown)
+			return api.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrUnknown)
 		}
 	}
 

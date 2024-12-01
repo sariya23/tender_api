@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/sariya23/tender/internal/domain/models"
+	"github.com/sariya23/tender/internal/api"
 	outerror "github.com/sariya23/tender/internal/out_error"
 	"github.com/sariya23/tender/internal/service"
 )
@@ -28,20 +28,6 @@ func New(logger *slog.Logger, tenderService service.TenderServiceProvider) *Tend
 	}
 }
 
-type GetTendersResponse struct {
-	Tenders []models.Tender `json:"tenders,omitempty"`
-	Message string          `json:"message"`
-}
-
-type CreateTenderRequest struct {
-	Tender models.Tender `json:"tender"`
-}
-
-type CreateTenderResponse struct {
-	Tender  models.Tender `json:"tender,omitempty"`
-	Message string        `json:"message"`
-}
-
 func (s *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		const op = "internal.api.tender.service.GetTenders"
@@ -50,20 +36,19 @@ func (s *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
 
 		serviceType := c.DefaultQuery("srv_type", "all")
 		tenders, err := s.tenderService.GetTenders(ctx, serviceType)
-
 		if err != nil {
 			if errors.Is(err, outerror.ErrTendersWithThisServiceTypeNotFound) {
-				c.JSON(http.StatusBadRequest, GetTendersResponse{Message: fmt.Sprintf("no tenders found with service type: %s", serviceType)})
+				c.JSON(http.StatusBadRequest, api.GetTendersResponse{Message: fmt.Sprintf("no tenders found with service type: %s", serviceType)})
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				c.JSON(http.StatusInternalServerError, GetTendersResponse{Message: "internal error"})
+				c.JSON(http.StatusInternalServerError, api.GetTendersResponse{Message: "internal error"})
 				return
 			}
 		}
 
 		logger.Info("send success response")
-		c.JSON(http.StatusOK, GetTendersResponse{Message: "ok", Tenders: tenders})
+		c.JSON(http.StatusOK, api.GetTendersResponse{Message: "ok", Tenders: tenders})
 	}
 }
 
@@ -84,22 +69,22 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		body, err := io.ReadAll(b)
 		if err != nil {
 			logger.Error("cannot read body", slog.String("err", err.Error()))
-			c.JSON(http.StatusInternalServerError, CreateTenderResponse{Message: "internal error"})
+			c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 			return
 		}
 
-		var createRequest CreateTenderRequest
+		var createRequest api.CreateTenderRequest
 		err = json.Unmarshal(body, &createRequest)
 		if err != nil {
 			var syntaxErr *json.SyntaxError
 			var typeErr *json.UnmarshalTypeError
 			if errors.As(err, &syntaxErr) {
 				logger.Warn("cannot unmarhal types in go type", slog.String("err", typeErr.Error()))
-				c.JSON(http.StatusBadRequest, CreateTenderResponse{Message: "wrong types"})
+				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: "wrong types"})
 				return
 			}
 			logger.Error("cannot unmarshal body", slog.String("err", err.Error()))
-			c.JSON(http.StatusInternalServerError, CreateTenderResponse{Message: "internal error"})
+			c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 			return
 		}
 
@@ -107,7 +92,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		err = validate.Struct(&createRequest)
 		if err != nil {
 			logger.Error("cannot validate fields", slog.String("err", err.Error()))
-			c.JSON(http.StatusInternalServerError, CreateTenderResponse{Message: "internal error"})
+			c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 		}
 	}
 }
