@@ -85,7 +85,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, unmarshal.ErrSyntax) {
 				logger.Warn("req syntax error", slog.String("err", err.Error()))
-				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("json err syntax: %s", err.Error())})
+				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("json syntax err: %s", err.Error())})
 				return
 			} else if errors.Is(err, unmarshal.ErrType) {
 				logger.Warn("req type error", slog.String("err", err.Error()))
@@ -135,7 +135,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 				)
 				return
 			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
-				logger.Warn("user not responsible for irganization", slog.String("err", err.Error()))
+				logger.Warn("employee not responsible for organization", slog.String("err", err.Error()))
 				c.JSON(
 					http.StatusBadRequest,
 					api.CreateTenderResponse{
@@ -146,9 +146,11 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 						),
 					},
 				)
+				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
 				c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
+				return
 			}
 		}
 		logger.Info("tender created success")

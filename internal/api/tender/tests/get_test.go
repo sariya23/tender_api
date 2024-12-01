@@ -94,7 +94,7 @@ func TestGetAllTenders_FailTendersNotFound(t *testing.T) {
 
 // TestGetAllTenders_FailinternalError проверяет, что
 // если произошла какая-то внутренняя ошибка, то возвращается
-// код 500 и сообщение.
+// код 500 и сообщение
 func TestGetAllTenders_FailinternalError(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
