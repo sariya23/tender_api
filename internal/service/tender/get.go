@@ -2,10 +2,13 @@ package tender
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/sariya23/tender/internal/domain/models"
+	"github.com/sariya23/tender/internal/repository"
+	"github.com/sariya23/tender/internal/service"
 )
 
 // GetTenders возвращает список тендеров, который удовлетворяют переданному serviceType.
@@ -25,6 +28,10 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 	}
 
 	if err != nil {
+		if errors.Is(err, repository.ErrNoTendersWithThisServiceType) {
+			logger.Warn("no tenders found", slog.String("err", err.Error()))
+			return []models.Tender{}, fmt.Errorf("no tenders found: %w", service.ErrNoTendersFound)
+		}
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
 		return []models.Tender{}, fmt.Errorf("cannot get tenders: %w", err)
 	}
@@ -39,12 +46,20 @@ func (s *TenderService) GetUserTenders(ctx context.Context, username string) ([]
 
 	_, err := s.employeeRepo.GetEmployeeByUsername(ctx, username)
 	if err != nil {
-		logger.Error("cannot get user with username", slog.String("username", username), slog.String("err", err.Error()))
+		if errors.Is(err, repository.ErrEmployeeNotFound) {
+			logger.Warn("employee not found", slog.String("username", username))
+			return []models.Tender{}, service.ErrEmployeeNotFound
+		}
+		logger.Error("cannot get user", slog.String("username", username), slog.String("err", err.Error()))
 		return []models.Tender{}, err
 	}
 	logger.Info("success check employee by username")
 	tenders, err := s.tenderRepo.GetUserTenders(ctx, username)
 	if err != nil {
+		if errors.Is(err, repository.ErrNoUserTenders) {
+			logger.Warn("no tenders for user", slog.String("username", username), slog.String("err", err.Error()))
+			return []models.Tender{}, service.ErrUserTendersNotFound
+		}
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
 		return []models.Tender{}, err
 	}
