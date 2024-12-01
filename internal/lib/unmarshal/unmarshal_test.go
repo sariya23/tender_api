@@ -179,3 +179,36 @@ func TestCreateRequest_FailTypeErr(t *testing.T) {
 		})
 	}
 }
+
+// TestCreateRequest_FailCannotUnmarshalListInStruct
+func TestCreateRequest_FailCannotUnmarshalListInStruct(t *testing.T) {
+	// Arrange
+	reqBody := `{
+		"tender": [{
+			"name": "qwe",
+			"description":"qwe",
+			"service_type": "qwe",
+			"status": "qwe",
+			"organization_id": 1,
+			"creator_username": "qwe"			
+		},
+		{
+			"name": "qwe",
+			"description":"qwe",
+			"service_type": "qwe",
+			"status": "qwe",
+			"organization_id": 1,
+			"creator_username": "qwe"			
+		}]
+	}`
+	expectedReq := api.CreateTenderRequest{
+		Tender: models.Tender{},
+	}
+
+	// Act
+	req, err := unmarshal.CreateRequest([]byte(reqBody))
+
+	// Assert
+	require.ErrorIs(t, err, unmarshal.ErrType)
+	require.Equal(t, req, expectedReq)
+}
