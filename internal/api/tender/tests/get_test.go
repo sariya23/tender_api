@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,14 +12,17 @@ import (
 	"github.com/sariya23/tender/internal/api/tender/mocks"
 	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/logger/slogdiscard"
+	outerror "github.com/sariya23/tender/internal/out_error"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestGetAllTenders_Success проверяет
 // успешный сценарий вызова хендлера GetTenders.
 //
-// Возвращается код 200 и тело со списков тендеров.
+// Возвращается код 200 и тело со списком тендеров.
 func TestGetAllTenders_Success(t *testing.T) {
+	// Arrange
 	gin.SetMode(gin.TestMode)
 	ctx := context.Background()
 
@@ -45,10 +49,80 @@ func TestGetAllTenders_Success(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
 
+	// Act
 	handler := svc.GetTenders(ctx)
 	handler(c)
 
+	// Assert
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.JSONEq(t, expectedBody, w.Body.String())
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
 
+// TestGetAllTenders_FailTendersNotFound проверяет, что
+// если нет тендеров с указанным service type, то возвращается
+// код 400 и сообщение с ошибкой.
+func TestGetAllTenders_FailTendersNotFound(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	mockTenders := []models.Tender{}
+	expectedBody := `
+	{
+		"message":"no tenders found with service type: qwe"
+	}
+	`
+	svc := tender.New(logger, mockTenderService)
+
+	mockTenderService.On("GetTenders", ctx, "qwe").Return(mockTenders, outerror.ErrTendersWithThisServiceTypeNotFound)
+	req := httptest.NewRequest(http.MethodGet, "/tenders?srv_type=qwe", nil)
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	handler := svc.GetTenders(ctx)
+	handler(c)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
+// TestGetAllTenders_FailinternalError проверяет, что
+// если произошла какая-то внутренняя ошибка, то возвращается
+// код 500 и сообщение.
+func TestGetAllTenders_FailinternalError(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	mockTenders := []models.Tender{}
+	someErr := errors.New("some error")
+	expectedBody := `
+	{
+		"message":"internal error"
+	}
+	`
+	svc := tender.New(logger, mockTenderService)
+
+	mockTenderService.On("GetTenders", ctx, "qwe").Return(mockTenders, someErr)
+	req := httptest.NewRequest(http.MethodGet, "/tenders?srv_type=qwe", nil)
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	handler := svc.GetTenders(ctx)
+	handler(c)
+
+	// Assert
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
 }
