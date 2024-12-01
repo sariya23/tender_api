@@ -20,7 +20,7 @@ func main() {
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	log.Info("starting app at", slog.String("addr", cfg.ServerAddress))
 
-	db := postgres.MustNewConnection("qwe")
+	db := postgres.MustNewConnection(cfg.PostgresConn)
 	tenderService := tendersrv.New(log, db, db, db, db)
 	tenderAPI := tender.New(log, tenderService)
 
@@ -29,6 +29,7 @@ func main() {
 	tender := api.Group("/tenders")
 	{
 		tender.GET("/", tenderAPI.GetTenders(ctx))
+		tender.POST("/new", tenderAPI.CreateTender(ctx))
 	}
 
 	srv := &http.Server{Addr: cfg.ServerAddress, Handler: r}
