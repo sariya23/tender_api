@@ -8,7 +8,8 @@ import (
 	"github.com/sariya23/tender/internal/api"
 )
 
-func CreateRequest(body []byte, req api.CreateTenderRequest) (api.CreateTenderRequest, error) {
+func CreateRequest(body []byte) (api.CreateTenderRequest, error) {
+	var req api.CreateTenderRequest
 	err := json.Unmarshal(body, &req)
 
 	if err != nil {

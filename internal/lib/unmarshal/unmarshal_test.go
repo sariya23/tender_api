@@ -32,10 +32,9 @@ func TestCreateRequest_SuccessAllFields(t *testing.T) {
 			CreatorUsername: "qwe",
 		},
 	}
-	var req api.CreateTenderRequest
 
 	// Act
-	req, err := unmarshal.CreateRequest([]byte(reqBody), req)
+	req, err := unmarshal.CreateRequest([]byte(reqBody))
 
 	// Assert
 	require.NoError(t, err)
@@ -64,10 +63,9 @@ func TestCreateRequest_SuccessPartFields(t *testing.T) {
 			CreatorUsername: "qwe",
 		},
 	}
-	var req api.CreateTenderRequest
 
 	// Act
-	req, err := unmarshal.CreateRequest([]byte(reqBody), req)
+	req, err := unmarshal.CreateRequest([]byte(reqBody))
 
 	// Assert
 	require.NoError(t, err)
@@ -123,9 +121,8 @@ func TestCreateRequest_FailSyntaxError(t *testing.T) {
 	for _, ts := range cases {
 		t.Run(ts.name, func(t *testing.T) {
 			expectedReq := api.CreateTenderRequest{}
-			var req api.CreateTenderRequest
 
-			req, err := unmarshal.CreateRequest([]byte(ts.body), req)
+			req, err := unmarshal.CreateRequest([]byte(ts.body))
 
 			require.ErrorIs(t, err, unmarshal.ErrSyntax)
 			require.Equal(t, req, expectedReq)
@@ -174,9 +171,8 @@ func TestCreateRequest_FailTypeErr(t *testing.T) {
 	for _, ts := range cases {
 		t.Run(ts.name, func(t *testing.T) {
 			expectedReq := api.CreateTenderRequest{}
-			var req api.CreateTenderRequest
 
-			req, err := unmarshal.CreateRequest([]byte(ts.body), req)
+			req, err := unmarshal.CreateRequest([]byte(ts.body))
 
 			require.ErrorIs(t, err, unmarshal.ErrType)
 			require.Equal(t, req, expectedReq)

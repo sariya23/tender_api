@@ -2,7 +2,6 @@ package tender
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/sariya23/tender/internal/api"
+	"github.com/sariya23/tender/internal/lib/unmarshal"
 	outerror "github.com/sariya23/tender/internal/out_error"
 	"github.com/sariya23/tender/internal/service"
 )
@@ -73,23 +73,25 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 			return
 		}
 
-		var createRequest api.CreateTenderRequest
-		err = json.Unmarshal(body, &createRequest)
+		createReq, err := unmarshal.CreateRequest([]byte(body))
 		if err != nil {
-			var syntaxErr *json.SyntaxError
-			var typeErr *json.UnmarshalTypeError
-			if errors.As(err, &syntaxErr) {
-				logger.Warn("cannot unmarhal types in go type", slog.String("err", typeErr.Error()))
-				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: "wrong types"})
+			if errors.Is(err, unmarshal.ErrSyntax) {
+				logger.Warn("req syntax error", slog.String("err", err.Error()))
+				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("json err syntax: %s", err.Error())})
+				return
+			} else if errors.Is(err, unmarshal.ErrType) {
+				logger.Warn("req type error", slog.String("err", err.Error()))
+				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("json type err: %s", err.Error())})
+				return
+			} else {
+				logger.Error("unexpected error", slog.String("err", err.Error()))
+				c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 				return
 			}
-			logger.Error("cannot unmarshal body", slog.String("err", err.Error()))
-			c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
-			return
 		}
 
 		validate := validator.New(validator.WithRequiredStructEnabled())
-		err = validate.Struct(&createRequest)
+		err = validate.Struct(&createReq)
 		if err != nil {
 			logger.Error("cannot validate fields", slog.String("err", err.Error()))
 			c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
