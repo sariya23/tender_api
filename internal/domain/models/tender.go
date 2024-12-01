@@ -5,7 +5,7 @@ type Tender struct {
 	Description     string `json:"description" validate:"required"`
 	ServiceType     string `json:"service_type" validate:"required"`
 	Status          string `json:"status" validate:"required"`
-	OrganizationId  int    `json:"organization_id" validate:"required"`
+	OrganizationId  int    `json:"organization_id" validate:"required,gte=0"`
 	CreatorUsername string `json:"creator_username" validate:"required"`
 }
 
