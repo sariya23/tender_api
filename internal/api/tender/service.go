@@ -72,7 +72,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 			return
 		}
-
+		logger.Info("success read body")
 		createReq, err := unmarshal.CreateRequest([]byte(body))
 		if err != nil {
 			if errors.Is(err, unmarshal.ErrSyntax) {
@@ -89,6 +89,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 				return
 			}
 		}
+		logger.Info("success unmarshal request")
 
 		validate := validator.New(validator.WithRequiredStructEnabled())
 		err = validate.Struct(&createReq)
