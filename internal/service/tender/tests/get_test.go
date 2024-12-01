@@ -6,7 +6,7 @@ import (
 
 	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/logger/slogdiscard"
-	"github.com/sariya23/tender/internal/service"
+	outerror "github.com/sariya23/tender/internal/out_error"
 	"github.com/sariya23/tender/internal/service/tender"
 	"github.com/sariya23/tender/internal/service/tender/mocks"
 	"github.com/stretchr/testify/require"
@@ -49,13 +49,13 @@ func TestGetAllTenders_FailGetAllTenders(t *testing.T) {
 	mockResponsibler := new(mocks.MockEmployeeResponsibler)
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetAllTenders", ctx).Return([]models.Tender{}, service.ErrTendersNotFound)
+	mockTenderRepo.On("GetAllTenders", ctx).Return([]models.Tender{}, outerror.ErrTendersWithThisServiceTypeNotFound)
 
 	// Act
 	tenders, err := tenderService.GetTenders(ctx, "all")
 
 	// Assert
-	require.ErrorIs(t, err, service.ErrTendersNotFound)
+	require.ErrorIs(t, err, outerror.ErrTendersWithThisServiceTypeNotFound)
 	require.Empty(t, tenders)
 }
 

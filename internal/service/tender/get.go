@@ -7,8 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/sariya23/tender/internal/domain/models"
-	"github.com/sariya23/tender/internal/repository"
-	"github.com/sariya23/tender/internal/service"
+	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
 // GetTenders возвращает список тендеров, который удовлетворяют переданному serviceType.
@@ -28,9 +27,9 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 	}
 
 	if err != nil {
-		if errors.Is(err, repository.ErrTendersWithThisServiceTypeNotFound) {
+		if errors.Is(err, outerror.ErrTendersWithThisServiceTypeNotFound) {
 			logger.Warn("no tenders found", slog.String("err", err.Error()))
-			return []models.Tender{}, fmt.Errorf("%w: no tenders found: %w", repository.ErrTendersWithThisServiceTypeNotFound, service.ErrTendersNotFound)
+			return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrTendersWithThisServiceTypeNotFound)
 		}
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
 		return []models.Tender{}, fmt.Errorf("cannot get tenders: %w", err)
@@ -46,19 +45,19 @@ func (s *TenderService) GetUserTenders(ctx context.Context, username string) ([]
 
 	_, err := s.employeeRepo.GetEmployeeByUsername(ctx, username)
 	if err != nil {
-		if errors.Is(err, repository.ErrEmployeeNotFound) {
+		if errors.Is(err, outerror.ErrEmployeeNotFound) {
 			logger.Warn("employee not found", slog.String("username", username))
-			return []models.Tender{}, fmt.Errorf("%w: %w", repository.ErrEmployeeNotFound, service.ErrEmployeeNotFound)
+			return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotFound)
 		}
-		logger.Error("cannot get user", slog.String("username", username), slog.String("err", err.Error()))
-		return []models.Tender{}, fmt.Errorf("cannot get user: %w", err)
+		logger.Error("cannot get employee", slog.String("username", username), slog.String("err", err.Error()))
+		return []models.Tender{}, fmt.Errorf("cannot get employee: %w", err)
 	}
 	logger.Info("success check employee by username")
 	tenders, err := s.tenderRepo.GetUserTenders(ctx, username)
 	if err != nil {
-		if errors.Is(err, repository.ErrEmployeeTendersNotFound) {
+		if errors.Is(err, outerror.ErrEmployeeTendersNotFound) {
 			logger.Warn("no tenders for user", slog.String("username", username), slog.String("err", err.Error()))
-			return []models.Tender{}, fmt.Errorf("%w: %w", repository.ErrEmployeeTendersNotFound, service.ErrEmployeeTendersNotFound)
+			return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeTendersNotFound)
 		}
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
 		return []models.Tender{}, fmt.Errorf("cannot get tenders: %w", err)

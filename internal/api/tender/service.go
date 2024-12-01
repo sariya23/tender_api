@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sariya23/tender/internal/domain/models"
-	"github.com/sariya23/tender/internal/repository"
+	outerror "github.com/sariya23/tender/internal/out_error"
 	"github.com/sariya23/tender/internal/service"
 )
 
@@ -40,7 +40,7 @@ func (s *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
 		tenders, err := s.tenderService.GetTenders(ctx, serviceType)
 
 		if err != nil {
-			if errors.Is(err, repository.ErrTendersWithThisServiceTypeNotFound) {
+			if errors.Is(err, outerror.ErrTendersWithThisServiceTypeNotFound) {
 				c.JSON(http.StatusBadRequest, GetTendersResponse{Message: fmt.Sprintf("no tenders found with service type: %s", serviceType)})
 				return
 			} else {
