@@ -38,7 +38,15 @@ func (s *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
 		tenders, err := s.tenderService.GetTenders(ctx, serviceType)
 		if err != nil {
 			if errors.Is(err, outerror.ErrTendersWithThisServiceTypeNotFound) {
-				c.JSON(http.StatusBadRequest, api.GetTendersResponse{Message: fmt.Sprintf("no tenders found with service type: %s", serviceType)})
+				c.JSON(
+					http.StatusBadRequest,
+					api.GetTendersResponse{
+						Message: fmt.Sprintf(
+							"no tenders found with service type: %s",
+							serviceType,
+						),
+					},
+				)
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
@@ -94,8 +102,56 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		validate := validator.New(validator.WithRequiredStructEnabled())
 		err = validate.Struct(&createReq)
 		if err != nil {
-			logger.Error("cannot validate fields", slog.String("err", err.Error()))
-			c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
+			logger.Error("validation error", slog.String("err", err.Error()))
+			c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("validation faild: %s", err.Error())})
+			return
 		}
+		logger.Info("validate success")
+
+		tender, err := s.tenderService.CreateTender(ctx, createReq.Tender)
+		if err != nil {
+			if errors.Is(err, outerror.ErrEmployeeNotFound) {
+				logger.Warn("employee not found", slog.String("err", err.Error()))
+				c.JSON(
+					http.StatusBadRequest,
+					api.CreateTenderResponse{
+						Message: fmt.Sprintf(
+							"employee with username=\"%s\" not found",
+							createReq.Tender.CreatorUsername,
+						),
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrOrganizationNotFound) {
+				logger.Warn("organization not found", slog.String("err", err.Error()))
+				c.JSON(
+					http.StatusBadRequest,
+					api.CreateTenderResponse{
+						Message: fmt.Sprintf(
+							"organization with id=%d not found",
+							createReq.Tender.OrganizationId,
+						),
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
+				logger.Warn("user not responsible for irganization", slog.String("err", err.Error()))
+				c.JSON(
+					http.StatusBadRequest,
+					api.CreateTenderResponse{
+						Message: fmt.Sprintf(
+							"employee \"%s\" not responsible for organization with id=%d",
+							createReq.Tender.CreatorUsername,
+							createReq.Tender.OrganizationId,
+						),
+					},
+				)
+			} else {
+				logger.Error("unexpected error", slog.String("err", err.Error()))
+				c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
+			}
+		}
+		logger.Info("tender created success")
+		c.JSON(http.StatusOK, api.CreateTenderResponse{Message: "ok", Tender: tender})
 	}
 }
