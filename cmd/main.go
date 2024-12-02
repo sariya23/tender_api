@@ -29,6 +29,7 @@ func main() {
 	tender := api.Group("/tenders")
 	{
 		tender.GET("/", tenderAPI.GetTenders(ctx))
+		tender.GET("/my", tenderAPI.GetEmployeeTendersByUsername(ctx))
 		tender.POST("/new", tenderAPI.CreateTender(ctx))
 	}
 
