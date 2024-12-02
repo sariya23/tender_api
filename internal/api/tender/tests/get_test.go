@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sariya23/tender/internal/api/tender"
+	tenderapi "github.com/sariya23/tender/internal/api/tender"
 	"github.com/sariya23/tender/internal/api/tender/mocks"
 	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/logger/slogdiscard"
@@ -40,7 +40,7 @@ func TestGetAllTenders_Success(t *testing.T) {
 		],"message":"ok"
 	}
 	`
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	mockTenderService.On("GetTenders", ctx, "all").Return(mockTenders, nil)
 	req := httptest.NewRequest(http.MethodGet, "/tenders?srv_type=all", nil)
@@ -74,7 +74,7 @@ func TestGetAllTenders_FailTendersNotFound(t *testing.T) {
 		"message":"no tenders found with service type: qwe"
 	}
 	`
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	mockTenderService.On("GetTenders", ctx, "qwe").Return(mockTenders, outerror.ErrTendersWithThisServiceTypeNotFound)
 	req := httptest.NewRequest(http.MethodGet, "/tenders?srv_type=qwe", nil)
@@ -109,7 +109,7 @@ func TestGetAllTenders_FailinternalError(t *testing.T) {
 		"message":"internal error"
 	}
 	`
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	mockTenderService.On("GetTenders", ctx, "qwe").Return(mockTenders, someErr)
 	req := httptest.NewRequest(http.MethodGet, "/tenders?srv_type=qwe", nil)

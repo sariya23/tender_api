@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sariya23/tender/internal/api"
-	"github.com/sariya23/tender/internal/api/tender"
+	tenderapi "github.com/sariya23/tender/internal/api/tender"
 	"github.com/sariya23/tender/internal/api/tender/mocks"
 	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/logger/slogdiscard"
@@ -54,7 +54,7 @@ func TestCreateTender_Success(t *testing.T) {
 		},
 		"message": "ok"
 	}`
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	mockTenderService.On("CreateTender", ctx, mockTender).Return(mockTender, nil)
 	req := httptest.NewRequest(http.MethodPost, "/tenders/new", strings.NewReader(reqBody))
@@ -94,7 +94,7 @@ func TestCreateTender_FailUnmurshalSyntaxError(t *testing.T) {
 		}
 	}`
 
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	req := httptest.NewRequest(http.MethodPost, "/tenders/new", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
@@ -138,7 +138,7 @@ func TestCreateTender_FailUnmurshalTypeError(t *testing.T) {
 		}
 	}`
 
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	req := httptest.NewRequest(http.MethodPost, "/tenders/new", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
@@ -182,7 +182,7 @@ func TestCreateTender_FailNegativeOrgID(t *testing.T) {
 		}
 	}`
 
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	req := httptest.NewRequest(http.MethodPost, "/tenders/new", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
@@ -235,7 +235,7 @@ func TestCreateTender_FailEmployeeNotFound(t *testing.T) {
 		}
 	}`
 
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	mockTenderService.On("CreateTender", ctx, mockTender).Return(models.Tender{}, outerror.ErrEmployeeNotFound)
 	req := httptest.NewRequest(http.MethodPost, "/tenders/new", strings.NewReader(reqBody))
@@ -288,7 +288,7 @@ func TestCreateTender_FailOrganizationNotFound(t *testing.T) {
 		}
 	}`
 
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	mockTenderService.On("CreateTender", ctx, mockTender).Return(models.Tender{}, outerror.ErrOrganizationNotFound)
 	req := httptest.NewRequest(http.MethodPost, "/tenders/new", strings.NewReader(reqBody))
@@ -339,7 +339,7 @@ func TestCreateTender_FailEmployeerNotResponsibleForOrganization(t *testing.T) {
 		}
 	}`
 
-	svc := tender.New(logger, mockTenderService)
+	svc := tenderapi.New(logger, mockTenderService)
 
 	mockTenderService.On("CreateTender", ctx, mockTender).Return(models.Tender{}, outerror.ErrEmployeeNotResponsibleForOrganization)
 	req := httptest.NewRequest(http.MethodPost, "/tenders/new", strings.NewReader(reqBody))
