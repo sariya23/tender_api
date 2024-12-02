@@ -56,7 +56,7 @@ func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context, userna
 	tenders, err := s.tenderRepo.GetEmployeeTendersByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, outerror.ErrEmployeeTendersNotFound) {
-			logger.Warn("no tenders for user", slog.String("username", username), slog.String("err", err.Error()))
+			logger.Warn("no tenders for employee", slog.String("username", username), slog.String("err", err.Error()))
 			return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeTendersNotFound)
 		}
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))

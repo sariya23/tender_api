@@ -86,7 +86,7 @@ func TestGetTendersByServiceType_Success(t *testing.T) {
 }
 
 // TestGetEmployeeTenders_Success проверяет, что
-// если работник существует в базе и у него есть связанные тендеры,
+// если сотрудник существует в базе и у него есть связанные тендеры,
 // то возвращается список этих тендеров.
 func TestGetEmployeeTenders_Success(t *testing.T) {
 	// Arrange
@@ -110,5 +110,51 @@ func TestGetEmployeeTenders_Success(t *testing.T) {
 
 	// Assert
 	require.NoError(t, err)
+	require.Equal(t, expectedTenders, tenders)
+}
+
+// TestGetEmployeeTenders_FailEmployeeNotFound проверяет, что
+// если сотрудника не существует, то возвращается ошибка и пустой список
+// тендеров.
+func TestGetEmployeeTenders_FailEmployeeNotFound(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	logger := slogdiscard.NewDiscardLogger()
+	usermame := "qwe"
+	expectedTenders := []models.Tender{}
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, usermame).Return(models.Employee{}, outerror.ErrEmployeeNotFound)
+
+	// Act
+	tenders, err := tenderService.GetEmployeeTendersByUsername(ctx, usermame)
+
+	// Assert
+	require.ErrorIs(t, err, outerror.ErrEmployeeNotFound)
+	require.Equal(t, expectedTenders, tenders)
+}
+
+func TestGetEmployeeTenders_FailEmployeeTendersNotFound(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	logger := slogdiscard.NewDiscardLogger()
+	usermame := "qwe"
+	expectedTenders := []models.Tender{}
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, usermame).Return(models.Employee{Username: usermame}, nil)
+	mockTenderRepo.On("GetEmployeeTendersByUsername", ctx, usermame).Return(expectedTenders, outerror.ErrEmployeeTendersNotFound)
+
+	// Act
+	tenders, err := tenderService.GetEmployeeTendersByUsername(ctx, usermame)
+
+	// Assert
+	require.ErrorIs(t, err, outerror.ErrEmployeeTendersNotFound)
 	require.Equal(t, expectedTenders, tenders)
 }
