@@ -40,7 +40,7 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 
 // GetEmployeeTendersByUsername возвращает список тендоров, которые связаны с переданным юзером.
 func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error) {
-	const op = "internal.service.tender.getall.GetUserTenders"
+	const op = "internal.service.tender.getall.GetEmployeeTendersByUsername"
 	logger := s.logger.With("op", op)
 
 	_, err := s.employeeRepo.GetEmployeeByUsername(ctx, username)

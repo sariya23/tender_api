@@ -44,7 +44,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	updatedUsername := updateTender.CreatorUsername
 	updatedOrgId := updateTender.OrganizationId
 
-	// Нужно проверить, что если пользователь обновлися, то
+	// Нужно проверить, что если работник обновлися, то
 	// он есть базе.
 	if updatedUsername != nil {
 		updatedEmpl, err = s.employeeRepo.GetEmployeeByUsername(ctx, *updatedUsername)
@@ -81,7 +81,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	}
 
 	// Нужно проверить, что если обновился и юзер, и организация,
-	// то пользователь ответсвенный за новую огранизацию.
+	// то работник ответсвенный за новую огранизацию.
 	if updatedUsername != nil && updatedOrgId != nil {
 		err = s.employeeResponsibler.CheckResponsibility(ctx, updatedEmpl.ID, updatedOrg.ID)
 		if err != nil {
@@ -98,7 +98,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 		}
 	}
 
-	// Нужно проверить, что если поменялся только пользователь, то
+	// Нужно проверить, что если поменялся только работник, то
 	// он ответсвенный за текущую организацию.
 	if updatedUsername != nil && updatedOrgId == nil {
 		err = s.employeeResponsibler.CheckResponsibility(ctx, updatedEmpl.ID, currTender.OrganizationId)
@@ -119,7 +119,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	var currEmpl models.Employee
 
 	// Нужно проверить, что если поменялась только огранизация, то
-	// текущий пользователь ответсвенный за новую организацию.
+	// текущий работник ответсвенный за новую организацию.
 	if updatedUsername == nil && updatedOrgId != nil {
 		currEmpl, err = s.employeeRepo.GetEmployeeByUsername(ctx, currTender.CreatorUsername)
 		if err != nil {

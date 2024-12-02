@@ -61,7 +61,7 @@ func TestUpdateTender_SuccessChangeDesc(t *testing.T) {
 
 // TestUpdateTender_SuccessChangeOnlyUser проверяет, что если при
 // обновлении тендера меняется юзер, то должны быть вызваны проверки,
-// что такой пользователь есть, и что он отвественный за организацию, которая
+// что такой работник есть, и что он отвественный за организацию, которая
 // указана в тендере.
 func TestUpdateTender_SuccessChangeOnlyUser(t *testing.T) {
 	// Arrange
@@ -338,7 +338,7 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForCurrOrg(t *testing.T) {
 }
 
 // TestUpdateTender_FailCurrUserNotResponsibleForNewOrg проверяет,
-// что если текущий пользователь не ответсвенный за новую организацию,
+// что если текущий работник не ответсвенный за новую организацию,
 // то возвращается пустой тендер и ошибка.
 func TestUpdateTender_FailCurrUserNotResponsibleForNewOrg(t *testing.T) {
 	// Arrange

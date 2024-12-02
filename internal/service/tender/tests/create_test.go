@@ -116,7 +116,7 @@ func TestCreateTenders_FailOrgNotFound(t *testing.T) {
 }
 
 // TestCreateTenders_FailEmployeeNotResponsibleForOrganization проверяет, что
-// тендер не создается, если пользователь не ответсвенный за переданную организацию.
+// тендер не создается, если работник не ответсвенный за переданную организацию.
 func TestCreateTenders_FailEmployeeNotResponsibleForOrganization(t *testing.T) {
 	// Arrange
 	ctx := context.Background()
