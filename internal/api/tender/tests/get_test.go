@@ -194,3 +194,69 @@ func TestGetEmployeeTenders_SuccessRedirect(t *testing.T) {
 	assert.Equal(t, http.StatusMovedPermanently, w.Code)
 	require.Equal(t, w.Header().Values("location"), []string{"/api/tenders"})
 }
+
+// TestGetEmployeeTenders_FailEmployeeNotFound проверяет, что
+// если сотрудника с переданным username нет, то возвращается ошибка.
+func TestGetEmployeeTenders_FailEmployeeNotFound(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	username := "qwe"
+	expectedBody := `
+	{
+		"message": "employee with username \"qwe\" not found"
+	}
+	`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	mockTenderService.On("GetEmployeeTendersByUsername", ctx, username).Return([]models.Tender{}, outerror.ErrEmployeeNotFound)
+	req := httptest.NewRequest(http.MethodGet, "/tenders/my?username=qwe", nil)
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	handler := svc.GetEmployeeTendersByUsername(ctx)
+	handler(c)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
+// TestGetEmployeeTenders_FailEmployeeTendersNotFound проверяет, что
+// если у переданного сотрудника нет тендеров, то возвращается ошибка.
+func TestGetEmployeeTenders_FailEmployeeTendersNotFound(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	username := "qwe"
+	expectedBody := `
+	{
+		"message": "not found tenders for employee with username \"qwe\""
+	}
+	`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	mockTenderService.On("GetEmployeeTendersByUsername", ctx, username).Return([]models.Tender{}, outerror.ErrEmployeeTendersNotFound)
+	req := httptest.NewRequest(http.MethodGet, "/tenders/my?username=qwe", nil)
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	handler := svc.GetEmployeeTendersByUsername(ctx)
+	handler(c)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
