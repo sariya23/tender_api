@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sariya23/tender/internal/api/tender"
+	tenderapi "github.com/sariya23/tender/internal/api/tender"
 	"github.com/sariya23/tender/internal/config"
 	"github.com/sariya23/tender/internal/repository/postgres"
 	tendersrv "github.com/sariya23/tender/internal/service/tender"
@@ -22,7 +22,7 @@ func main() {
 
 	db := postgres.MustNewConnection(cfg.PostgresConn)
 	tenderService := tendersrv.New(log, db, db, db, db)
-	tenderAPI := tender.New(log, tenderService)
+	tenderAPI := tenderapi.New(log, tenderService)
 
 	r := gin.Default()
 	api := r.Group("/api")
