@@ -126,3 +126,71 @@ func TestGetAllTenders_FailinternalError(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
+
+// TestGetEmployeeTenders_Success проверяет, что
+// в случае успешного получения тендеров сотрудника,
+// возвращается список этих тендеров.
+func TestGetEmployeeTenders_Success(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	username := "qwe"
+	mockTenders := []models.Tender{
+		{TenderName: "Tender 1", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 1, CreatorUsername: username},
+		{TenderName: "Tender 1", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 1, CreatorUsername: username},
+	}
+	expectedBody := `
+	{
+		"tenders":[
+			{"name":"Tender 1", "description": "qwe", "service_type": "op", "status": "open", "organization_id": 1, "creator_username": "qwe"},
+			{"name":"Tender 1", "description": "qwe", "service_type": "op", "status": "open", "organization_id": 1, "creator_username": "qwe"}
+		],"message":"ok"
+	}
+	`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	mockTenderService.On("GetEmployeeTendersByUsername", ctx, username).Return(mockTenders, nil)
+	req := httptest.NewRequest(http.MethodGet, "/tenders/my?username=qwe", nil)
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	handler := svc.GetEmployeeTendersByUsername(ctx)
+	handler(c)
+
+	// Assert
+	assert.Equal(t, http.StatusOK, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
+// TestGetEmployeeTenders_SuccessRedirect проверяет, что
+// в случае, когда username пустой, то происходит редирект на
+// /api/tenders.
+func TestGetEmployeeTenders_SuccessRedirect(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	svc := tenderapi.New(logger, mockTenderService)
+
+	req := httptest.NewRequest(http.MethodGet, "/tenders/my?username=", nil)
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	handler := svc.GetEmployeeTendersByUsername(ctx)
+	handler(c)
+
+	// Assert
+	assert.Equal(t, http.StatusMovedPermanently, w.Code)
+	require.Equal(t, w.Header().Values("location"), []string{"/api/tenders"})
+}

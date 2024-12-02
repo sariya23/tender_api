@@ -137,6 +137,9 @@ func TestGetEmployeeTenders_FailEmployeeNotFound(t *testing.T) {
 	require.Equal(t, expectedTenders, tenders)
 }
 
+// TestGetEmployeeTenders_FailEmployeeTendersNotFound проверяет,
+// что если у сотрудника нет тендеров, то возвращается пустой список тендеров
+// и ошибка.
 func TestGetEmployeeTenders_FailEmployeeTendersNotFound(t *testing.T) {
 	// Arrange
 	ctx := context.Background()
