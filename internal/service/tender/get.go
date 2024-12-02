@@ -38,8 +38,8 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 	return tenders, nil
 }
 
-// GetUserTenders возвращает список тендоров, которые связаны с переданным юзером.
-func (s *TenderService) GetUserTenders(ctx context.Context, username string) ([]models.Tender, error) {
+// GetEmployeeTendersByUsername возвращает список тендоров, которые связаны с переданным юзером.
+func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error) {
 	const op = "internal.service.tender.getall.GetUserTenders"
 	logger := s.logger.With("op", op)
 
@@ -53,7 +53,7 @@ func (s *TenderService) GetUserTenders(ctx context.Context, username string) ([]
 		return []models.Tender{}, fmt.Errorf("cannot get employee: %w", err)
 	}
 	logger.Info("success check employee by username")
-	tenders, err := s.tenderRepo.GetUserTenders(ctx, username)
+	tenders, err := s.tenderRepo.GetEmployeeTendersByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, outerror.ErrEmployeeTendersNotFound) {
 			logger.Warn("no tenders for user", slog.String("username", username), slog.String("err", err.Error()))

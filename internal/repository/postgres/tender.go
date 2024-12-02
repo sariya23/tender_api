@@ -16,7 +16,7 @@ func (s *Storage) GetAllTenders(ctx context.Context) ([]models.Tender, error) {
 func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType string) ([]models.Tender, error) {
 	panic("impl me")
 }
-func (s *Storage) GetUserTenders(ctx context.Context, username string) ([]models.Tender, error) {
+func (s *Storage) GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error) {
 	panic("impl me")
 }
 func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error) {

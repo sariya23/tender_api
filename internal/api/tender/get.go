@@ -44,9 +44,9 @@ func (s *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
 	}
 }
 
-func (s *TenderService) GetUserTenders(ctx context.Context) gin.HandlerFunc {
+func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		const op = "internal.api.tenderapi.GetUserTenders"
+		const op = "internal.api.tenderapi.GetEmployeeTendersByUsername"
 		logger := s.logger.With("op", op)
 		logger.Info(fmt.Sprintf("request to %s", c.Request.URL))
 
@@ -57,14 +57,14 @@ func (s *TenderService) GetUserTenders(ctx context.Context) gin.HandlerFunc {
 			return
 		}
 
-		tenders, err := s.tenderService.GetUserTenders(ctx, username)
+		tenders, err := s.tenderService.GetEmployeeTendersByUsername(ctx, username)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn(fmt.Sprintf("employee with username=\"%s\" not found", username))
 				c.JSON(
 					http.StatusBadRequest,
 					api.GetEmployeeTendersResponse{
-						Message: fmt.Sprintf("employee with username \"%s\" not found"),
+						Message: fmt.Sprintf("employee with username \"%s\" not found", username),
 					},
 				)
 				return

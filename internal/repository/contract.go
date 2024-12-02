@@ -10,7 +10,7 @@ type TenderRepository interface {
 	CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error)
 	GetAllTenders(ctx context.Context) ([]models.Tender, error)
 	GetTendersByServiceType(ctx context.Context, serviceType string) ([]models.Tender, error)
-	GetUserTenders(ctx context.Context, username string) ([]models.Tender, error)
+	GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error)
 	EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error)
 	RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error)
 	GetTenderById(ctx context.Context, tenderId int) (models.Tender, error)

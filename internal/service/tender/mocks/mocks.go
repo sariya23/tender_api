@@ -17,7 +17,7 @@ import (
 //
 // - GetTendersByServiceType
 //
-// - GetUserTenders
+// - GetEmployeeTendersByUsername
 //
 // - EditTender
 //
@@ -43,7 +43,7 @@ func (m *MockTenderRepo) GetTendersByServiceType(ctx context.Context, serviceTyp
 	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
-func (m *MockTenderRepo) GetUserTenders(ctx context.Context, username string) ([]models.Tender, error) {
+func (m *MockTenderRepo) GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error) {
 	args := m.Called(ctx, username)
 	return args.Get(0).([]models.Tender), args.Error(1)
 }

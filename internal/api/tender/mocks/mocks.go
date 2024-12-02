@@ -15,7 +15,7 @@ import (
 //
 // - GetTenders
 //
-// - GetUserTenders
+// - GetEmployeeTendersByUsername
 //
 // - Edit
 type MockTenderServiceProvider struct {
@@ -27,7 +27,7 @@ func (m *MockTenderServiceProvider) GetTenders(ctx context.Context, serviceType 
 	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
-func (m *MockTenderServiceProvider) GetUserTenders(ctx context.Context, username string) ([]models.Tender, error) {
+func (m *MockTenderServiceProvider) GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error) {
 	args := m.Called(ctx, username)
 	return args.Get(0).([]models.Tender), args.Error(1)
 }
