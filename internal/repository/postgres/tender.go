@@ -19,7 +19,7 @@ func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType strin
 func (s *Storage) GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error) {
 	panic("impl me")
 }
-func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error) {
+func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
 	panic("impl me")
 }
 func (s *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error) {

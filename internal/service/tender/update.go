@@ -19,7 +19,7 @@ import (
 // - Поля организации без поля юзера (и другие поля), то проверяется существует ли эта организация и ответсвенный ли за него текущий юзер
 //
 // - И оля юзера, и поля организации (и другие поля), то проверяется существует ли этот юзер и организация и ответсвенный ли этот юзер за новую организацию.
-func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error) {
+func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
 	const op = "internal.service.tender.update.Edit"
 	logger := s.logger.With("op", op)
 
@@ -31,14 +31,14 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 	if err != nil {
 		if errors.Is(err, outerror.ErrTenderNotFound) {
 			logger.Warn("tender not found", slog.Int("tender id", tenderId))
-			return models.TenderToUpdate{}, fmt.Errorf("%s: %w", op, outerror.ErrTenderNotFound)
+			return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrTenderNotFound)
 		}
 		logger.Error(
 			"cannot get tender by id",
 			slog.Int("tender id", tenderId),
 			slog.String("err", err.Error()),
 		)
-		return models.TenderToUpdate{}, fmt.Errorf("cannot get tender by id: %w", err)
+		return models.Tender{}, fmt.Errorf("cannot get tender by id: %w", err)
 	}
 
 	updatedUsername := updateTender.CreatorUsername
@@ -51,14 +51,14 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn("employee to update not found", slog.String("username", *updatedUsername))
-				return models.TenderToUpdate{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotFound)
+				return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotFound)
 			}
 			logger.Error(
 				"cannot get employee by username",
 				slog.String("username", *updatedUsername),
 				slog.String("err", err.Error()),
 			)
-			return models.TenderToUpdate{}, fmt.Errorf("cannot get employee by username: %w", err)
+			return models.Tender{}, fmt.Errorf("cannot get employee by username: %w", err)
 		}
 	}
 
@@ -69,14 +69,14 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 		if err != nil {
 			if errors.Is(err, outerror.ErrOrganizationNotFound) {
 				logger.Warn("organization to update not found", slog.Int("org id", *updatedOrgId))
-				return models.TenderToUpdate{}, fmt.Errorf("%s: %w", op, outerror.ErrOrganizationNotFound)
+				return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrOrganizationNotFound)
 			}
 			logger.Error(
 				"cannot get org by id",
 				slog.Int("org id", *updatedOrgId),
 				slog.String("err", err.Error()),
 			)
-			return models.TenderToUpdate{}, fmt.Errorf("cannot get organization by id: %w", err)
+			return models.Tender{}, fmt.Errorf("cannot get organization by id: %w", err)
 		}
 	}
 
@@ -87,14 +87,14 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("updated employee not responsible for updated organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", updatedOrg.ID))
-				return models.TenderToUpdate{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotResponsibleForOrganization)
+				return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotResponsibleForOrganization)
 			}
 			logger.Error(
 				"cannot check new employee responsibility to new org",
 				slog.Int("employee id", updatedEmpl.ID),
 				slog.String("err", err.Error()),
 			)
-			return models.TenderToUpdate{}, fmt.Errorf("cannot check new employee responsibility to new org: %w", err)
+			return models.Tender{}, fmt.Errorf("cannot check new employee responsibility to new org: %w", err)
 		}
 	}
 
@@ -105,14 +105,14 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("updated employee not responsible for current organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", currTender.OrganizationId))
-				return models.TenderToUpdate{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotResponsibleForOrganization)
+				return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotResponsibleForOrganization)
 			}
 			logger.Error(
 				"cannot check new employee responsibility to current org",
 				slog.Int("employee id", updatedEmpl.ID),
 				slog.String("err", err.Error()),
 			)
-			return models.TenderToUpdate{}, fmt.Errorf("cannot check new employee responsibility to current org: %w", err)
+			return models.Tender{}, fmt.Errorf("cannot check new employee responsibility to current org: %w", err)
 		}
 	}
 
@@ -124,20 +124,20 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 		currEmpl, err = s.employeeRepo.GetEmployeeByUsername(ctx, currTender.CreatorUsername)
 		if err != nil {
 			logger.Error("cannot get employee by id", slog.String("err", err.Error()))
-			return models.TenderToUpdate{}, err
+			return models.Tender{}, err
 		}
 		err = s.employeeResponsibler.CheckResponsibility(ctx, currEmpl.ID, *updatedOrgId)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("current employee not responsible for updated organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", currTender.OrganizationId))
-				return models.TenderToUpdate{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotResponsibleForOrganization)
+				return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotResponsibleForOrganization)
 			}
 			logger.Error(
 				"cannot check current employee responsobility for updated org",
 				slog.String("curr employee", currEmpl.Username),
 				slog.Int("new org id", *updatedOrgId),
 			)
-			return models.TenderToUpdate{}, err
+			return models.Tender{}, err
 		}
 	}
 
@@ -145,7 +145,7 @@ func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender mod
 
 	if err != nil {
 		logger.Error("cannot update tender", slog.String("err", err.Error()))
-		return models.TenderToUpdate{}, err
+		return models.Tender{}, err
 	}
 
 	return updatedTender, nil

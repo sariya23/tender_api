@@ -37,7 +37,7 @@ func (m *MockTenderServiceProvider) CreateTender(ctx context.Context, tender mod
 	return args.Get(0).(models.Tender), args.Error(1)
 }
 
-func (m *MockTenderServiceProvider) Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.TenderToUpdate, error) {
+func (m *MockTenderServiceProvider) Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
 	args := m.Called(ctx, tenderId, updateTender)
-	return args.Get(0).(models.TenderToUpdate), args.Error(1)
+	return args.Get(0).(models.Tender), args.Error(1)
 }

@@ -38,13 +38,13 @@ func TestUpdateTender_SuccessChangeDesc(t *testing.T) {
 		CreatorUsername: user,
 	}
 	updateTender := models.TenderToUpdate{Description: &desc}
-	exptectedTender := models.TenderToUpdate{
-		TenderName:      &name,
-		Description:     &desc,
-		ServiceType:     &srvType,
-		Status:          &status,
-		OrganizationId:  &orgId,
-		CreatorUsername: &user,
+	exptectedTender := models.Tender{
+		TenderName:      name,
+		Description:     desc,
+		ServiceType:     srvType,
+		Status:          status,
+		OrganizationId:  orgId,
+		CreatorUsername: user,
 	}
 
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
@@ -86,13 +86,13 @@ func TestUpdateTender_SuccessChangeOnlyUser(t *testing.T) {
 		CreatorUsername: "zxc",
 	}
 	updateTender := models.TenderToUpdate{CreatorUsername: &user}
-	exptectedTender := models.TenderToUpdate{
-		TenderName:      &name,
-		Description:     &desc,
-		ServiceType:     &srvType,
-		Status:          &status,
-		OrganizationId:  &orgId,
-		CreatorUsername: &user,
+	exptectedTender := models.Tender{
+		TenderName:      name,
+		Description:     desc,
+		ServiceType:     srvType,
+		Status:          status,
+		OrganizationId:  orgId,
+		CreatorUsername: user,
 	}
 
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
@@ -136,13 +136,13 @@ func TestUpdateTender_SuccessChangeOnlyOrg(t *testing.T) {
 		CreatorUsername: user,
 	}
 	updateTender := models.TenderToUpdate{CreatorUsername: &user}
-	exptectedTender := models.TenderToUpdate{
-		TenderName:      &name,
-		Description:     &desc,
-		ServiceType:     &srvType,
-		Status:          &status,
-		OrganizationId:  &orgId,
-		CreatorUsername: &user,
+	exptectedTender := models.Tender{
+		TenderName:      name,
+		Description:     desc,
+		ServiceType:     srvType,
+		Status:          status,
+		OrganizationId:  orgId,
+		CreatorUsername: user,
 	}
 
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
@@ -187,13 +187,13 @@ func TestUpdateTender_SuccessChangeOrgAndUser(t *testing.T) {
 		CreatorUsername: "zxc",
 	}
 	updateTender := models.TenderToUpdate{CreatorUsername: &user, OrganizationId: &orgId}
-	exptectedTender := models.TenderToUpdate{
-		TenderName:      &name,
-		Description:     &desc,
-		ServiceType:     &srvType,
-		Status:          &status,
-		OrganizationId:  &orgId,
-		CreatorUsername: &user,
+	exptectedTender := models.Tender{
+		TenderName:      name,
+		Description:     desc,
+		ServiceType:     srvType,
+		Status:          status,
+		OrganizationId:  orgId,
+		CreatorUsername: user,
 	}
 
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
@@ -232,7 +232,7 @@ func TestUpdateTender_FailTenderNotFound(t *testing.T) {
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrTenderNotFound)
-	require.Equal(t, tender, models.TenderToUpdate{})
+	require.Equal(t, tender, models.Tender{})
 }
 
 // TestUpdateTender_FailNewUserNotFound проверяет, что
@@ -256,7 +256,7 @@ func TestUpdateTender_FailNewUserNotFound(t *testing.T) {
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotFound)
-	require.Equal(t, tender, models.TenderToUpdate{})
+	require.Equal(t, tender, models.Tender{})
 }
 
 // TestUpdateTender_FailNewOrgNotFound проверяет, что если
@@ -280,7 +280,7 @@ func TestUpdateTender_FailNewOrgNotFound(t *testing.T) {
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrOrganizationNotFound)
-	require.Equal(t, tender, models.TenderToUpdate{})
+	require.Equal(t, tender, models.Tender{})
 }
 
 // TestUpdateTender_FailNewNewUserNotResponsibleForNewOrg проверяет,
@@ -308,7 +308,7 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForNewOrg(t *testing.T) {
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
-	require.Equal(t, tender, models.TenderToUpdate{})
+	require.Equal(t, tender, models.Tender{})
 }
 
 // TestUpdateTender_FailNewNewUserNotResponsibleForCurrOrg проверяет,
@@ -334,7 +334,7 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForCurrOrg(t *testing.T) {
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
-	require.Equal(t, tender, models.TenderToUpdate{})
+	require.Equal(t, tender, models.Tender{})
 }
 
 // TestUpdateTender_FailCurrUserNotResponsibleForNewOrg проверяет,
@@ -361,5 +361,5 @@ func TestUpdateTender_FailCurrUserNotResponsibleForNewOrg(t *testing.T) {
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
-	require.Equal(t, tender, models.TenderToUpdate{})
+	require.Equal(t, tender, models.Tender{})
 }
