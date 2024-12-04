@@ -10,7 +10,7 @@ import (
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
-// Edit обновляет тендер. Если пришел запрос на обновление:
+// EditTender обновляет тендер. Если пришел запрос на обновление:
 //
 // - Полей НЕ юзера или организации, то проверяется только наличие тендера для обновления
 //
@@ -19,7 +19,7 @@ import (
 // - Поля организации без поля юзера (и другие поля), то проверяется существует ли эта организация и ответсвенный ли за него текущий юзер
 //
 // - И оля юзера, и поля организации (и другие поля), то проверяется существует ли этот юзер и организация и ответсвенный ли этот юзер за новую организацию.
-func (s *TenderService) Edit(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
+func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
 	const op = "internal.service.tender.update.Edit"
 	logger := s.logger.With("op", op)
 

@@ -52,7 +52,7 @@ func TestUpdateTender_SuccessChangeDesc(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender)
 
 	// Assert
 	require.NoError(t, err)
@@ -102,7 +102,7 @@ func TestUpdateTender_SuccessChangeOnlyUser(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender)
 
 	// Assert
 	require.NoError(t, err)
@@ -153,7 +153,7 @@ func TestUpdateTender_SuccessChangeOnlyOrg(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender)
 
 	// Assert
 	require.NoError(t, err)
@@ -204,7 +204,7 @@ func TestUpdateTender_SuccessChangeOrgAndUser(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender)
 
 	// Assert
 	require.NoError(t, err)
@@ -228,7 +228,7 @@ func TestUpdateTender_FailTenderNotFound(t *testing.T) {
 	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{}, outerror.ErrTenderNotFound)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrTenderNotFound)
@@ -252,7 +252,7 @@ func TestUpdateTender_FailNewUserNotFound(t *testing.T) {
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, user).Return(models.Employee{}, outerror.ErrEmployeeNotFound)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotFound)
@@ -276,7 +276,7 @@ func TestUpdateTender_FailNewOrgNotFound(t *testing.T) {
 	mockOrgRepo.On("GetOrganizationById", ctx, orgId).Return(models.Organization{}, outerror.ErrOrganizationNotFound)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrOrganizationNotFound)
@@ -304,7 +304,7 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForNewOrg(t *testing.T) {
 	mockResponsibler.On("CheckResponsibility", ctx, 0, 1).Return(outerror.ErrEmployeeNotResponsibleForOrganization)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
@@ -330,7 +330,7 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForCurrOrg(t *testing.T) {
 	mockResponsibler.On("CheckResponsibility", ctx, 0, 0).Return(outerror.ErrEmployeeNotResponsibleForOrganization)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
@@ -357,7 +357,7 @@ func TestUpdateTender_FailCurrUserNotResponsibleForNewOrg(t *testing.T) {
 	mockResponsibler.On("CheckResponsibility", ctx, 0, 1).Return(outerror.ErrEmployeeNotResponsibleForOrganization)
 
 	// Act
-	tender, err := tenderService.Edit(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)

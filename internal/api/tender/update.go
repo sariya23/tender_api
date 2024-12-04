@@ -77,7 +77,7 @@ func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
 		}
 		logger.Info("validate success")
 
-		tender, err := s.tenderService.Edit(ctx, convertedTenderId, updatedReq.UpdateTenderData)
+		tender, err := s.tenderService.EditTender(ctx, convertedTenderId, updatedReq.UpdateTenderData)
 
 		if err != nil {
 			if errors.Is(err, outerror.ErrTenderNotFound) {
