@@ -20,3 +20,12 @@ type GetEmployeeTendersResponse struct {
 	Tenders []models.Tender `json:"tenders,omitempty"`
 	Message string          `json:"message"`
 }
+
+type EditTenderRequest struct {
+	UpdateTenderData models.TenderToUpdate `json:"update_tender_data"`
+}
+
+type EditTenderResponse struct {
+	UpdatedTender models.TenderToUpdate `json:"updated_tender"`
+	Message       string                `json:"message"`
+}
