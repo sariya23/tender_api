@@ -13,6 +13,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/sariya23/tender/internal/api"
 	"github.com/sariya23/tender/internal/lib/unmarshal"
+	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
 func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
@@ -76,6 +77,78 @@ func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
 		}
 		logger.Info("validate success")
 
-		_, err = s.tenderService.Edit(ctx, convertedTenderId, updatedReq.UpdateTenderData)
+		tender, err := s.tenderService.Edit(ctx, convertedTenderId, updatedReq.UpdateTenderData)
+
+		if err != nil {
+			if errors.Is(err, outerror.ErrTenderNotFound) {
+				logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId))
+				c.JSON(
+					http.StatusBadRequest,
+					api.EditTenderResponse{
+						Message: fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId),
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrEmployeeNotFound) {
+				logger.Warn(
+					fmt.Sprintf(
+						"updated employee with username=\"%s\" not found",
+						*updatedReq.UpdateTenderData.CreatorUsername,
+					),
+				)
+				c.JSON(
+					http.StatusBadRequest,
+					api.EditTenderResponse{
+						Message: fmt.Sprintf(
+							"updated employee with username=\"%s\" not found",
+							*updatedReq.UpdateTenderData.CreatorUsername,
+						),
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrOrganizationNotFound) {
+				logger.Warn(
+					fmt.Sprintf(
+						"updated organization with id=\"%d\" not found",
+						updatedReq.UpdateTenderData.OrganizationId,
+					),
+				)
+				c.JSON(
+					http.StatusBadRequest,
+					api.EditTenderResponse{
+						Message: fmt.Sprintf(
+							"updated organization with id=\"%d\" not found",
+							updatedReq.UpdateTenderData.OrganizationId,
+						),
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
+				logger.Warn(
+					fmt.Sprintf(
+						"new employee with username=\"%s\" not responsible for new organization with id=\"%d\"",
+						*updatedReq.UpdateTenderData.CreatorUsername,
+						*updatedReq.UpdateTenderData.OrganizationId,
+					),
+				)
+				c.JSON(
+					http.StatusBadRequest,
+					api.EditTenderResponse{
+						Message: fmt.Sprintf(
+							"employee with username=\"%s\" not responsible for organization with id=\"%d\"",
+							*updatedReq.UpdateTenderData.CreatorUsername,
+							*updatedReq.UpdateTenderData.OrganizationId,
+						),
+					},
+				)
+				return
+			} else {
+				logger.Error("unexpected error", slog.String("err", err.Error()))
+				c.JSON(http.StatusInternalServerError, api.EditTenderResponse{Message: "internal error"})
+				return
+			}
+		}
+		logger.Info("tender updated success")
+		c.JSON(http.StatusOK, api.EditTenderResponse{Message: "ok", UpdatedTender: tender})
 	}
 }
