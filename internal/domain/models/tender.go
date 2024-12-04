@@ -14,6 +14,6 @@ type TenderToUpdate struct {
 	Description     *string `json:"description,omitempty"`
 	ServiceType     *string `json:"serviceType,omitempty"`
 	Status          *string `json:"status,omitempty"`
-	OrganizationId  *int    `json:"organizationId,omitempty"`
+	OrganizationId  *int    `json:"organizationId,omitempty" validate:"gte=0"`
 	CreatorUsername *string `json:"creatorUsername,omitempty"`
 }
