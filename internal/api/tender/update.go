@@ -72,7 +72,7 @@ func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
 		err = validate.Struct(&updatedReq)
 		if err != nil {
 			logger.Error("validation error", slog.String("err", err.Error()))
-			c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("validation faild: %s", err.Error())})
+			c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("validation failed: %s", err.Error())})
 			return
 		}
 		logger.Info("validate success")
@@ -110,7 +110,7 @@ func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
 				logger.Warn(
 					fmt.Sprintf(
 						"updated organization with id=\"%d\" not found",
-						updatedReq.UpdateTenderData.OrganizationId,
+						*updatedReq.UpdateTenderData.OrganizationId,
 					),
 				)
 				c.JSON(
@@ -118,7 +118,7 @@ func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
 					api.EditTenderResponse{
 						Message: fmt.Sprintf(
 							"updated organization with id=\"%d\" not found",
-							updatedReq.UpdateTenderData.OrganizationId,
+							*updatedReq.UpdateTenderData.OrganizationId,
 						),
 					},
 				)

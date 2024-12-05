@@ -26,6 +26,6 @@ type EditTenderRequest struct {
 }
 
 type EditTenderResponse struct {
-	UpdatedTender models.Tender `json:"updated_tender"`
+	UpdatedTender models.Tender `json:"updated_tender,omitempty"`
 	Message       string        `json:"message"`
 }

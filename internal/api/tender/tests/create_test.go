@@ -201,7 +201,7 @@ func TestCreateTender_FailNegativeOrgID(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	require.Equal(t, resp.Tender, models.Tender{})
-	require.Contains(t, resp.Message, "validation faild")
+	require.Contains(t, resp.Message, "validation failed")
 }
 
 // TestCreateTender_FailEmployeeNotFound проверяет, что

@@ -58,7 +58,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		err = validate.Struct(&createReq)
 		if err != nil {
 			logger.Error("validation error", slog.String("err", err.Error()))
-			c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("validation faild: %s", err.Error())})
+			c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("validation failed: %s", err.Error())})
 			return
 		}
 		logger.Info("validate success")
