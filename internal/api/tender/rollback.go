@@ -27,7 +27,7 @@ func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 				slog.String("tender id", tenderId),
 				slog.String("err", err.Error()),
 			)
-			c.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: "wrong path"})
+			c.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: fmt.Sprintf("wrong path: %s", c.Request.URL.Path)})
 			return
 		}
 
@@ -39,7 +39,7 @@ func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 				slog.String("version", version),
 				slog.String("err", err.Error()),
 			)
-			c.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: "wrong path"})
+			c.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: fmt.Sprintf("wrong path: %s", c.Request.URL.Path)})
 			return
 		}
 
