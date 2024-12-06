@@ -1,8 +1,8 @@
 server_address: localhost:8000
-postgress_conn: postgres://nikita:1234@localhost:5432/tender
-postgres_jdbc_conn: jdbc:postgresql://localhost:5432/tender
-postgres_username: nikita
+postgress_conn: postgres://admin:1234@localhost:5432/db
+postgres_jdbc_conn: jdbc:postgresql://localhost:5432/db
+postgres_username: admin
 postgres_password: 1234
 postgres_host: localhost
 postgres_port: 5432
-postgres_database: tender
+postgres_database: db
