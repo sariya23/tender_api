@@ -9,4 +9,5 @@ var (
 	ErrOrganizationNotFound                  = errors.New("organization not found")
 	ErrEmployeeNotResponsibleForOrganization = errors.New("employee not responsible for organization")
 	ErrTenderNotFound                        = errors.New("tender not found")
+	ErrTenderVersionNotFound                 = errors.New("tender version not found")
 )

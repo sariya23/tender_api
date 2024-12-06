@@ -28,3 +28,7 @@ func (s *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRol
 func (s *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tender, error) {
 	panic("impl me")
 }
+
+func (s *Storage) FindTenderVersion(ctx context.Context, tenderId int, version int) error {
+	panic("impl me")
+}
