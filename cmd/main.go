@@ -19,8 +19,8 @@ func main() {
 	cfg := config.MustLoad()
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	log.Info("starting app at", slog.String("addr", cfg.ServerAddress))
-
-	db := postgres.MustNewConnection(cfg.PostgresConn)
+	db := postgres.MustNewConnection(ctx, cfg.PostgresConn)
+	log.Info("db connect success")
 	tenderService := tendersrv.New(log, db, db, db, db)
 	tenderAPI := tenderapi.New(log, tenderService)
 

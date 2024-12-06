@@ -9,13 +9,13 @@ import (
 
 type AppConfig struct {
 	ServerAddress    string `yaml:"server_address"`
-	PostgresConn     string `env:"postgress_conn"`
-	PosthresJDBC_URL string `env:"postgres_jdbc_conn"`
-	PostgresUsername string `env:"postgres_username"`
-	PostgresPassword string `env:"postgres_password"`
-	PostgresHost     string `env:"postgres_host"`
-	PostgresPort     int    `env:"postgres_port"`
-	PostgresDatabase string `env:"postgres_database"`
+	PostgresConn     string `yaml:"postgress_conn"`
+	PosthresJDBC_URL string `yaml:"postgres_jdbc_conn"`
+	PostgresUsername string `yaml:"postgres_username"`
+	PostgresPassword string `yaml:"postgres_password"`
+	PostgresHost     string `yaml:"postgres_host"`
+	PostgresPort     int    `yaml:"postgres_port"`
+	PostgresDatabase string `yaml:"postgres_database"`
 }
 
 func MustLoad() *AppConfig {
