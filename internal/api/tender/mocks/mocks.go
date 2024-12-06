@@ -41,3 +41,8 @@ func (m *MockTenderServiceProvider) EditTender(ctx context.Context, tenderId int
 	args := m.Called(ctx, tenderId, updateTender)
 	return args.Get(0).(models.Tender), args.Error(1)
 }
+
+func (m *MockTenderServiceProvider) RollbackTender(ctx context.Context, tenderId int, version int) (models.Tender, error) {
+	args := m.Called(ctx, tenderId, version)
+	return args.Get(0).(models.Tender), args.Error(1)
+}

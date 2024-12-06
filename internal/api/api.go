@@ -29,3 +29,8 @@ type EditTenderResponse struct {
 	UpdatedTender models.Tender `json:"updated_tender,omitempty"`
 	Message       string        `json:"message"`
 }
+
+type RollbackTenderResponse struct {
+	RollbackTender models.Tender `json:"rollback_tender,omitempty"`
+	Message        string        `json:"message"`
+}
