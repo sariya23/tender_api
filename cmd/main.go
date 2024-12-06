@@ -32,6 +32,7 @@ func main() {
 		tender.GET("/my", tenderAPI.GetEmployeeTendersByUsername(ctx))
 		tender.POST("/new", tenderAPI.CreateTender(ctx))
 		tender.PATCH("/:tenderId/edit", tenderAPI.EditTedner(ctx))
+		tender.PUT("/:tenderId/rollback/:version", tenderAPI.RollbackTender(ctx))
 	}
 
 	srv := &http.Server{Addr: cfg.ServerAddress, Handler: r}
