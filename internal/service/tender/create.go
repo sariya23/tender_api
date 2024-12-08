@@ -21,7 +21,7 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 			logger.Warn("employee not found", slog.String("username", tender.CreatorUsername))
 			return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotFound)
 		}
-		logger.Error("cannot get user with username", slog.String("username", tender.CreatorUsername), slog.String("err", err.Error()))
+		logger.Error("cannot get employee with username", slog.String("username", tender.CreatorUsername), slog.String("err", err.Error()))
 		return models.Tender{}, fmt.Errorf("cannot get employee: %w", err)
 	}
 	logger.Info("success check employee by username")
@@ -32,7 +32,7 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 			logger.Warn("organization not found", slog.Int("org id", tender.OrganizationId))
 			return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrOrganizationNotFound)
 		}
-		logger.Error("cannot get organization with id", slog.Int("org is", tender.OrganizationId), slog.String("err", err.Error()))
+		logger.Error("cannot get organization with id", slog.Int("org id", tender.OrganizationId), slog.String("err", err.Error()))
 		return models.Tender{}, fmt.Errorf("cannot get organization with id: %w", err)
 	}
 	logger.Info("success check organization by id")
