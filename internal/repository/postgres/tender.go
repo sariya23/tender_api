@@ -2,10 +2,8 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/sariya23/tender/internal/domain/models"
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
@@ -22,11 +20,7 @@ func (s *Storage) GetAllTenders(ctx context.Context) ([]models.Tender, error) {
 
 	rows, err := s.connection.Query(ctx, query)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrTendersWithThisServiceTypeNotFound)
-		} else {
-			return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
-		}
+		return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
 	}
 	defer rows.Close()
 
@@ -43,11 +37,48 @@ func (s *Storage) GetAllTenders(ctx context.Context) ([]models.Tender, error) {
 			return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
 		}
 	}
+
+	if len(tenders) == 0 {
+		return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrTendersWithThisServiceTypeNotFound)
+	}
+
 	return tenders, nil
 }
 
 func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType string) ([]models.Tender, error) {
-	panic("impl me")
+	const op = "repository.postgres.tender.GetAllTenders"
+
+	query := `select name, description, service_type, status, organization_id, creator_username
+	from tender
+	where service_type=$1`
+	tenders := []models.Tender{}
+
+	rows, err := s.connection.Query(ctx, query, serviceType)
+
+	if err != nil {
+		return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		tender := models.Tender{}
+		err := rows.Scan(&tender.TenderName, &tender.Description, &tender.ServiceType, &tender.Status, &tender.OrganizationId, &tender.CreatorUsername)
+		if err != nil {
+			return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
+		}
+
+		tenders = append(tenders, tender)
+
+		if err := rows.Err(); err != nil {
+			return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	if len(tenders) == 0 {
+		return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrTendersWithThisServiceTypeNotFound)
+	}
+
+	return tenders, nil
 }
 func (s *Storage) GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error) {
 	panic("impl me")
