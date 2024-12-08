@@ -26,6 +26,10 @@ func main() {
 
 	r := gin.Default()
 	api := r.Group("/api")
+	ping := api.Group("/ping")
+	{
+		ping.GET("/", func(c *gin.Context) { c.JSON(http.StatusOK, struct{ Message string }{Message: "ok"}) })
+	}
 	tender := api.Group("/tenders")
 	{
 		tender.GET("/", tenderAPI.GetTenders(ctx))
