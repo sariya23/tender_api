@@ -38,5 +38,19 @@ func (s Storage) GetOrganizationById(ctx context.Context, orgId int) (models.Org
 }
 
 func (s Storage) CheckResponsibility(ctx context.Context, emplId int, orgId int) error {
-	panic("impl me")
+	const op = "repository.postgres.employee.CheckResponsibility"
+	query := "select organization_responsible_id from organization_responsible where organization_id = $1 and employee_id = $2"
+
+	var id int
+	row := s.connection.QueryRow(ctx, query, orgId, emplId)
+	err := row.Scan(&id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotResponsibleForOrganization)
+		} else {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	return nil
 }
