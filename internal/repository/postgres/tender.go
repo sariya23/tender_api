@@ -159,7 +159,42 @@ func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) 
 	return tenders, nil
 }
 func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
-	panic("impl me")
+	const op = "repository.postgres.tender.EditTender"
+	// query := "update %s set %s where %s = @%s"
+	updateParams := make([]string, 0)
+	updateFormat := "%s = @%s"
+	fieldsToUpdate := pgx.NamedArgs{}
+
+	if name := updateTender.TenderName; name != nil {
+		updateParams = append(updateParams, fmt.Sprintf(updateFormat, "name", "name"))
+		fieldsToUpdate["name"] = *name
+	}
+	if desc := updateTender.Description; desc != nil {
+		updateParams = append(updateParams, fmt.Sprintf(updateFormat, "description", "description"))
+		fieldsToUpdate["description"] = *desc
+	}
+	if srvType := updateTender.ServiceType; srvType != nil {
+		updateParams = append(updateParams, fmt.Sprintf(updateFormat, "service_type", "service_type"))
+		fieldsToUpdate["service_type"] = *srvType
+	}
+	if status := updateTender.Status; status != nil {
+		updateParams = append(updateParams, fmt.Sprintf(updateFormat, "status", "status"))
+		fieldsToUpdate["status"] = *status
+	}
+	if orgId := updateTender.OrganizationId; orgId != nil {
+		updateParams = append(updateParams, fmt.Sprintf(updateFormat, "organization_id", "organization_id"))
+		fieldsToUpdate["organization_id"] = *orgId
+	}
+	if username := updateTender.CreatorUsername; username != nil {
+		updateParams = append(updateParams, fmt.Sprintf(updateFormat, "creator_username", "creator_username"))
+		fieldsToUpdate["creator_username"] = *username
+	}
+
+	if len(fieldsToUpdate) == 0 {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrNothingToUpdate)
+	}
+
+	return models.Tender{}, nil
 }
 func (s *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error) {
 	panic("impl me")

@@ -11,4 +11,5 @@ var (
 	ErrTenderNotFound                        = errors.New("tender not found")
 	ErrTenderVersionNotFound                 = errors.New("tender version not found")
 	ErrUnknownTenderStatus                   = errors.New("unknown tender status")
+	ErrNothingToUpdate                       = errors.New("nothing to update")
 )
