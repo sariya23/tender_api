@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
@@ -164,7 +165,31 @@ func (s *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRol
 	panic("impl me")
 }
 func (s *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tender, error) {
-	panic("impl me")
+	const op = "repository.postgres.tender.GetTenderById"
+	query := `select name, description, service_type, status, organization_id, creator_username 
+	from tender
+	where tender_id = $1`
+
+	var tender models.Tender
+
+	row := s.connection.QueryRow(ctx, query, tenderId)
+	err := row.Scan(
+		&tender.TenderName,
+		&tender.Description,
+		&tender.ServiceType,
+		&tender.Status,
+		&tender.OrganizationId,
+		&tender.CreatorUsername,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrTenderNotFound)
+		} else {
+			return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	return tender, nil
 }
 
 func (s *Storage) FindTenderVersion(ctx context.Context, tenderId int, version int) error {
