@@ -53,7 +53,7 @@ func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context, userna
 		return []models.Tender{}, fmt.Errorf("cannot get employee: %w", err)
 	}
 	logger.Info("success check employee by username")
-	tenders, err := s.tenderRepo.GetEmployeeTenders(ctx, empl.ID, username)
+	tenders, err := s.tenderRepo.GetEmployeeTenders(ctx, empl)
 	if err != nil {
 		if errors.Is(err, outerror.ErrEmployeeTendersNotFound) {
 			logger.Warn("no tenders for employee", slog.String("username", username), slog.String("err", err.Error()))

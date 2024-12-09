@@ -119,7 +119,7 @@ func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType strin
 
 	return tenders, nil
 }
-func (s *Storage) GetEmployeeTenders(ctx context.Context, employeeId int, username string) ([]models.Tender, error) {
+func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) ([]models.Tender, error) {
 	panic("impl me")
 }
 func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {

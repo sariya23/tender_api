@@ -43,8 +43,8 @@ func (m *MockTenderRepo) GetTendersByServiceType(ctx context.Context, serviceTyp
 	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
-func (m *MockTenderRepo) GetEmployeeTenders(ctx context.Context, employeeId int, username string) ([]models.Tender, error) {
-	args := m.Called(ctx, employeeId, username)
+func (m *MockTenderRepo) GetEmployeeTenders(ctx context.Context, empl models.Employee) ([]models.Tender, error) {
+	args := m.Called(ctx, empl)
 	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
