@@ -13,11 +13,10 @@ import (
 func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (createdTender models.Tender, err error) {
 	const op = "repository.postgres.tender.CreateTender"
 
-	createQuery := `insert into tender(name, description, service_type, status_id, organization_id, creator_username)
+	createQuery := `insert into tender(name, description, service_type, status, organization_id, creator_username)
 	values ($1, $2, $3, $4, $5, $6) returning name, description, service_type, organization_id, creator_username`
 	getEmployeeQuery := `select employee_id from employee where username = $1`
 	getOrgQuery := `select organization_id from organization where organization_id = $1`
-	getStatusIdQuery := `select nsi_tender_status_id from nsi_tender_status where status = $1`
 	createdTender = models.Tender{}
 
 	var employeeId int
@@ -42,17 +41,6 @@ func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (creat
 		}
 	}
 
-	var statusId int
-	rowStatusId := s.connection.QueryRow(ctx, getStatusIdQuery, tender.Status)
-	err = rowStatusId.Scan(&statusId)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return models.Tender{}, fmt.Errorf("%s: %w. Place = getStatusIdQuery", op, outerror.ErrUnknownTenderStatus)
-		} else {
-			return models.Tender{}, fmt.Errorf("%s: %w. Place = getStatusIdQuery", op, err)
-		}
-	}
-
 	tx, err := s.connection.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
@@ -70,7 +58,7 @@ func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (creat
 		tender.TenderName,
 		tender.Description,
 		tender.ServiceType,
-		statusId,
+		tender.Status,
 		tender.OrganizationId,
 		tender.CreatorUsername,
 	)
