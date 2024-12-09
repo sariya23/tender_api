@@ -28,7 +28,7 @@ func TestCreateTender_Success(t *testing.T) {
 	logger := slogdiscard.NewDiscardLogger()
 	mockTenderService := new(mocks.MockTenderServiceProvider)
 	mockTender := models.Tender{
-		TenderName: "Tender 1", Description: "qwe", ServiceType: "op", Status: "CREATED", OrganizationId: 1, CreatorUsername: "qwe",
+		TenderName: "Tender 1", Description: "qwe", ServiceType: "op", Status: "open", OrganizationId: 1, CreatorUsername: "qwe",
 	}
 	reqBody := `
 	{
@@ -36,7 +36,7 @@ func TestCreateTender_Success(t *testing.T) {
 			"name": "Tender 1",
 			"description": "qwe",
 			"service_type": "op",
-			"status": "CREATED",
+			"status": "open",
 			"organization_id": 1,
 			"creator_username": "qwe"
 		}
@@ -48,7 +48,7 @@ func TestCreateTender_Success(t *testing.T) {
 			"name": "Tender 1",
 			"description": "qwe",
 			"service_type": "op",
-			"status": "CREATED",
+			"status": "open",
 			"organization_id": 1,
 			"creator_username": "qwe"
 		},

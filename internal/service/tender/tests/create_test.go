@@ -26,7 +26,7 @@ func TestCreateTenders_Success(t *testing.T) {
 		TenderName:      "Tender 1",
 		Description:     "qwe",
 		ServiceType:     "op",
-		Status:          "CREATED",
+		Status:          "open",
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
@@ -34,7 +34,7 @@ func TestCreateTenders_Success(t *testing.T) {
 		TenderName:      "Tender 1",
 		Description:     "qwe",
 		ServiceType:     "op",
-		Status:          "CREATED",
+		Status:          "open",
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
