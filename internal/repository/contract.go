@@ -15,6 +15,7 @@ type TenderRepository interface {
 	RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error)
 	GetTenderById(ctx context.Context, tenderId int) (models.Tender, error)
 	FindTenderVersion(ctx context.Context, tenderId int, version int) error
+	GetTenderStatus(ctx context.Context, tenderStatus string) (string, error)
 }
 
 type EmployeeRepository interface {

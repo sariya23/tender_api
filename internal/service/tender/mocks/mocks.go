@@ -68,6 +68,11 @@ func (m *MockTenderRepo) FindTenderVersion(ctx context.Context, tenderId int, ve
 	return args.Error(0)
 }
 
+func (m *MockTenderRepo) GetTenderStatus(ctx context.Context, tenderStatus string) (string, error) {
+	args := m.Called(ctx, tenderStatus)
+	return args.Get(0).(string), args.Error(1)
+}
+
 // MockTenderRepo реализует интерфейс MockEmployeeRepo
 // для целей тестирования. Он позволяет задавать ожидаемые результаты
 // методов:

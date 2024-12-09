@@ -17,7 +17,6 @@ func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (creat
 	values ($1, $2, $3, $4, $5, $6) returning name, description, service_type, organization_id, creator_username`
 	getEmployeeQuery := `select employee_id from employee where username = $1`
 	getOrgQuery := `select organization_id from organization where organization_id = $1`
-	checkResponsobilityQuery := `select organization_responsible_id from organization_responsible where organization_id = $1 and employee_id = $2`
 	getStatusIdQuery := `select nsi_tender_status_id from nsi_tender_status where status = $1`
 	createdTender = models.Tender{}
 
@@ -40,17 +39,6 @@ func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (creat
 			return models.Tender{}, fmt.Errorf("%s: %w. Place = getOrgQuery", op, outerror.ErrOrganizationNotFound)
 		} else {
 			return models.Tender{}, fmt.Errorf("%s: %w. Place = getOrgQuery", op, err)
-		}
-	}
-
-	var responsibleId int
-	rowResponsibleId := s.connection.QueryRow(ctx, checkResponsobilityQuery, orgId, employeeId)
-	err = rowResponsibleId.Scan(&responsibleId)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return models.Tender{}, fmt.Errorf("%s: %w. Place = checkResponsobilityQuery", op, outerror.ErrEmployeeNotResponsibleForOrganization)
-		} else {
-			return models.Tender{}, fmt.Errorf("%s: %w. Place = checkResponsobilityQuery", op, err)
 		}
 	}
 
@@ -182,5 +170,9 @@ func (s *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tende
 }
 
 func (s *Storage) FindTenderVersion(ctx context.Context, tenderId int, version int) error {
+	panic("impl me")
+}
+
+func (s *Storage) GetTenderStatus(ctx context.Context, tenderStatus string) (string, error) {
 	panic("impl me")
 }
