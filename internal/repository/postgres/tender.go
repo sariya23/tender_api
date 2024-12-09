@@ -13,7 +13,7 @@ func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (creat
 	const op = "repository.postgres.tender.CreateTender"
 
 	createQuery := `insert into tender(name, description, service_type, status, organization_id, creator_username)
-	values ($1, $2, $3, $4, $5, $6) returning name, description, service_type, organization_id, creator_username`
+	values ($1, $2, $3, $4, $5, $6) returning name, description, service_type, organization_id, creator_username, status`
 	createdTender = models.Tender{}
 
 	tx, err := s.connection.BeginTx(ctx, pgx.TxOptions{})
@@ -43,11 +43,11 @@ func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (creat
 		&createdTender.ServiceType,
 		&createdTender.OrganizationId,
 		&createdTender.CreatorUsername,
+		&createdTender.Status,
 	)
 	if err != nil {
 		return models.Tender{}, fmt.Errorf("%s: %w. Place = createQuery", op, err)
 	}
-	createdTender.Status = tender.Status
 	return createdTender, nil
 }
 
