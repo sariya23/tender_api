@@ -43,7 +43,7 @@ func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context, userna
 	const op = "internal.service.tender.getall.GetEmployeeTendersByUsername"
 	logger := s.logger.With("op", op)
 
-	_, err := s.employeeRepo.GetEmployeeByUsername(ctx, username)
+	empl, err := s.employeeRepo.GetEmployeeByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, outerror.ErrEmployeeNotFound) {
 			logger.Warn("employee not found", slog.String("username", username))
@@ -53,7 +53,7 @@ func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context, userna
 		return []models.Tender{}, fmt.Errorf("cannot get employee: %w", err)
 	}
 	logger.Info("success check employee by username")
-	tenders, err := s.tenderRepo.GetEmployeeTendersByUsername(ctx, username)
+	tenders, err := s.tenderRepo.GetEmployeeTenders(ctx, empl.ID)
 	if err != nil {
 		if errors.Is(err, outerror.ErrEmployeeTendersNotFound) {
 			logger.Warn("no tenders for employee", slog.String("username", username), slog.String("err", err.Error()))
