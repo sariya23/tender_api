@@ -103,7 +103,7 @@ func TestGetEmployeeTenders_Success(t *testing.T) {
 	}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, usermame).Return(models.Employee{Username: usermame}, nil)
-	mockTenderRepo.On("GetEmployeeTenders", ctx, 0).Return(expectedTenders, nil)
+	mockTenderRepo.On("GetEmployeeTenders", ctx, 0, usermame).Return(expectedTenders, nil)
 
 	// Act
 	tenders, err := tenderService.GetEmployeeTendersByUsername(ctx, usermame)
@@ -148,14 +148,14 @@ func TestGetEmployeeTenders_FailEmployeeTendersNotFound(t *testing.T) {
 	mockOrgRepo := new(mocks.MockOrgRepo)
 	mockResponsibler := new(mocks.MockEmployeeResponsibler)
 	logger := slogdiscard.NewDiscardLogger()
-	usermame := "qwe"
+	username := "qwe"
 	expectedTenders := []models.Tender{}
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, usermame).Return(models.Employee{Username: usermame}, nil)
-	mockTenderRepo.On("GetEmployeeTenders", ctx, 0).Return(expectedTenders, outerror.ErrEmployeeTendersNotFound)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, username).Return(models.Employee{Username: username}, nil)
+	mockTenderRepo.On("GetEmployeeTenders", ctx, 0, username).Return(expectedTenders, outerror.ErrEmployeeTendersNotFound)
 
 	// Act
-	tenders, err := tenderService.GetEmployeeTendersByUsername(ctx, usermame)
+	tenders, err := tenderService.GetEmployeeTendersByUsername(ctx, username)
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeTendersNotFound)
