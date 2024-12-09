@@ -26,7 +26,7 @@ func TestCreateTenders_Success(t *testing.T) {
 		TenderName:      "Tender 1",
 		Description:     "qwe",
 		ServiceType:     "op",
-		Status:          "open",
+		Status:          "CREATED",
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
@@ -34,7 +34,7 @@ func TestCreateTenders_Success(t *testing.T) {
 		TenderName:      "Tender 1",
 		Description:     "qwe",
 		ServiceType:     "op",
-		Status:          "open",
+		Status:          "CREATED",
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
@@ -66,7 +66,7 @@ func TestCreateTenders_FailEmployeeNotFound(t *testing.T) {
 		TenderName:      "Tender 1",
 		Description:     "qwe",
 		ServiceType:     "op",
-		Status:          "open",
+		Status:          "CREATED",
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
@@ -97,7 +97,7 @@ func TestCreateTenders_FailOrgNotFound(t *testing.T) {
 		TenderName:      "Tender 1",
 		Description:     "qwe",
 		ServiceType:     "op",
-		Status:          "open",
+		Status:          "CREATED",
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
