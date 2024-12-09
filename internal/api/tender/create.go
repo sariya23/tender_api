@@ -13,6 +13,7 @@ import (
 	"github.com/sariya23/tender/internal/api"
 	"github.com/sariya23/tender/internal/lib/unmarshal"
 	outerror "github.com/sariya23/tender/internal/out_error"
+	"github.com/sariya23/tender/internal/repository"
 )
 
 func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
@@ -62,7 +63,11 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 			return
 		}
 		logger.Info("validate success")
-
+		if !repository.CheckTenderStatus(createReq.Tender.Status) {
+			logger.Warn("unknown tender status", slog.String("status", createReq.Tender.Status))
+			c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("unknown status \"%s\"", createReq.Tender.Status)})
+			return
+		}
 		tender, err := s.tenderService.CreateTender(ctx, createReq.Tender)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {

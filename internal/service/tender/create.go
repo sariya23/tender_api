@@ -8,6 +8,7 @@ import (
 
 	"github.com/sariya23/tender/internal/domain/models"
 	outerror "github.com/sariya23/tender/internal/out_error"
+	"github.com/sariya23/tender/internal/repository"
 )
 
 // CreateTender создает тендер с данными, переданными в tender.
@@ -51,6 +52,11 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 		return models.Tender{}, fmt.Errorf("cannot check that employee responsible for organization: %w", err)
 	}
 	logger.Info("success check employee responsible")
+
+	if !repository.CheckTenderStatus(tender.Status) {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrUnknownTenderStatus)
+	}
+
 	createdTender, err := s.tenderRepo.CreateTender(ctx, tender)
 	if err != nil {
 		logger.Error("cannot create tender", slog.String("err", err.Error()))
