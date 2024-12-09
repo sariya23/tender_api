@@ -56,7 +56,7 @@ func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context) gin.Ha
 			c.Redirect(http.StatusMovedPermanently, "/api/tenders")
 			return
 		}
-
+		logger.Info("try get employee tenders", slog.String("username", username))
 		tenders, err := s.tenderService.GetEmployeeTendersByUsername(ctx, username)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {

@@ -120,7 +120,42 @@ func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType strin
 	return tenders, nil
 }
 func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) ([]models.Tender, error) {
-	panic("impl me")
+	const op = "repository.postgres.tender.GetEmployeeTenders"
+	query := `select name, description, service_type, status, organization_id, creator_username 
+	from tender
+	where creator_username = $1`
+	tenders := []models.Tender{}
+
+	rows, err := s.connection.Query(ctx, query, empl.Username)
+	if err != nil {
+		return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		tender := models.Tender{}
+		err := rows.Scan(
+			&tender.TenderName,
+			&tender.Description,
+			&tender.ServiceType,
+			&tender.Status,
+			&tender.OrganizationId,
+			&tender.CreatorUsername,
+		)
+		if err != nil {
+			return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
+		}
+
+		tenders = append(tenders, tender)
+
+		if err := rows.Err(); err != nil {
+			return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
+		}
+	}
+	if len(tenders) == 0 {
+		return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeTendersNotFound)
+	}
+	return tenders, nil
 }
 func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
 	panic("impl me")
