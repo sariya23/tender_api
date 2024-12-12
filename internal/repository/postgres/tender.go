@@ -64,10 +64,11 @@ func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (creat
 func (s *Storage) GetAllTenders(ctx context.Context) ([]models.Tender, error) {
 	const op = "repository.postgres.tender.GetAllTenders"
 
-	query := `select name, description, service_type, status, organization_id, creator_username from tender`
+	query := `select name, description, service_type, status, organization_id, creator_username from tender
+	where selected_version = $1`
 	tenders := []models.Tender{}
 
-	rows, err := s.connection.Query(ctx, query)
+	rows, err := s.connection.Query(ctx, query, true)
 	if err != nil {
 		return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -99,11 +100,10 @@ func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType strin
 
 	query := `select name, description, service_type, status, organization_id, creator_username
 	from tender
-	where service_type=$1
-	order by version desc`
+	where service_type=$1 and selected_version=$2`
 	tenders := []models.Tender{}
 
-	rows, err := s.connection.Query(ctx, query, serviceType)
+	rows, err := s.connection.Query(ctx, query, serviceType, true)
 
 	if err != nil {
 		return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
@@ -134,12 +134,10 @@ func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) 
 	const op = "repository.postgres.tender.GetEmployeeTenders"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 	from tender
-	where creator_username = $1
-	order by versrion desc
-	limit 1`
+	where creator_username = $1 and selected_version=$2`
 	tenders := []models.Tender{}
 
-	rows, err := s.connection.Query(ctx, query, empl.Username)
+	rows, err := s.connection.Query(ctx, query, empl.Username, true)
 	if err != nil {
 		return []models.Tender{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -180,13 +178,11 @@ func (s *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tende
 	const op = "repository.postgres.tender.GetTenderById"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 	from tender
-	where tender_id = $1
-	order by version desc
-	limit 1`
+	where tender_id = $1 and selected_version=$2`
 
 	var tender models.Tender
 
-	row := s.connection.QueryRow(ctx, query, tenderId)
+	row := s.connection.QueryRow(ctx, query, tenderId, true)
 	err := row.Scan(
 		&tender.TenderName,
 		&tender.Description,
@@ -216,7 +212,7 @@ func (s *Storage) GetTenderStatus(ctx context.Context, tenderStatus string) (str
 
 func (s *Storage) getLastInsertedTenderId(ctx context.Context) (int, error) {
 	const op = "repository.postgres.tender.getLastInsertedTenderId"
-	query := `select tender_id from tender order by version desc limit 1`
+	query := `select tender_id from tender order by tender_id desc limit 1`
 	row := s.connection.QueryRow(ctx, query)
 	var tenderId int
 	err := row.Scan(&tenderId)
