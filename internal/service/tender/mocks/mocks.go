@@ -28,6 +28,11 @@ type MockTenderRepo struct {
 	mock.Mock
 }
 
+func (m *MockTenderRepo) GetLastInsertedTenderId(ctx context.Context) (int, error) {
+	args := m.Called(ctx)
+	return args.Get(0).(int), args.Error(1)
+}
+
 func (m *MockTenderRepo) CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error) {
 	args := m.Called(ctx, tender)
 	return args.Get(0).(models.Tender), args.Error(1)

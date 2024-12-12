@@ -16,6 +16,7 @@ type TenderRepository interface {
 	GetTenderById(ctx context.Context, tenderId int) (models.Tender, error)
 	FindTenderVersion(ctx context.Context, tenderId int, version int) error
 	GetTenderStatus(ctx context.Context, tenderStatus string) (string, error)
+	GetLastInsertedTenderId(ctx context.Context) (int, error)
 }
 
 type EmployeeRepository interface {
