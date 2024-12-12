@@ -100,8 +100,7 @@ func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType strin
 	query := `select name, description, service_type, status, organization_id, creator_username
 	from tender
 	where service_type=$1
-	order by version desc
-	limit 1`
+	order by version desc`
 	tenders := []models.Tender{}
 
 	rows, err := s.connection.Query(ctx, query, serviceType)
