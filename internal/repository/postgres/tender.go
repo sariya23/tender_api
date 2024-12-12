@@ -13,7 +13,7 @@ import (
 func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (createdTender models.Tender, err error) {
 	const op = "repository.postgres.tender.CreateTender"
 
-	lastTenderId, err := s.getLastInsertedTenderId(ctx)
+	lastTenderId, err := s.GetLastInsertedTenderId(ctx)
 	if err != nil {
 		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -210,7 +210,7 @@ func (s *Storage) GetTenderStatus(ctx context.Context, tenderStatus string) (str
 	panic("impl me")
 }
 
-func (s *Storage) getLastInsertedTenderId(ctx context.Context) (int, error) {
+func (s *Storage) GetLastInsertedTenderId(ctx context.Context) (int, error) {
 	const op = "repository.postgres.tender.getLastInsertedTenderId"
 	query := `select tender_id from tender order by tender_id desc limit 1`
 	row := s.connection.QueryRow(ctx, query)

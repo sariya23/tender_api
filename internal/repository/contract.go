@@ -31,7 +31,3 @@ type OrganizationRepository interface {
 type EmployeeResponsibler interface {
 	CheckResponsibility(ctx context.Context, emplId int, orgId int) error
 }
-
-func CheckTenderStatus(tenderStatus string) bool {
-	return tenderStatus == "CREATED" || tenderStatus == "CLOSED" || tenderStatus == "PUBLISHED"
-}
