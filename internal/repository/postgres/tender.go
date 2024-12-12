@@ -13,8 +13,22 @@ import (
 func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (createdTender models.Tender, err error) {
 	const op = "repository.postgres.tender.CreateTender"
 
-	createQuery := `insert into tender(name, description, service_type, status, organization_id, creator_username)
-	values ($1, $2, $3, $4, $5, $6) returning name, description, service_type, organization_id, creator_username, status`
+	lastTenderId, err := s.getLastInsertedTenderId(ctx)
+	if err != nil {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+	args := pgx.NamedArgs{
+		"tender_id":    lastTenderId + 1,
+		"name":         tender.TenderName,
+		"desc":         tender.Description,
+		"service_type": tender.ServiceType,
+		"status":       tender.Status,
+		"org_id":       tender.OrganizationId,
+		"username":     tender.CreatorUsername,
+		"version":      1,
+	}
+	createQuery := `insert into tender values (@tender_id, @name, @desc, @service_type, @status, @org_id, @username, @version) 
+	returning name, description, service_type, organization_id, creator_username, status`
 	createdTender = models.Tender{}
 
 	tx, err := s.connection.BeginTx(ctx, pgx.TxOptions{})
@@ -31,12 +45,7 @@ func (s *Storage) CreateTender(ctx context.Context, tender models.Tender) (creat
 	row := tx.QueryRow(
 		ctx,
 		createQuery,
-		tender.TenderName,
-		tender.Description,
-		tender.ServiceType,
-		tender.Status,
-		tender.OrganizationId,
-		tender.CreatorUsername,
+		args,
 	)
 	err = row.Scan(
 		&createdTender.TenderName,
@@ -90,7 +99,9 @@ func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType strin
 
 	query := `select name, description, service_type, status, organization_id, creator_username
 	from tender
-	where service_type=$1`
+	where service_type=$1
+	order by version desc
+	limit 1`
 	tenders := []models.Tender{}
 
 	rows, err := s.connection.Query(ctx, query, serviceType)
@@ -124,7 +135,9 @@ func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) 
 	const op = "repository.postgres.tender.GetEmployeeTenders"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 	from tender
-	where creator_username = $1`
+	where creator_username = $1
+	order by versrion desc
+	limit 1`
 	tenders := []models.Tender{}
 
 	rows, err := s.connection.Query(ctx, query, empl.Username)
@@ -168,7 +181,9 @@ func (s *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tende
 	const op = "repository.postgres.tender.GetTenderById"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 	from tender
-	where tender_id = $1`
+	where tender_id = $1
+	order by version desc
+	limit 1`
 
 	var tender models.Tender
 
@@ -198,4 +213,16 @@ func (s *Storage) FindTenderVersion(ctx context.Context, tenderId int, version i
 
 func (s *Storage) GetTenderStatus(ctx context.Context, tenderStatus string) (string, error) {
 	panic("impl me")
+}
+
+func (s *Storage) getLastInsertedTenderId(ctx context.Context) (int, error) {
+	const op = "repository.postgres.tender.getLastInsertedTenderId"
+	query := `select tender_id from tender order by version desc limit 1`
+	row := s.connection.QueryRow(ctx, query)
+	var tenderId int
+	err := row.Scan(&tenderId)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+	return tenderId, nil
 }
