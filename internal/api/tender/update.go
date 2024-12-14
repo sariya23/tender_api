@@ -17,7 +17,7 @@ import (
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
-func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
+func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc {
 	return func(ginContext *gin.Context) {
 		const opeartionPlace = "internal.api.tenderapi.EditTedner"
 		logger := tenderSrv.logger.With("op", opeartionPlace)
@@ -105,6 +105,17 @@ func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc 
 		tender, err := tenderSrv.tenderService.EditTender(ctx, convertedTenderId, updatedReq.UpdateTenderData)
 
 		if err != nil {
+			if errors.Is(err, outerror.ErrUnknownTenderStatus) {
+				logger.Warn(fmt.Sprintf("tender status \"%s\" is unknown", *updatedReq.UpdateTenderData.Status))
+				ginContext.JSON(
+					http.StatusBadRequest,
+					schema.EditTenderResponse{
+						Message:       fmt.Sprintf("tender status \"%s\" is unknown", *updatedReq.UpdateTenderData.Status),
+						UpdatedTender: models.Tender{},
+					},
+				)
+				return
+			}
 			if errors.Is(err, outerror.ErrTenderNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId))
 				ginContext.JSON(

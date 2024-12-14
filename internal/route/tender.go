@@ -13,7 +13,7 @@ func AddTenderRoutes(ctx context.Context, tn *tenderapi.TenderService, r *gin.Ro
 		tender.GET("/", tn.GetTenders(ctx))
 		tender.GET("/my", tn.GetEmployeeTendersByUsername(ctx))
 		tender.POST("/new", tn.CreateTender(ctx))
-		tender.PATCH("/:tenderId/edit", tn.EditTedner(ctx))
+		tender.PATCH("/:tenderId/edit", tn.EditTender(ctx))
 		tender.PUT("/:tenderId/rollback/:version", tn.RollbackTender(ctx))
 	}
 }

@@ -13,10 +13,6 @@ func (tender *Tender) IsNewTenderHasStatusCreated() bool {
 	return tender.Status == "CREATED"
 }
 
-func (tender *Tender) CheckTenderStatus() bool {
-	return tender.Status == "CREATED" || tender.Status == "PUBLISHED" || tender.Status == "CLOSED"
-}
-
 type TenderToUpdate struct {
 	TenderName      *string `json:"name,omitempty"`
 	Description     *string `json:"description,omitempty"`
@@ -24,4 +20,12 @@ type TenderToUpdate struct {
 	Status          *string `json:"status,omitempty"`
 	OrganizationId  *int    `json:"organization_id,omitempty" validate:"omitempty,gte=0"`
 	CreatorUsername *string `json:"creator_username,omitempty"`
+}
+
+func (tender *TenderToUpdate) IsTenderStatusKnown() bool {
+	if tender.Status != nil {
+		return *tender.Status == "CREATED" || *tender.Status == "PUBLISHED" || *tender.Status == "CLOSED"
+	}
+
+	return true
 }

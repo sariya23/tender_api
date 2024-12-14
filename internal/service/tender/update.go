@@ -27,6 +27,11 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, up
 	var updatedOrg models.Organization
 	var err error
 
+	if !updateTender.IsTenderStatusKnown() {
+		logger.Error(fmt.Sprintf("tender status \"%s\" unknown", *updateTender.Status))
+		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrUnknownTenderStatus)
+	}
+
 	currTender, err := tenderSrv.tenderRepo.GetTenderById(ctx, tenderId)
 	if err != nil {
 		if errors.Is(err, outerror.ErrTenderNotFound) {

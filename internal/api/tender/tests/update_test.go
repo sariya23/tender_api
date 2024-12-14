@@ -77,7 +77,7 @@ func TestEditTender_SuccessAllFiedsUpdate(t *testing.T) {
 
 	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(mockTender, nil)
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -142,7 +142,7 @@ func TestEditTender_SuccessPartFiedsUpdate(t *testing.T) {
 	svc := tenderapi.New(logger, mockTenderService)
 	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(mockTender, nil)
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -208,7 +208,7 @@ func TestEditTender_SuccessUndefinedFields(t *testing.T) {
 	svc := tenderapi.New(logger, mockTenderService)
 	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(mockTender, nil)
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -261,7 +261,7 @@ func TestEditTender_FailInvalidTenderId(t *testing.T) {
 	svc := tenderapi.New(logger, mockTenderService)
 
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/qwe/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -301,7 +301,7 @@ func TestEditTender_FailJsonSyntaxError(t *testing.T) {
 	svc := tenderapi.New(logger, mockTenderService)
 
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -341,7 +341,7 @@ func TestEditTender_FailJsonTypeError(t *testing.T) {
 	svc := tenderapi.New(logger, mockTenderService)
 
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -382,7 +382,7 @@ func TestEditTender_FailValidationError(t *testing.T) {
 	svc := tenderapi.New(logger, mockTenderService)
 
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -451,7 +451,7 @@ func TestEditTender_FailTenderNotFound(t *testing.T) {
 
 	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrTenderNotFound)
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -520,7 +520,7 @@ func TestEditTender_FailEmployeeNotFound(t *testing.T) {
 
 	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrEmployeeNotFound)
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -589,7 +589,7 @@ func TestEditTender_FailOrgNotFound(t *testing.T) {
 
 	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrOrganizationNotFound)
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -658,7 +658,73 @@ func TestEditTender_FailEmployeeNotResponsibleForOrg(t *testing.T) {
 
 	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrEmployeeNotResponsibleForOrganization)
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
+	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
+func TestEditTender_FailUnknownTenderStatus(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+
+	tenderName := "update Tender 1"
+	description := "update qwe"
+	serviceType := "update op"
+	status := "update open"
+	organizationId := 2
+	creatorUsername := "update qwe"
+
+	tenderToUpdate := models.TenderToUpdate{
+		TenderName:      &tenderName,
+		Description:     &description,
+		ServiceType:     &serviceType,
+		Status:          &status,
+		OrganizationId:  &organizationId,
+		CreatorUsername: &creatorUsername,
+	}
+	reqBody := `
+		{
+			"update_tender_data": {
+				"name": "update Tender 1",
+				"description": "update qwe",
+				"service_type": "update op",
+				"status": "update open",
+				"organization_id": 2,
+				"creator_username": "update qwe"
+			}
+		}`
+
+	expectedBody := `
+		{
+			"updated_tender": {
+				"name": "",
+				"description": "",
+				"service_type": "",
+				"status": "",
+				"organization_id": 0,
+				"creator_username": ""
+			},
+			"message": "tender status \"update open\" is unknown"
+		}`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrUnknownTenderStatus)
+	router := gin.New()
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
@@ -724,7 +790,7 @@ func TestEditTender_FailCannotUpdateTender(t *testing.T) {
 	someErr := errors.New("some error")
 	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, someErr)
 	router := gin.New()
-	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTedner(ctx))
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
