@@ -130,7 +130,7 @@ func (s *Storage) GetTendersByServiceType(ctx context.Context, serviceType strin
 
 	return tenders, nil
 }
-func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) ([]models.Tender, error) {
+func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) (t []models.Tender, err error) {
 	const op = "repository.postgres.tender.GetEmployeeTenders"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 	from tender
@@ -180,7 +180,11 @@ func (s *Storage) EditTender(
 	insert into tender values (@name, @desc, @srv_type, @status, @org_id, @username, @version, @selected_version)
 	returning name, description, service_type, status, organization_id, creator_username`
 
-	args := pgx.NamedArgs{"selected_version": true}
+	lastTenderVersion, err := s.getLastTenderVersion(ctx, tenderId)
+	if err != nil {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+	args := pgx.NamedArgs{"selected_version": true, "version": lastTenderVersion + 1}
 
 	if newName := updateTender.TenderName; newName == nil {
 		args["name"] = oldTender.TenderName
@@ -218,13 +222,23 @@ func (s *Storage) EditTender(
 		args["username"] = newUsername
 	}
 
-	err := s.deactivateTenderVersion(ctx, tenderId)
+	tx, err := s.connection.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
+	err = s.deactivateTenderVersion(ctx, tenderId)
 	if err != nil {
 		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
 	}
 	var tender models.Tender
-
-	row := s.connection.QueryRow(ctx, insertQuery, args)
+	row := tx.QueryRow(ctx, insertQuery, args)
 	err = row.Scan(
 		&tender.TenderName,
 		&tender.Description,
