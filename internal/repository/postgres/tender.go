@@ -66,7 +66,7 @@ func (storage *Storage) GetAllTenders(ctx context.Context) ([]models.Tender, err
 	const operationPlace = "repository.postgres.tender.GetAllTenders"
 
 	query := `select name, description, service_type, status, organization_id, creator_username from tender
-				where selected_version = $1
+				where is_active_version = $1
 	`
 	tenders := []models.Tender{}
 
@@ -102,7 +102,7 @@ func (storage *Storage) GetTendersByServiceType(ctx context.Context, serviceType
 
 	query := `select name, description, service_type, status, organization_id, creator_username
 				from tender
-				where service_type=$1 and selected_version=$2`
+				where service_type=$1 and is_active_version=$2`
 	tenders := []models.Tender{}
 
 	rows, err := storage.connection.Query(ctx, query, serviceType, true)
@@ -136,7 +136,7 @@ func (storage *Storage) GetEmployeeTenders(ctx context.Context, empl models.Empl
 	const operationPlace = "repository.postgres.tender.GetEmployeeTenders"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 				from tender
-				where creator_username = $1 and selected_version=$2`
+				where creator_username = $1 and is_active_version=$2`
 	tenders := []models.Tender{}
 
 	rows, err := storage.connection.Query(ctx, query, empl.Username, true)
@@ -179,14 +179,14 @@ func (storage *Storage) EditTender(
 	const operationPlace = "repository.postgres.tender.EditTender"
 
 	insertQuery := `
-	insert into tender values (@tender_id, @name, @desc, @srv_type, @status, @org_id, @username, @version, @selected_version)
+	insert into tender values (@tender_id, @name, @desc, @srv_type, @status, @org_id, @username, @version, @is_active_version)
 	returning name, description, service_type, status, organization_id, creator_username`
 
 	lastTenderVersion, err := storage.getLastTenderVersion(ctx, tenderId)
 	if err != nil {
 		return models.Tender{}, fmt.Errorf("%s.getLastTenderVersion: %w", operationPlace, err)
 	}
-	args := pgx.NamedArgs{"selected_version": true, "version": lastTenderVersion + 1, "tender_id": tenderId}
+	args := pgx.NamedArgs{"is_active_version": true, "version": lastTenderVersion + 1, "tender_id": tenderId}
 
 	if newName := updateTender.TenderName; newName == nil {
 		args["name"] = oldTender.TenderName
@@ -235,7 +235,7 @@ func (storage *Storage) EditTender(
 			tx.Commit(ctx)
 		}
 	}()
-	deactivateQuery := "update tender set selected_version = $1 where tender_id = $2"
+	deactivateQuery := "update tender set is_active_version = $1 where tender_id = $2"
 	_, err = tx.Exec(ctx, deactivateQuery, false, tenderId)
 	if err != nil {
 		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
@@ -259,8 +259,8 @@ func (storage *Storage) EditTender(
 }
 func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (err error) {
 	const operationPlace = "repository.postgres.tender.RollbackTender"
-	deactivateVersionQuery := `update tender set selected_version = $1 where tender_id = $2`
-	rollbackQuery := `update tender set selected_version = $1 where tender_id = $2 and version = $3`
+	deactivateVersionQuery := `update tender set is_active_version = $1 where tender_id = $2`
+	rollbackQuery := `update tender set is_active_version = $1 where tender_id = $2 and version = $3`
 
 	tx, err := storage.connection.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -289,7 +289,7 @@ func (storage *Storage) GetTenderById(ctx context.Context, tenderId int) (models
 	const operationPlace = "repository.postgres.tender.GetTenderById"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 				from tender
-				where tender_id = $1 and selected_version=$2`
+				where tender_id = $1 and is_active_version=$2`
 
 	var tender models.Tender
 
