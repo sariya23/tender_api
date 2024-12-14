@@ -168,17 +168,17 @@ func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) 
 	}
 	return tenders, nil
 }
-func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
+func (s *Storage) EditTender(
+	ctx context.Context,
+	oldTender models.Tender,
+	tenderId int,
+	updateTender models.TenderToUpdate,
+) (models.Tender, error) {
 	const op = "repository.postgres.tender.EditTender"
 
 	insertQuery := `
 	insert into tender values (@name, @desc, @srv_type, @status, @org_id, @username, @version, @selected_version)
 	returning name, description, service_type, status, organization_id, creator_username`
-
-	oldTender, err := s.GetTenderById(ctx, tenderId)
-	if err != nil {
-		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
-	}
 
 	args := pgx.NamedArgs{"selected_version": true}
 
@@ -218,7 +218,7 @@ func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender mod
 		args["username"] = newUsername
 	}
 
-	err = s.deactivateTenderVersion(ctx, tenderId)
+	err := s.deactivateTenderVersion(ctx, tenderId)
 	if err != nil {
 		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
 	}

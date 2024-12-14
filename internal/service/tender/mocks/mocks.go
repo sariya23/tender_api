@@ -53,8 +53,8 @@ func (m *MockTenderRepo) GetEmployeeTenders(ctx context.Context, empl models.Emp
 	return args.Get(0).([]models.Tender), args.Error(1)
 }
 
-func (m *MockTenderRepo) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
-	args := m.Called(ctx, tenderId, updateTender)
+func (m *MockTenderRepo) EditTender(ctx context.Context, oldTender models.Tender, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
+	args := m.Called(ctx, oldTender, tenderId, updateTender)
 	return args.Get(0).(models.Tender), args.Error(1)
 }
 

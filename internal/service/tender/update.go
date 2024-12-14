@@ -141,7 +141,7 @@ func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTend
 		}
 	}
 
-	updatedTender, err := s.tenderRepo.EditTender(ctx, tenderId, updateTender)
+	updatedTender, err := s.tenderRepo.EditTender(ctx, currTender, tenderId, updateTender)
 
 	if err != nil {
 		logger.Error("cannot update tender", slog.String("err", err.Error()))

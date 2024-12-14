@@ -49,7 +49,7 @@ func TestUpdateTender_SuccessChangeDesc(t *testing.T) {
 
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("GetTenderById", ctx, 1).Return(currTender, nil)
-	mockTenderRepo.On("EditTender", ctx, 1, updateTender).Return(exptectedTender, nil)
+	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
 	tender, err := tenderService.EditTender(ctx, 1, updateTender)
@@ -99,7 +99,7 @@ func TestUpdateTender_SuccessChangeOnlyUser(t *testing.T) {
 	mockTenderRepo.On("GetTenderById", ctx, 1).Return(currTender, nil)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, user).Return(models.Employee{ID: 2, Username: user}, nil)
 	mockResponsibler.On("CheckResponsibility", ctx, 2, 1).Return(nil)
-	mockTenderRepo.On("EditTender", ctx, 1, updateTender).Return(exptectedTender, nil)
+	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
 	tender, err := tenderService.EditTender(ctx, 1, updateTender)
@@ -150,7 +150,7 @@ func TestUpdateTender_SuccessChangeOnlyOrg(t *testing.T) {
 	mockOrgRepo.On("GetOrganizationById", ctx, orgId).Return(models.Organization{ID: 2}, nil)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, user).Return(models.Employee{ID: 2, Username: "qwe"}, nil)
 	mockResponsibler.On("CheckResponsibility", ctx, 2, 2).Return(nil)
-	mockTenderRepo.On("EditTender", ctx, 1, updateTender).Return(exptectedTender, nil)
+	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
 	tender, err := tenderService.EditTender(ctx, 1, updateTender)
@@ -201,7 +201,7 @@ func TestUpdateTender_SuccessChangeOrgAndUser(t *testing.T) {
 	mockOrgRepo.On("GetOrganizationById", ctx, orgId).Return(models.Organization{ID: 1}, nil)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, user).Return(models.Employee{ID: 2, Username: user}, nil)
 	mockResponsibler.On("CheckResponsibility", ctx, 2, 1).Return(nil)
-	mockTenderRepo.On("EditTender", ctx, 1, updateTender).Return(exptectedTender, nil)
+	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
 	tender, err := tenderService.EditTender(ctx, 1, updateTender)
