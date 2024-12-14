@@ -12,7 +12,7 @@ type CreateTenderRequest struct {
 }
 
 type CreateTenderResponse struct {
-	Tender  models.Tender `json:"tender,omitempty"`
+	Tender  models.Tender `json:"tender"`
 	Message string        `json:"message"`
 }
 

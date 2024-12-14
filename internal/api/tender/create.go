@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	schema "github.com/sariya23/tender/internal/api"
+	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/unmarshal"
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
@@ -32,7 +33,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 		bodyData, err := io.ReadAll(body)
 		if err != nil {
 			logger.Error("cannot read body", slog.String("err", err.Error()))
-			ginContext.JSON(http.StatusInternalServerError, schema.CreateTenderResponse{Message: "internal error"})
+			ginContext.JSON(http.StatusInternalServerError, schema.CreateTenderResponse{Message: "internal error", Tender: models.Tender{}})
 			return
 		}
 		logger.Info("success read body")
@@ -40,15 +41,27 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 		if err != nil {
 			if errors.Is(err, unmarshal.ErrSyntax) {
 				logger.Warn("req syntax error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusBadRequest, schema.CreateTenderResponse{Message: fmt.Sprintf("json syntax err: %s", err.Error())})
+				ginContext.JSON(
+					http.StatusBadRequest,
+					schema.CreateTenderResponse{
+						Message: fmt.Sprintf("json syntax err: %s", err.Error()),
+						Tender:  models.Tender{},
+					},
+				)
 				return
 			} else if errors.Is(err, unmarshal.ErrType) {
 				logger.Warn("req type error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusBadRequest, schema.CreateTenderResponse{Message: fmt.Sprintf("json type err: %s", err.Error())})
+				ginContext.JSON(
+					http.StatusBadRequest,
+					schema.CreateTenderResponse{
+						Message: fmt.Sprintf("json type err: %s", err.Error()),
+						Tender:  models.Tender{},
+					},
+				)
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusInternalServerError, schema.CreateTenderResponse{Message: "internal error"})
+				ginContext.JSON(http.StatusInternalServerError, schema.CreateTenderResponse{Message: "internal error", Tender: models.Tender{}})
 				return
 			}
 		}
@@ -58,7 +71,13 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 		err = validate.Struct(&createReq)
 		if err != nil {
 			logger.Error("validation error", slog.String("err", err.Error()))
-			ginContext.JSON(http.StatusBadRequest, schema.CreateTenderResponse{Message: fmt.Sprintf("validation failed: %s", err.Error())})
+			ginContext.JSON(
+				http.StatusBadRequest,
+				schema.CreateTenderResponse{
+					Message: fmt.Sprintf("validation failed: %s", err.Error()),
+					Tender:  models.Tender{},
+				},
+			)
 			return
 		}
 		logger.Info("validate success")
@@ -73,6 +92,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 							"employee with username=\"%s\" not found",
 							createReq.Tender.CreatorUsername,
 						),
+						Tender: models.Tender{},
 					},
 				)
 				return
@@ -85,6 +105,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 							"organization with id=%d not found",
 							createReq.Tender.OrganizationId,
 						),
+						Tender: models.Tender{},
 					},
 				)
 				return
@@ -98,16 +119,29 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 							createReq.Tender.CreatorUsername,
 							createReq.Tender.OrganizationId,
 						),
+						Tender: models.Tender{},
 					},
 				)
 				return
 			} else if errors.Is(err, outerror.ErrUnknownTenderStatus) {
 				logger.Warn("unknown tender status", slog.String("status", createReq.Tender.Status))
-				ginContext.JSON(http.StatusBadRequest, schema.CreateTenderResponse{Message: fmt.Sprintf("unknown tender status \"%s\"", createReq.Tender.Status)})
+				ginContext.JSON(
+					http.StatusBadRequest,
+					schema.CreateTenderResponse{
+						Message: fmt.Sprintf("unknown tender status \"%s\"", createReq.Tender.Status),
+						Tender:  models.Tender{},
+					},
+				)
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusInternalServerError, schema.CreateTenderResponse{Message: "internal error"})
+				ginContext.JSON(
+					http.StatusInternalServerError,
+					schema.CreateTenderResponse{
+						Message: "internal error",
+						Tender:  models.Tender{},
+					},
+				)
 				return
 			}
 		}
