@@ -21,22 +21,22 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 		logger := tenderSrv.logger.With("op", operationPlace)
 		logger.Info(fmt.Sprintf("request to %v", ginContext.Request.URL))
 
-		b := ginContext.Request.Body
+		body := ginContext.Request.Body
 		defer func() {
-			err := b.Close()
+			err := body.Close()
 			if err != nil {
 				logger.Error("cannot close body", slog.String("err", err.Error()))
 			}
 		}()
 
-		body, err := io.ReadAll(b)
+		bodyData, err := io.ReadAll(body)
 		if err != nil {
 			logger.Error("cannot read body", slog.String("err", err.Error()))
 			ginContext.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 			return
 		}
 		logger.Info("success read body")
-		createReq, err := unmarshal.CreateRequest([]byte(body))
+		createReq, err := unmarshal.CreateRequest([]byte(bodyData))
 		if err != nil {
 			if errors.Is(err, unmarshal.ErrSyntax) {
 				logger.Warn("req syntax error", slog.String("err", err.Error()))
