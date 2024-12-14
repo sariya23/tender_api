@@ -169,7 +169,17 @@ func (s *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) 
 	return tenders, nil
 }
 func (s *Storage) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
-	panic("impl me")
+	const op = "repository.postgres.tender.EditTender"
+
+	insertQuery := `insert into tender values (@name, @desc, @service_type, @status, @org_id, @username, @version)`
+	deactivatePrevVersion := `update tender set selected_version = $1 where tender_id = $2 and selected_version = $3`
+
+	oldTender, err := s.GetTenderById(ctx, tenderId)
+	if err != nil {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	args := pgx.NamedArgs{}
 }
 func (s *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error) {
 	panic("impl me")
