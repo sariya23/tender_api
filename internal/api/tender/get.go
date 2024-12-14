@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	schema "github.com/sariya23/tender/internal/api"
+	"github.com/sariya23/tender/internal/domain/models"
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
@@ -53,8 +54,8 @@ func (tenderSrv *TenderService) GetEmployeeTendersByUsername(ctx context.Context
 
 		username := ginContext.Query("username")
 		if username == "" {
-			logger.Info("username not specified. Rediredr to /api/tenders")
-			ginContext.Redirect(http.StatusMovedPermanently, "/api/tenders")
+			logger.Info("username not specified")
+			ginContext.JSON(http.StatusBadRequest, schema.GetEmployeeTendersResponse{Message: "username query parameter not specified", Tenders: []models.Tender{}})
 			return
 		}
 		logger.Info("try get employee tenders", slog.String("username", username))
@@ -66,18 +67,20 @@ func (tenderSrv *TenderService) GetEmployeeTendersByUsername(ctx context.Context
 					http.StatusBadRequest,
 					schema.GetEmployeeTendersResponse{
 						Message: fmt.Sprintf("employee with username \"%s\" not found", username),
+						Tenders: []models.Tender{},
 					},
 				)
 				return
 			} else if errors.Is(err, outerror.ErrEmployeeTendersNotFound) {
 				logger.Warn(fmt.Sprintf("not found tenders for employee with username \"%s\"", username))
 				ginContext.JSON(
-					http.StatusBadRequest,
+					http.StatusOK,
 					schema.GetEmployeeTendersResponse{
 						Message: fmt.Sprintf(
 							"not found tenders for employee with username \"%s\"",
 							username,
 						),
+						Tenders: []models.Tender{},
 					},
 				)
 				return

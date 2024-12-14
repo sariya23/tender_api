@@ -17,7 +17,7 @@ type CreateTenderResponse struct {
 }
 
 type GetEmployeeTendersResponse struct {
-	Tenders []models.Tender `json:"tenders,omitempty"`
+	Tenders []models.Tender `json:"tenders"`
 	Message string          `json:"message"`
 }
 

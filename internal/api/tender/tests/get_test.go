@@ -170,33 +170,6 @@ func TestGetEmployeeTenders_Success(t *testing.T) {
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
-// TestGetEmployeeTenders_SuccessRedirect проверяет, что
-// в случае, когда username пустой, то происходит редирект на
-// /api/tenders.
-func TestGetEmployeeTenders_SuccessRedirect(t *testing.T) {
-	// Arrange
-	gin.SetMode(gin.TestMode)
-	ctx := context.Background()
-
-	logger := slogdiscard.NewDiscardLogger()
-	mockTenderService := new(mocks.MockTenderServiceProvider)
-	svc := tenderapi.New(logger, mockTenderService)
-
-	req := httptest.NewRequest(http.MethodGet, "/tenders/my?username=", nil)
-	w := httptest.NewRecorder()
-
-	c, _ := gin.CreateTestContext(w)
-	c.Request = req
-
-	// Act
-	handler := svc.GetEmployeeTendersByUsername(ctx)
-	handler(c)
-
-	// Assert
-	assert.Equal(t, http.StatusMovedPermanently, w.Code)
-	require.Equal(t, w.Header().Values("location"), []string{"/api/tenders"})
-}
-
 // TestGetEmployeeTenders_FailEmployeeNotFound проверяет, что
 // если сотрудника с переданным username нет, то возвращается ошибка.
 func TestGetEmployeeTenders_FailEmployeeNotFound(t *testing.T) {
@@ -209,6 +182,7 @@ func TestGetEmployeeTenders_FailEmployeeNotFound(t *testing.T) {
 	username := "qwe"
 	expectedBody := `
 	{
+		"tenders": [],
 		"message": "employee with username \"qwe\" not found"
 	}
 	`
@@ -232,7 +206,7 @@ func TestGetEmployeeTenders_FailEmployeeNotFound(t *testing.T) {
 
 // TestGetEmployeeTenders_FailEmployeeTendersNotFound проверяет, что
 // если у переданного сотрудника нет тендеров, то возвращается ошибка.
-func TestGetEmployeeTenders_FailEmployeeTendersNotFound(t *testing.T) {
+func TestGetEmployeeTenders_SuccessEmployeeTendersNotFound(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
 	ctx := context.Background()
@@ -242,6 +216,7 @@ func TestGetEmployeeTenders_FailEmployeeTendersNotFound(t *testing.T) {
 	username := "qwe"
 	expectedBody := `
 	{
+		"tenders": [],
 		"message": "not found tenders for employee with username \"qwe\""
 	}
 	`
@@ -259,6 +234,6 @@ func TestGetEmployeeTenders_FailEmployeeTendersNotFound(t *testing.T) {
 	handler(c)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
