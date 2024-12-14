@@ -9,7 +9,7 @@ import (
 )
 
 type TenderApp struct {
-	API *tenderapi.TenderService
+	TenderHandlers *tenderapi.TenderService
 }
 
 func New(
@@ -20,6 +20,6 @@ func New(
 	responsibler repository.EmployeeResponsibler,
 ) *TenderApp {
 	tenderService := tendersrv.New(logger, tenderRepo, employeeRepo, orgRepo, responsibler)
-	tenderAPI := tenderapi.New(logger, tenderService)
-	return &TenderApp{tenderAPI}
+	tenderHandlers := tenderapi.New(logger, tenderService)
+	return &TenderApp{tenderHandlers}
 }

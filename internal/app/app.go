@@ -28,7 +28,8 @@ func New(
 
 	router := gin.Default()
 	apiRouterGroup := router.Group("/api")
-	route.AddTenderRoutes(ctx, tender.API, apiRouterGroup)
+	route.AddTenderRoutes(ctx, tender.TenderHandlers, apiRouterGroup)
+	route.AddPingRoute(apiRouterGroup)
 
 	serverApp := serverapp.New(serverAddr, router)
 

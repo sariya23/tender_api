@@ -6,7 +6,7 @@ import (
 )
 
 type ServerApp struct {
-	server *http.Server
+	Server *http.Server
 }
 
 func New(addr string, handler http.Handler) *ServerApp {
@@ -14,11 +14,11 @@ func New(addr string, handler http.Handler) *ServerApp {
 		Addr:    addr,
 		Handler: handler,
 	}
-	return &ServerApp{server: server}
+	return &ServerApp{Server: server}
 }
 
 func (srv *ServerApp) MustRun() {
-	if err := srv.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := srv.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("listen: %s\n", err)
 	}
 }

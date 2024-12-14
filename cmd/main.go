@@ -2,45 +2,40 @@ package main
 
 import (
 	"context"
+	"log"
 	"log/slog"
-	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/gin-gonic/gin"
-	tenderapi "github.com/sariya23/tender/internal/api/tender"
+	"github.com/sariya23/tender/internal/app"
 	"github.com/sariya23/tender/internal/config"
-	"github.com/sariya23/tender/internal/repository/postgres"
-	tendersrv "github.com/sariya23/tender/internal/service/tender"
 )
 
 func main() {
 	ctx := context.Background()
 
 	cfg := config.MustLoad()
-	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	log.Info("starting app at", slog.String("addr", cfg.ServerAddress))
-	db := postgres.MustNewConnection(ctx, cfg.PostgresConn)
-	log.Info("db connect success")
-	tenderService := tendersrv.New(log, db, db, db, db)
-	tenderAPI := tenderapi.New(log, tenderService)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logger.Info("starting app at", slog.String("addr", cfg.ServerAddress))
+	app := app.New(ctx, cfg.PostgresConn, logger, cfg.ServerAddress)
+	logger.Info("app init success")
+	go app.Server.MustRun()
 
-	r := gin.Default()
-	api := r.Group("/api")
-	ping := api.Group("/ping")
-	{
-		ping.GET("/", func(c *gin.Context) { c.JSON(http.StatusOK, struct{ Message string }{Message: "ok"}) })
-	}
-	tender := api.Group("/tenders")
-	{
-		tender.GET("/", tenderAPI.GetTenders(ctx))
-		tender.GET("/my", tenderAPI.GetEmployeeTendersByUsername(ctx))
-		tender.POST("/new", tenderAPI.CreateTender(ctx))
-		tender.PATCH("/:tenderId/edit", tenderAPI.EditTedner(ctx))
-		tender.PUT("/:tenderId/rollback/:version", tenderAPI.RollbackTender(ctx))
-	}
+	quitSignal := make(chan os.Signal, 1)
+	signal.Notify(quitSignal, syscall.SIGINT, syscall.SIGTERM)
+	<-quitSignal
+	logger.Info("Shutdown Server ...")
 
-	srv := &http.Server{Addr: cfg.ServerAddress, Handler: r}
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		panic(err.Error())
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	if err := app.Server.Server.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
 	}
+	select {
+	case <-ctx.Done():
+		logger.Info("timeout of 5 seconds.")
+	}
+	logger.Info("Server exiting")
 }
