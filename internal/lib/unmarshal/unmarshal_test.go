@@ -3,7 +3,7 @@ package unmarshal_test
 import (
 	"testing"
 
-	"github.com/sariya23/tender/internal/api"
+	schema "github.com/sariya23/tender/internal/api"
 	"github.com/sariya23/tender/internal/domain/models"
 	"github.com/sariya23/tender/internal/lib/unmarshal"
 	"github.com/stretchr/testify/require"
@@ -22,7 +22,7 @@ func TestCreateRequest_SuccessAllFields(t *testing.T) {
 			"creator_username": "qwe"			
 		}
 	}`
-	expectedReq := api.CreateTenderRequest{
+	expectedReq := schema.CreateTenderRequest{
 		Tender: models.Tender{
 			TenderName:      "qwe",
 			Description:     "qwe",
@@ -53,7 +53,7 @@ func TestCreateRequest_SuccessPartFields(t *testing.T) {
 			"creator_username": "qwe"			
 		}
 	}`
-	expectedReq := api.CreateTenderRequest{
+	expectedReq := schema.CreateTenderRequest{
 		Tender: models.Tender{
 			TenderName:      "",
 			Description:     "qwe",
@@ -120,7 +120,7 @@ func TestCreateRequest_FailSyntaxError(t *testing.T) {
 	}
 	for _, ts := range cases {
 		t.Run(ts.name, func(t *testing.T) {
-			expectedReq := api.CreateTenderRequest{}
+			expectedReq := schema.CreateTenderRequest{}
 
 			req, err := unmarshal.CreateRequest([]byte(ts.body))
 
@@ -170,7 +170,7 @@ func TestCreateRequest_FailTypeErr(t *testing.T) {
 	}
 	for _, ts := range cases {
 		t.Run(ts.name, func(t *testing.T) {
-			expectedReq := api.CreateTenderRequest{}
+			expectedReq := schema.CreateTenderRequest{}
 
 			req, err := unmarshal.CreateRequest([]byte(ts.body))
 
@@ -201,7 +201,7 @@ func TestCreateRequest_FailCannotUnmarshalListInStruct(t *testing.T) {
 			"creator_username": "qwe"			
 		}]
 	}`
-	expectedReq := api.CreateTenderRequest{
+	expectedReq := schema.CreateTenderRequest{
 		Tender: models.Tender{},
 	}
 

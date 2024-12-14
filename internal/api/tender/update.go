@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/sariya23/tender/internal/api"
+	schema "github.com/sariya23/tender/internal/api"
 	"github.com/sariya23/tender/internal/lib/unmarshal"
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
@@ -30,39 +30,39 @@ func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc 
 				slog.String("tender id", tenderId),
 				slog.String("err", err.Error()),
 			)
-			ginContext.JSON(http.StatusBadRequest, api.EditTenderResponse{Message: "wrong path"})
+			ginContext.JSON(http.StatusBadRequest, schema.EditTenderResponse{Message: "wrong path"})
 			return
 		}
 
-		b := ginContext.Request.Body
+		body := ginContext.Request.Body
 		defer func() {
-			err := b.Close()
+			err := body.Close()
 			if err != nil {
 				logger.Error("cannot close body", slog.String("err", err.Error()))
 			}
 		}()
 
-		body, err := io.ReadAll(b)
+		bodyData, err := io.ReadAll(body)
 		if err != nil {
 			logger.Error("cannot read body", slog.String("err", err.Error()))
-			ginContext.JSON(http.StatusInternalServerError, api.EditTenderResponse{Message: "internal error"})
+			ginContext.JSON(http.StatusInternalServerError, schema.EditTenderResponse{Message: "internal error"})
 			return
 		}
 		logger.Info("success read body")
 
-		updatedReq, err := unmarshal.EditRequest(body)
+		updatedReq, err := unmarshal.EditRequest(bodyData)
 		if err != nil {
 			if errors.Is(err, unmarshal.ErrSyntax) {
 				logger.Warn("req syntax error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusBadRequest, api.EditTenderResponse{Message: fmt.Sprintf("json syntax err: %s", err.Error())})
+				ginContext.JSON(http.StatusBadRequest, schema.EditTenderResponse{Message: fmt.Sprintf("json syntax err: %s", err.Error())})
 				return
 			} else if errors.Is(err, unmarshal.ErrType) {
 				logger.Warn("req type error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusBadRequest, api.EditTenderResponse{Message: fmt.Sprintf("json type err: %s", err.Error())})
+				ginContext.JSON(http.StatusBadRequest, schema.EditTenderResponse{Message: fmt.Sprintf("json type err: %s", err.Error())})
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusInternalServerError, api.EditTenderResponse{Message: "internal error"})
+				ginContext.JSON(http.StatusInternalServerError, schema.EditTenderResponse{Message: "internal error"})
 				return
 			}
 		}
@@ -72,7 +72,7 @@ func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc 
 		err = validate.Struct(&updatedReq)
 		if err != nil {
 			logger.Error("validation error", slog.String("err", err.Error()))
-			ginContext.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("validation failed: %s", err.Error())})
+			ginContext.JSON(http.StatusBadRequest, schema.CreateTenderResponse{Message: fmt.Sprintf("validation failed: %s", err.Error())})
 			return
 		}
 		logger.Info("validate success")
@@ -84,7 +84,7 @@ func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc 
 				logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId))
 				ginContext.JSON(
 					http.StatusBadRequest,
-					api.EditTenderResponse{
+					schema.EditTenderResponse{
 						Message: fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId),
 					},
 				)
@@ -98,7 +98,7 @@ func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc 
 				)
 				ginContext.JSON(
 					http.StatusBadRequest,
-					api.EditTenderResponse{
+					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
 							"updated employee with username=\"%s\" not found",
 							*updatedReq.UpdateTenderData.CreatorUsername,
@@ -115,7 +115,7 @@ func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc 
 				)
 				ginContext.JSON(
 					http.StatusBadRequest,
-					api.EditTenderResponse{
+					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
 							"updated organization with id=\"%d\" not found",
 							*updatedReq.UpdateTenderData.OrganizationId,
@@ -133,7 +133,7 @@ func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc 
 				)
 				ginContext.JSON(
 					http.StatusBadRequest,
-					api.EditTenderResponse{
+					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
 							"employee with username=\"%s\" not responsible for organization with id=\"%d\"",
 							*updatedReq.UpdateTenderData.CreatorUsername,
@@ -144,11 +144,11 @@ func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc 
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusInternalServerError, api.EditTenderResponse{Message: "internal error"})
+				ginContext.JSON(http.StatusInternalServerError, schema.EditTenderResponse{Message: "internal error"})
 				return
 			}
 		}
 		logger.Info("tender updated success")
-		ginContext.JSON(http.StatusOK, api.EditTenderResponse{Message: "ok", UpdatedTender: tender})
+		ginContext.JSON(http.StatusOK, schema.EditTenderResponse{Message: "ok", UpdatedTender: tender})
 	}
 }

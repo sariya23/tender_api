@@ -1,4 +1,4 @@
-package api
+package schema
 
 import "github.com/sariya23/tender/internal/domain/models"
 

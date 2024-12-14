@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sariya23/tender/internal/api"
+	schema "github.com/sariya23/tender/internal/api"
 )
 
-func CreateRequest(body []byte) (api.CreateTenderRequest, error) {
-	var req api.CreateTenderRequest
+func CreateRequest(body []byte) (schema.CreateTenderRequest, error) {
+	var req schema.CreateTenderRequest
 	err := json.Unmarshal(body, &req)
 
 	if err != nil {
@@ -17,19 +17,19 @@ func CreateRequest(body []byte) (api.CreateTenderRequest, error) {
 		var typeErr *json.UnmarshalTypeError
 
 		if errors.As(err, &syntaxErr) {
-			return api.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrSyntax)
+			return schema.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrSyntax)
 		} else if errors.As(err, &typeErr) {
-			return api.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrType)
+			return schema.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrType)
 		} else {
-			return api.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrUnknown)
+			return schema.CreateTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrUnknown)
 		}
 	}
 
 	return req, nil
 }
 
-func EditRequest(body []byte) (api.EditTenderRequest, error) {
-	var req api.EditTenderRequest
+func EditRequest(body []byte) (schema.EditTenderRequest, error) {
+	var req schema.EditTenderRequest
 	err := json.Unmarshal(body, &req)
 
 	if err != nil {
@@ -37,11 +37,11 @@ func EditRequest(body []byte) (api.EditTenderRequest, error) {
 		var typeErr *json.UnmarshalTypeError
 
 		if errors.As(err, &syntaxErr) {
-			return api.EditTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrSyntax)
+			return schema.EditTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrSyntax)
 		} else if errors.As(err, &typeErr) {
-			return api.EditTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrType)
+			return schema.EditTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrType)
 		} else {
-			return api.EditTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrUnknown)
+			return schema.EditTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrUnknown)
 		}
 	}
 

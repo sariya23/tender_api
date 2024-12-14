@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sariya23/tender/internal/api"
+	schema "github.com/sariya23/tender/internal/api"
 	tenderapi "github.com/sariya23/tender/internal/api/tender"
 	"github.com/sariya23/tender/internal/api/tender/mocks"
 	"github.com/sariya23/tender/internal/domain/models"
@@ -107,7 +107,7 @@ func TestCreateTender_FailUnmurshalSyntaxError(t *testing.T) {
 	handler(c)
 
 	// Assert
-	var resp api.CreateTenderResponse
+	var resp schema.CreateTenderResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -151,7 +151,7 @@ func TestCreateTender_FailUnmurshalTypeError(t *testing.T) {
 	handler(c)
 
 	// Assert
-	var resp api.CreateTenderResponse
+	var resp schema.CreateTenderResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -195,7 +195,7 @@ func TestCreateTender_FailNegativeOrgID(t *testing.T) {
 	handler(c)
 
 	// Assert
-	var resp api.CreateTenderResponse
+	var resp schema.CreateTenderResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -249,7 +249,7 @@ func TestCreateTender_FailEmployeeNotFound(t *testing.T) {
 	handler(c)
 
 	// Assert
-	var resp api.CreateTenderResponse
+	var resp schema.CreateTenderResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -302,7 +302,7 @@ func TestCreateTender_FailOrganizationNotFound(t *testing.T) {
 	handler(c)
 
 	// Assert
-	var resp api.CreateTenderResponse
+	var resp schema.CreateTenderResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -353,7 +353,7 @@ func TestCreateTender_FailEmployeerNotResponsibleForOrganization(t *testing.T) {
 	handler(c)
 
 	// Assert
-	var resp api.CreateTenderResponse
+	var resp schema.CreateTenderResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
