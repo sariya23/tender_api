@@ -33,9 +33,10 @@ func TestRollbackTender_Success(t *testing.T) {
 	}
 
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{}, nil).Once()
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(expectedTender, nil).Once()
 	mockTenderRepo.On("FindTenderVersion", ctx, 2, 1).Return(nil)
-	mockTenderRepo.On("RollbackTender", ctx, 2, 1).Return(expectedTender, nil)
+	mockTenderRepo.On("RollbackTender", ctx, 2, 1).Return(nil)
 
 	// Act
 	tender, err := tenderService.RollbackTender(ctx, 2, 1)
@@ -102,7 +103,7 @@ func TestRollbackTender_FailCannotRollbackTender(t *testing.T) {
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{}, nil)
 	mockTenderRepo.On("FindTenderVersion", ctx, 2, 1).Return(nil)
-	mockTenderRepo.On("RollbackTender", ctx, 2, 1).Return(models.Tender{}, someErr)
+	mockTenderRepo.On("RollbackTender", ctx, 2, 1).Return(someErr)
 
 	// Act
 	tender, err := tenderService.RollbackTender(ctx, 2, 1)

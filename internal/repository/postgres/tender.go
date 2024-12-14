@@ -257,17 +257,14 @@ func (storage *Storage) EditTender(
 
 	return tender, nil
 }
-func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (t models.Tender, err error) {
+func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (err error) {
 	const operationPlace = "repository.postgres.tender.RollbackTender"
 	deactivateVersionQuery := `update tender set selected_version = $1 where tender_id = $2`
 	rollbackQuery := `update tender set selected_version = $1 where tender_id = $2 and version = $3`
-	getRollbackTenderQuery := `select name, description, service_type, status, organization_id, creator_username
-							from tender
-							where tender_id = $1 and selected_version = $2`
 
 	tx, err := storage.connection.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
+		return fmt.Errorf("%s: %w", operationPlace, err)
 	}
 	defer func() {
 		if err != nil {
@@ -279,30 +276,14 @@ func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVers
 
 	_, err = tx.Exec(ctx, deactivateVersionQuery, false, tenderId)
 	if err != nil {
-		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
+		return fmt.Errorf("%s: %w", operationPlace, err)
 	}
 
 	_, err = tx.Exec(ctx, rollbackQuery, true, tenderId, toVersionRollback)
 	if err != nil {
-		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
+		return fmt.Errorf("%s: %w", operationPlace, err)
 	}
-
-	// стоит ли это тоже помещать в транзакцию
-	var tender models.Tender
-	// row := s.connection.QueryRow(ctx, getRollbackTender, tenderId, true)
-	row := tx.QueryRow(ctx, getRollbackTenderQuery, tenderId, true)
-	err = row.Scan(
-		&tender.TenderName,
-		&tender.Description,
-		&tender.ServiceType,
-		&tender.Status,
-		&tender.OrganizationId,
-		&tender.CreatorUsername,
-	)
-	if err != nil {
-		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
-	}
-	return tender, nil
+	return nil
 }
 func (storage *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tender, error) {
 	const operationPlace = "repository.postgres.tender.GetTenderById"

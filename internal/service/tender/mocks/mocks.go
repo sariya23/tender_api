@@ -58,9 +58,9 @@ func (m *MockTenderRepo) EditTender(ctx context.Context, oldTender models.Tender
 	return args.Get(0).(models.Tender), args.Error(1)
 }
 
-func (m *MockTenderRepo) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error) {
+func (m *MockTenderRepo) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) error {
 	args := m.Called(ctx, tenderId, toVersionRollback)
-	return args.Get(0).(models.Tender), args.Error(1)
+	return args.Error(0)
 }
 
 func (m *MockTenderRepo) GetTenderById(ctx context.Context, tenderId int) (models.Tender, error) {

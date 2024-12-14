@@ -34,11 +34,16 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context, tenderId int
 		return models.Tender{}, err
 	}
 
-	tender, err := tenderSrv.tenderRepo.RollbackTender(ctx, tenderId, version)
+	err = tenderSrv.tenderRepo.RollbackTender(ctx, tenderId, version)
 	if err != nil {
 		logger.Error("cannot rollback tender", slog.String("err", err.Error()))
 		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
 
+	tender, err := tenderSrv.tenderRepo.GetTenderById(ctx, tenderId)
+	if err != nil {
+		logger.Error("unexpected error", slog.String("err", err.Error()))
+		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
+	}
 	return tender, nil
 }
