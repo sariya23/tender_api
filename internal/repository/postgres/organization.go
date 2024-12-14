@@ -11,7 +11,7 @@ import (
 )
 
 func (storage *Storage) GetOrganizationById(ctx context.Context, orgId int) (models.Organization, error) {
-	const op = "repository.postgres.employee.GetOrganizationById"
+	const operationPlace = "repository.postgres.employee.GetOrganizationById"
 	queryGetOrg := "select organization_id, name, description, organization_type_id from organization where organization_id = $1"
 	queryGetOrgType := "select type from nsi_organization_type where nsi_organization_type_id = $1"
 
@@ -22,23 +22,23 @@ func (storage *Storage) GetOrganizationById(ctx context.Context, orgId int) (mod
 	err := row.Scan(&organization.ID, &organization.Name, &organization.Description, &typeId)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return models.Organization{}, fmt.Errorf("%s: %w", op, outerror.ErrOrganizationNotFound)
+			return models.Organization{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrOrganizationNotFound)
 		} else {
-			return models.Organization{}, fmt.Errorf("%s: %w", op, err)
+			return models.Organization{}, fmt.Errorf("%s: %w", operationPlace, err)
 		}
 	}
 
 	typeRow := storage.connection.QueryRow(ctx, queryGetOrgType, typeId)
 	err = typeRow.Scan(&organization.Type)
 	if err != nil {
-		return models.Organization{}, fmt.Errorf("%s: %w", op, err)
+		return models.Organization{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
 
 	return organization, nil
 }
 
 func (storage *Storage) CheckResponsibility(ctx context.Context, emplId int, orgId int) error {
-	const op = "repository.postgres.employee.CheckResponsibility"
+	const operationPlace = "repository.postgres.employee.CheckResponsibility"
 	query := "select organization_responsible_id from organization_responsible where organization_id = $1 and employee_id = $2"
 
 	var id int
@@ -46,9 +46,9 @@ func (storage *Storage) CheckResponsibility(ctx context.Context, emplId int, org
 	err := row.Scan(&id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotResponsibleForOrganization)
+			return fmt.Errorf("%s: %w", operationPlace, outerror.ErrEmployeeNotResponsibleForOrganization)
 		} else {
-			return fmt.Errorf("%s: %w", op, err)
+			return fmt.Errorf("%s: %w", operationPlace, err)
 		}
 	}
 

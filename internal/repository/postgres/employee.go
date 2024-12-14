@@ -11,7 +11,7 @@ import (
 )
 
 func (storage *Storage) GetEmployeeByUsername(ctx context.Context, username string) (models.Employee, error) {
-	const op = "repository.postgres.employee.GetEmployeeByUsername"
+	const operationPlace = "repository.postgres.employee.GetEmployeeByUsername"
 	query := "select employee_id, username, first_name, last_name from employee where username = $1"
 
 	var employee models.Employee
@@ -20,9 +20,9 @@ func (storage *Storage) GetEmployeeByUsername(ctx context.Context, username stri
 	err := row.Scan(&employee.ID, &employee.Username, &employee.FirstName, &employee.LastName)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return models.Employee{}, fmt.Errorf("%s: %w", op, outerror.ErrEmployeeNotFound)
+			return models.Employee{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrEmployeeNotFound)
 		} else {
-			return models.Employee{}, fmt.Errorf("%s: %w", op, err)
+			return models.Employee{}, fmt.Errorf("%s: %w", operationPlace, err)
 		}
 	}
 
