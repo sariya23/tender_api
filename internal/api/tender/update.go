@@ -16,10 +16,10 @@ import (
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
-func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
+func (tenderSrv *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
 	return func(ginContext *gin.Context) {
 		const opeartionPlace = "internal.api.tenderapi.EditTedner"
-		logger := s.logger.With("op", opeartionPlace)
+		logger := tenderSrv.logger.With("op", opeartionPlace)
 		logger.Info(fmt.Sprintf("request to %v", ginContext.Request.URL.Path))
 
 		tenderId := ginContext.Param("tenderId")
@@ -77,7 +77,7 @@ func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
 		}
 		logger.Info("validate success")
 
-		tender, err := s.tenderService.EditTender(ctx, convertedTenderId, updatedReq.UpdateTenderData)
+		tender, err := tenderSrv.tenderService.EditTender(ctx, convertedTenderId, updatedReq.UpdateTenderData)
 
 		if err != nil {
 			if errors.Is(err, outerror.ErrTenderNotFound) {

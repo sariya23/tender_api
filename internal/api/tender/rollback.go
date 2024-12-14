@@ -13,10 +13,10 @@ import (
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
-func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
+func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 	return func(ginContext *gin.Context) {
 		const operationPlace = "internal.api.tenderapi.RollbackTender"
-		logger := s.logger.With("op", operationPlace)
+		logger := tenderSrv.logger.With("op", operationPlace)
 		logger.Info(fmt.Sprintf("request to %v", ginContext.Request.URL.Path))
 
 		tenderId := ginContext.Param("tenderId")
@@ -43,7 +43,7 @@ func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 			return
 		}
 
-		tender, err := s.tenderService.RollbackTender(ctx, convertedTenderId, convertedVersion)
+		tender, err := tenderSrv.tenderService.RollbackTender(ctx, convertedTenderId, convertedVersion)
 		if err != nil {
 			if errors.Is(err, outerror.ErrTenderNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId))

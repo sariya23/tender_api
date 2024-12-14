@@ -12,14 +12,14 @@ import (
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
-func (s *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
+func (tenderSrv *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
 	return func(ginContext *gin.Context) {
 		const operationPlace = "internal.api.tenderapi.GetTenders"
-		logger := s.logger.With("op", operationPlace)
+		logger := tenderSrv.logger.With("op", operationPlace)
 		logger.Info(fmt.Sprintf("request to %v", ginContext.Request.URL))
 
 		serviceType := ginContext.DefaultQuery("srv_type", "all")
-		tenders, err := s.tenderService.GetTenders(ctx, serviceType)
+		tenders, err := tenderSrv.tenderService.GetTenders(ctx, serviceType)
 		if err != nil {
 			if errors.Is(err, outerror.ErrTendersWithThisServiceTypeNotFound) {
 				ginContext.JSON(
@@ -44,10 +44,10 @@ func (s *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc {
 	}
 }
 
-func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context) gin.HandlerFunc {
+func (tenderSrv *TenderService) GetEmployeeTendersByUsername(ctx context.Context) gin.HandlerFunc {
 	return func(ginContext *gin.Context) {
 		const op = "internal.api.tenderapi.GetEmployeeTendersByUsername"
-		logger := s.logger.With("op", op)
+		logger := tenderSrv.logger.With("op", op)
 		logger.Info(fmt.Sprintf("request to %s", ginContext.Request.URL))
 
 		username := ginContext.Query("username")
@@ -57,7 +57,7 @@ func (s *TenderService) GetEmployeeTendersByUsername(ctx context.Context) gin.Ha
 			return
 		}
 		logger.Info("try get employee tenders", slog.String("username", username))
-		tenders, err := s.tenderService.GetEmployeeTendersByUsername(ctx, username)
+		tenders, err := tenderSrv.tenderService.GetEmployeeTendersByUsername(ctx, username)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn(fmt.Sprintf("employee with username=\"%s\" not found", username))

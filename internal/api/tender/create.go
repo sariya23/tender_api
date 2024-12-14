@@ -15,10 +15,10 @@ import (
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
-func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
+func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 	return func(ginContext *gin.Context) {
 		const operationPlace = "internal.api.tenderapi.CreateTender"
-		logger := s.logger.With("op", operationPlace)
+		logger := tenderSrv.logger.With("op", operationPlace)
 		logger.Info(fmt.Sprintf("request to %v", ginContext.Request.URL))
 
 		b := ginContext.Request.Body
@@ -62,7 +62,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 			return
 		}
 		logger.Info("validate success")
-		tender, err := s.tenderService.CreateTender(ctx, createReq.Tender)
+		tender, err := tenderSrv.tenderService.CreateTender(ctx, createReq.Tender)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn("employee not found", slog.String("err", err.Error()))
