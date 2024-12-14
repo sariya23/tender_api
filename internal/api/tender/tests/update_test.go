@@ -739,6 +739,72 @@ func TestEditTender_FailUnknownTenderStatus(t *testing.T) {
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
+func TestEditTender_FailCannotUpdateTenderStatus(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+
+	tenderName := "update Tender 1"
+	description := "update qwe"
+	serviceType := "update op"
+	status := "CLOSED"
+	organizationId := 2
+	creatorUsername := "update qwe"
+
+	tenderToUpdate := models.TenderToUpdate{
+		TenderName:      &tenderName,
+		Description:     &description,
+		ServiceType:     &serviceType,
+		Status:          &status,
+		OrganizationId:  &organizationId,
+		CreatorUsername: &creatorUsername,
+	}
+	reqBody := `
+		{
+			"update_tender_data": {
+				"name": "update Tender 1",
+				"description": "update qwe",
+				"service_type": "update op",
+				"status": "CLOSED",
+				"organization_id": 2,
+				"creator_username": "update qwe"
+			}
+		}`
+
+	expectedBody := `
+		{
+			"updated_tender": {
+				"name": "",
+				"description": "",
+				"service_type": "",
+				"status": "",
+				"organization_id": 0,
+				"creator_username": ""
+			},
+			"message": "cannot update tender status: cannot set tender status in this cases: PUBLISED -> CREATED, CLOSED -> CREATED"
+		}`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrCannotSetThisTenderStatus)
+	router := gin.New()
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
+	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
 func TestEditTender_FailCannotUpdateTender(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
