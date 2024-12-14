@@ -15,8 +15,8 @@ import (
 
 func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		const op = "internal.api.tenderapi.RollbackTender"
-		logger := s.logger.With("op", op)
+		const operationPlace = "internal.api.tenderapi.RollbackTender"
+		logger := s.logger.With("op", operationPlace)
 		logger.Info(fmt.Sprintf("request to %v", c.Request.URL.Path))
 
 		tenderId := c.Param("tenderId")

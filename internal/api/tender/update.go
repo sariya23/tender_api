@@ -18,8 +18,8 @@ import (
 
 func (s *TenderService) EditTedner(ctx context.Context) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		const op = "internal.api.tenderapi.EditTedner"
-		logger := s.logger.With("op", op)
+		const opeartionPlace = "internal.api.tenderapi.EditTedner"
+		logger := s.logger.With("op", opeartionPlace)
 		logger.Info(fmt.Sprintf("request to %v", c.Request.URL.Path))
 
 		tenderId := c.Param("tenderId")

@@ -17,8 +17,8 @@ import (
 
 func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		const op = "internal.api.tenderapi.CreateTender"
-		logger := s.logger.With("op", op)
+		const operationPlace = "internal.api.tenderapi.CreateTender"
+		logger := s.logger.With("op", operationPlace)
 		logger.Info(fmt.Sprintf("request to %v", c.Request.URL))
 
 		b := c.Request.Body
