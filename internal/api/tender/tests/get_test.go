@@ -61,7 +61,7 @@ func TestGetAllTenders_Success(t *testing.T) {
 // TestGetAllTenders_FailTendersNotFound проверяет, что
 // если нет тендеров с указанным service type, то возвращается
 // код 400 и сообщение с ошибкой.
-func TestGetAllTenders_FailTendersNotFound(t *testing.T) {
+func TestGetAllTenders_SuccessTendersNotFound(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
 	ctx := context.Background()
@@ -70,7 +70,8 @@ func TestGetAllTenders_FailTendersNotFound(t *testing.T) {
 	mockTenderService := new(mocks.MockTenderServiceProvider)
 	mockTenders := []models.Tender{}
 	expectedBody := `
-	{
+	{	
+		"tenders": [],
 		"message":"no tenders found with service type: qwe"
 	}
 	`
@@ -88,7 +89,7 @@ func TestGetAllTenders_FailTendersNotFound(t *testing.T) {
 	handler(c)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
@@ -106,6 +107,7 @@ func TestGetAllTenders_FailinternalError(t *testing.T) {
 	someErr := errors.New("some error")
 	expectedBody := `
 	{
+		"tenders": [],
 		"message":"internal error"
 	}
 	`

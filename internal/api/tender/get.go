@@ -23,18 +23,19 @@ func (tenderSrv *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc 
 		if err != nil {
 			if errors.Is(err, outerror.ErrTendersWithThisServiceTypeNotFound) {
 				ginContext.JSON(
-					http.StatusBadRequest,
+					http.StatusOK,
 					schema.GetTendersResponse{
 						Message: fmt.Sprintf(
 							"no tenders found with service type: %s",
 							serviceType,
 						),
+						Tenders: tenders,
 					},
 				)
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusInternalServerError, schema.GetTendersResponse{Message: "internal error"})
+				ginContext.JSON(http.StatusInternalServerError, schema.GetTendersResponse{Message: "internal error", Tenders: tenders})
 				return
 			}
 		}

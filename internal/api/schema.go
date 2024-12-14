@@ -3,7 +3,7 @@ package schema
 import "github.com/sariya23/tender/internal/domain/models"
 
 type GetTendersResponse struct {
-	Tenders []models.Tender `json:"tenders,omitempty"`
+	Tenders []models.Tender `json:"tenders"`
 	Message string          `json:"message"`
 }
 
