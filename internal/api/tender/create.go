@@ -16,12 +16,12 @@ import (
 )
 
 func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ginContext *gin.Context) {
 		const operationPlace = "internal.api.tenderapi.CreateTender"
 		logger := s.logger.With("op", operationPlace)
-		logger.Info(fmt.Sprintf("request to %v", c.Request.URL))
+		logger.Info(fmt.Sprintf("request to %v", ginContext.Request.URL))
 
-		b := c.Request.Body
+		b := ginContext.Request.Body
 		defer func() {
 			err := b.Close()
 			if err != nil {
@@ -32,7 +32,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		body, err := io.ReadAll(b)
 		if err != nil {
 			logger.Error("cannot read body", slog.String("err", err.Error()))
-			c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
+			ginContext.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 			return
 		}
 		logger.Info("success read body")
@@ -40,15 +40,15 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, unmarshal.ErrSyntax) {
 				logger.Warn("req syntax error", slog.String("err", err.Error()))
-				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("json syntax err: %s", err.Error())})
+				ginContext.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("json syntax err: %s", err.Error())})
 				return
 			} else if errors.Is(err, unmarshal.ErrType) {
 				logger.Warn("req type error", slog.String("err", err.Error()))
-				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("json type err: %s", err.Error())})
+				ginContext.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("json type err: %s", err.Error())})
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
+				ginContext.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 				return
 			}
 		}
@@ -58,7 +58,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		err = validate.Struct(&createReq)
 		if err != nil {
 			logger.Error("validation error", slog.String("err", err.Error()))
-			c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("validation failed: %s", err.Error())})
+			ginContext.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("validation failed: %s", err.Error())})
 			return
 		}
 		logger.Info("validate success")
@@ -66,7 +66,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn("employee not found", slog.String("err", err.Error()))
-				c.JSON(
+				ginContext.JSON(
 					http.StatusBadRequest,
 					api.CreateTenderResponse{
 						Message: fmt.Sprintf(
@@ -78,7 +78,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 				return
 			} else if errors.Is(err, outerror.ErrOrganizationNotFound) {
 				logger.Warn("organization not found", slog.String("err", err.Error()))
-				c.JSON(
+				ginContext.JSON(
 					http.StatusBadRequest,
 					api.CreateTenderResponse{
 						Message: fmt.Sprintf(
@@ -90,7 +90,7 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 				return
 			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("employee not responsible for organization", slog.String("err", err.Error()))
-				c.JSON(
+				ginContext.JSON(
 					http.StatusBadRequest,
 					api.CreateTenderResponse{
 						Message: fmt.Sprintf(
@@ -103,15 +103,15 @@ func (s *TenderService) CreateTender(ctx context.Context) gin.HandlerFunc {
 				return
 			} else if errors.Is(err, outerror.ErrUnknownTenderStatus) {
 				logger.Warn("unknown tender status", slog.String("status", createReq.Tender.Status))
-				c.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("unknown tender status \"%s\"", createReq.Tender.Status)})
+				ginContext.JSON(http.StatusBadRequest, api.CreateTenderResponse{Message: fmt.Sprintf("unknown tender status \"%s\"", createReq.Tender.Status)})
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				c.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
+				ginContext.JSON(http.StatusInternalServerError, api.CreateTenderResponse{Message: "internal error"})
 				return
 			}
 		}
 		logger.Info("tender created success")
-		c.JSON(http.StatusOK, api.CreateTenderResponse{Message: "ok", Tender: tender})
+		ginContext.JSON(http.StatusOK, api.CreateTenderResponse{Message: "ok", Tender: tender})
 	}
 }

@@ -14,12 +14,12 @@ import (
 )
 
 func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ginContext *gin.Context) {
 		const operationPlace = "internal.api.tenderapi.RollbackTender"
 		logger := s.logger.With("op", operationPlace)
-		logger.Info(fmt.Sprintf("request to %v", c.Request.URL.Path))
+		logger.Info(fmt.Sprintf("request to %v", ginContext.Request.URL.Path))
 
-		tenderId := c.Param("tenderId")
+		tenderId := ginContext.Param("tenderId")
 		convertedTenderId, err := strconv.Atoi(tenderId)
 		if err != nil {
 			logger.Error(
@@ -27,11 +27,11 @@ func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 				slog.String("tender id", tenderId),
 				slog.String("err", err.Error()),
 			)
-			c.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: fmt.Sprintf("wrong path: %s", c.Request.URL.Path)})
+			ginContext.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: fmt.Sprintf("wrong path: %s", ginContext.Request.URL.Path)})
 			return
 		}
 
-		version := c.Param("version")
+		version := ginContext.Param("version")
 		convertedVersion, err := strconv.Atoi(version)
 		if err != nil {
 			logger.Error(
@@ -39,7 +39,7 @@ func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 				slog.String("version", version),
 				slog.String("err", err.Error()),
 			)
-			c.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: fmt.Sprintf("wrong path: %s", c.Request.URL.Path)})
+			ginContext.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: fmt.Sprintf("wrong path: %s", ginContext.Request.URL.Path)})
 			return
 		}
 
@@ -47,11 +47,11 @@ func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, outerror.ErrTenderNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId))
-				c.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId)})
+				ginContext.JSON(http.StatusBadRequest, api.RollbackTenderResponse{Message: fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId)})
 				return
 			} else if errors.Is(err, outerror.ErrTenderVersionNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=\"%d\" doesnt have version \"%d\"", convertedTenderId, convertedVersion))
-				c.JSON(
+				ginContext.JSON(
 					http.StatusBadRequest,
 					api.RollbackTenderResponse{
 						Message: fmt.Sprintf("tender with id=\"%d\" doesnt have version \"%d\"", convertedTenderId, convertedVersion),
@@ -60,12 +60,12 @@ func (s *TenderService) RollbackTender(ctx context.Context) gin.HandlerFunc {
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				c.JSON(http.StatusInternalServerError, api.RollbackTenderResponse{Message: "internal error"})
+				ginContext.JSON(http.StatusInternalServerError, api.RollbackTenderResponse{Message: "internal error"})
 				return
 			}
 		}
 
 		logger.Info("rollback success")
-		c.JSON(http.StatusOK, api.RollbackTenderResponse{Message: "ok", RollbackTender: tender})
+		ginContext.JSON(http.StatusOK, api.RollbackTenderResponse{Message: "ok", RollbackTender: tender})
 	}
 }
