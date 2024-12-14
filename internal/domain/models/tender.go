@@ -9,6 +9,14 @@ type Tender struct {
 	CreatorUsername string `json:"creator_username" validate:"required"`
 }
 
+func (tender *Tender) IsNewTenderHasStatusCreated() bool {
+	return tender.Status == "CREATED"
+}
+
+func (tender *Tender) CheckTenderStatus() bool {
+	return tender.Status == "CREATED" || tender.Status == "PUBLISHED" || tender.Status == "CLOSED"
+}
+
 type TenderToUpdate struct {
 	TenderName      *string `json:"name,omitempty"`
 	Description     *string `json:"description,omitempty"`

@@ -129,7 +129,7 @@ func TestCreateTenders_FailEmployeeNotResponsibleForOrganization(t *testing.T) {
 		TenderName:      "Tender 1",
 		Description:     "qwe",
 		ServiceType:     "op",
-		Status:          "open",
+		Status:          "CREATED",
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
@@ -145,5 +145,31 @@ func TestCreateTenders_FailEmployeeNotResponsibleForOrganization(t *testing.T) {
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
+	require.Empty(t, tender)
+}
+
+func TestCreateTenders_FailNewTenderWithStatusNotCreated(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	logger := slogdiscard.NewDiscardLogger()
+	tenderToCreate := models.Tender{
+		TenderName:      "Tender 1",
+		Description:     "qwe",
+		ServiceType:     "op",
+		Status:          "PUBLISED",
+		OrganizationId:  1,
+		CreatorUsername: "qwe",
+	}
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+
+	// Act
+	tender, err := tenderService.CreateTender(ctx, tenderToCreate)
+
+	// Assert
+	require.ErrorIs(t, err, outerror.ErrNewTenderCannotCreatedWithStatusNotCreated)
 	require.Empty(t, tender)
 }
