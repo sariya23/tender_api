@@ -10,11 +10,11 @@ import (
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
-func (s *TenderService) RollbackTender(ctx context.Context, tenderId int, version int) (models.Tender, error) {
+func (tenderSrv *TenderService) RollbackTender(ctx context.Context, tenderId int, version int) (models.Tender, error) {
 	const operationPlace = "internal.service.tender.rollback.RollbackTender"
-	logger := s.logger.With("op", operationPlace)
+	logger := tenderSrv.logger.With("op", operationPlace)
 
-	_, err := s.tenderRepo.GetTenderById(ctx, tenderId)
+	_, err := tenderSrv.tenderRepo.GetTenderById(ctx, tenderId)
 	if err != nil {
 		if errors.Is(err, outerror.ErrTenderNotFound) {
 			logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", tenderId))
@@ -24,7 +24,7 @@ func (s *TenderService) RollbackTender(ctx context.Context, tenderId int, versio
 		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
 
-	err = s.tenderRepo.FindTenderVersion(ctx, tenderId, version)
+	err = tenderSrv.tenderRepo.FindTenderVersion(ctx, tenderId, version)
 	if err != nil {
 		if errors.Is(err, outerror.ErrTenderVersionNotFound) {
 			logger.Warn(fmt.Sprintf("tender version=\"%d\" not found", version))
@@ -34,7 +34,7 @@ func (s *TenderService) RollbackTender(ctx context.Context, tenderId int, versio
 		return models.Tender{}, err
 	}
 
-	tender, err := s.tenderRepo.RollbackTender(ctx, tenderId, version)
+	tender, err := tenderSrv.tenderRepo.RollbackTender(ctx, tenderId, version)
 	if err != nil {
 		logger.Error("cannot rollback tender", slog.String("err", err.Error()))
 		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)

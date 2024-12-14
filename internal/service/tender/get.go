@@ -11,19 +11,19 @@ import (
 )
 
 // GetTenders возвращает список тендеров, который удовлетворяют переданному serviceType.
-func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]models.Tender, error) {
+func (tenderSrv *TenderService) GetTenders(ctx context.Context, serviceType string) ([]models.Tender, error) {
 	const operationPlace = "internal.service.tender.getall.GetTenders"
-	logger := s.logger.With("op", operationPlace)
+	logger := tenderSrv.logger.With("op", operationPlace)
 
 	var err error
 	var tenders []models.Tender
 
 	if serviceType == "all" {
 		logger.Info("get all tenders")
-		tenders, err = s.tenderRepo.GetAllTenders(ctx)
+		tenders, err = tenderSrv.tenderRepo.GetAllTenders(ctx)
 	} else {
 		logger.Info("get tenders with service type", slog.String("service type", serviceType))
-		tenders, err = s.tenderRepo.GetTendersByServiceType(ctx, serviceType)
+		tenders, err = tenderSrv.tenderRepo.GetTendersByServiceType(ctx, serviceType)
 	}
 
 	if err != nil {

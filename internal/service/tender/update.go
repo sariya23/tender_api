@@ -19,15 +19,15 @@ import (
 // - Поля организации без поля юзера (и другие поля), то проверяется существует ли эта организация и ответсвенный ли за него текущий юзер
 //
 // - И оля юзера, и поля организации (и другие поля), то проверяется существует ли этот юзер и организация и ответсвенный ли этот юзер за новую организацию.
-func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
+func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
 	const operationPlace = "internal.service.tender.update.Edit"
-	logger := s.logger.With("op", operationPlace)
+	logger := tenderSrv.logger.With("op", operationPlace)
 
 	var updatedEmpl models.Employee
 	var updatedOrg models.Organization
 	var err error
 
-	currTender, err := s.tenderRepo.GetTenderById(ctx, tenderId)
+	currTender, err := tenderSrv.tenderRepo.GetTenderById(ctx, tenderId)
 	if err != nil {
 		if errors.Is(err, outerror.ErrTenderNotFound) {
 			logger.Warn("tender not found", slog.Int("tender id", tenderId))
@@ -47,7 +47,7 @@ func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTend
 	// Нужно проверить, что если сотрудник обновлися, то
 	// он есть базе.
 	if updatedUsername != nil {
-		updatedEmpl, err = s.employeeRepo.GetEmployeeByUsername(ctx, *updatedUsername)
+		updatedEmpl, err = tenderSrv.employeeRepo.GetEmployeeByUsername(ctx, *updatedUsername)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn("employee to update not found", slog.String("username", *updatedUsername))
@@ -65,7 +65,7 @@ func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTend
 	// Нужно проверить, что если обновалась организация, то
 	// она есть в базе.
 	if updatedOrgId != nil {
-		updatedOrg, err = s.orgRepo.GetOrganizationById(ctx, *updatedOrgId)
+		updatedOrg, err = tenderSrv.orgRepo.GetOrganizationById(ctx, *updatedOrgId)
 		if err != nil {
 			if errors.Is(err, outerror.ErrOrganizationNotFound) {
 				logger.Warn("organization to update not found", slog.Int("org id", *updatedOrgId))
@@ -83,7 +83,7 @@ func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTend
 	// Нужно проверить, что если обновился и юзер, и организация,
 	// то сотрудник ответсвенный за новую огранизацию.
 	if updatedUsername != nil && updatedOrgId != nil {
-		err = s.employeeResponsibler.CheckResponsibility(ctx, updatedEmpl.ID, updatedOrg.ID)
+		err = tenderSrv.employeeResponsibler.CheckResponsibility(ctx, updatedEmpl.ID, updatedOrg.ID)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("updated employee not responsible for updated organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", updatedOrg.ID))
@@ -101,7 +101,7 @@ func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTend
 	// Нужно проверить, что если поменялся только сотрудник, то
 	// он ответсвенный за текущую организацию.
 	if updatedUsername != nil && updatedOrgId == nil {
-		err = s.employeeResponsibler.CheckResponsibility(ctx, updatedEmpl.ID, currTender.OrganizationId)
+		err = tenderSrv.employeeResponsibler.CheckResponsibility(ctx, updatedEmpl.ID, currTender.OrganizationId)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("updated employee not responsible for current organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", currTender.OrganizationId))
@@ -121,12 +121,12 @@ func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTend
 	// Нужно проверить, что если поменялась только огранизация, то
 	// текущий сотрудник ответсвенный за новую организацию.
 	if updatedUsername == nil && updatedOrgId != nil {
-		currEmpl, err = s.employeeRepo.GetEmployeeByUsername(ctx, currTender.CreatorUsername)
+		currEmpl, err = tenderSrv.employeeRepo.GetEmployeeByUsername(ctx, currTender.CreatorUsername)
 		if err != nil {
 			logger.Error("cannot get employee by id", slog.String("err", err.Error()))
 			return models.Tender{}, err
 		}
-		err = s.employeeResponsibler.CheckResponsibility(ctx, currEmpl.ID, *updatedOrgId)
+		err = tenderSrv.employeeResponsibler.CheckResponsibility(ctx, currEmpl.ID, *updatedOrgId)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("current employee not responsible for updated organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", currTender.OrganizationId))
@@ -141,7 +141,7 @@ func (s *TenderService) EditTender(ctx context.Context, tenderId int, updateTend
 		}
 	}
 
-	updatedTender, err := s.tenderRepo.EditTender(ctx, currTender, tenderId, updateTender)
+	updatedTender, err := tenderSrv.tenderRepo.EditTender(ctx, currTender, tenderId, updateTender)
 
 	if err != nil {
 		logger.Error("cannot update tender", slog.String("err", err.Error()))

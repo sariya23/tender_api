@@ -12,11 +12,11 @@ import (
 )
 
 // CreateTender создает тендер с данными, переданными в tender.
-func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error) {
+func (tenderSrv *TenderService) CreateTender(ctx context.Context, tender models.Tender) (models.Tender, error) {
 	const operationPlace = "internal.service.tender.create.CreateTender"
-	logger := s.logger.With("op", operationPlace)
+	logger := tenderSrv.logger.With("op", operationPlace)
 
-	empl, err := s.employeeRepo.GetEmployeeByUsername(ctx, tender.CreatorUsername)
+	empl, err := tenderSrv.employeeRepo.GetEmployeeByUsername(ctx, tender.CreatorUsername)
 	if err != nil {
 		if errors.Is(err, outerror.ErrEmployeeNotFound) {
 			logger.Warn("employee not found", slog.String("username", tender.CreatorUsername))
@@ -27,7 +27,7 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 	}
 	logger.Info("success check employee by username")
 
-	_, err = s.orgRepo.GetOrganizationById(ctx, tender.OrganizationId)
+	_, err = tenderSrv.orgRepo.GetOrganizationById(ctx, tender.OrganizationId)
 	if err != nil {
 		if errors.Is(err, outerror.ErrOrganizationNotFound) {
 			logger.Warn("organization not found", slog.Int("org id", tender.OrganizationId))
@@ -37,7 +37,7 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 		return models.Tender{}, fmt.Errorf("cannot get organization with id: %w", err)
 	}
 	logger.Info("success check organization by id")
-	err = s.employeeResponsibler.CheckResponsibility(ctx, empl.ID, tender.OrganizationId)
+	err = tenderSrv.employeeResponsibler.CheckResponsibility(ctx, empl.ID, tender.OrganizationId)
 	if err != nil {
 		if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 			logger.Warn("employee not responsible for organization", slog.Int("empl id", empl.ID), slog.Int("org id", tender.OrganizationId))
@@ -57,7 +57,7 @@ func (s *TenderService) CreateTender(ctx context.Context, tender models.Tender) 
 		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrUnknownTenderStatus)
 	}
 
-	createdTender, err := s.tenderRepo.CreateTender(ctx, tender)
+	createdTender, err := tenderSrv.tenderRepo.CreateTender(ctx, tender)
 	if err != nil {
 		logger.Error("cannot create tender", slog.String("err", err.Error()))
 		return models.Tender{}, fmt.Errorf("cannot create tender: %w", err)
