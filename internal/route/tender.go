@@ -7,7 +7,7 @@ import (
 	tenderapi "github.com/sariya23/tender/internal/api/tender"
 )
 
-func TenderRoutes(ctx context.Context, tn *tenderapi.TenderService, r *gin.RouterGroup) {
+func AddTenderRoutes(ctx context.Context, tn *tenderapi.TenderService, r *gin.RouterGroup) {
 	tender := r.Group("/tenders")
 	{
 		tender.GET("/", tn.GetTenders(ctx))
