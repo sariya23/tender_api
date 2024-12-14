@@ -12,8 +12,8 @@ import (
 
 // GetTenders возвращает список тендеров, который удовлетворяют переданному serviceType.
 func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]models.Tender, error) {
-	const op = "internal.service.tender.getall.GetTenders"
-	logger := s.logger.With("op", op)
+	const operationPlace = "internal.service.tender.getall.GetTenders"
+	logger := s.logger.With("op", operationPlace)
 
 	var err error
 	var tenders []models.Tender
@@ -29,7 +29,7 @@ func (s *TenderService) GetTenders(ctx context.Context, serviceType string) ([]m
 	if err != nil {
 		if errors.Is(err, outerror.ErrTendersWithThisServiceTypeNotFound) {
 			logger.Warn("no tenders found", slog.String("err", err.Error()))
-			return []models.Tender{}, fmt.Errorf("%s: %w", op, outerror.ErrTendersWithThisServiceTypeNotFound)
+			return []models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrTendersWithThisServiceTypeNotFound)
 		}
 		logger.Error("cannot get tenders", slog.String("err", err.Error()))
 		return []models.Tender{}, fmt.Errorf("cannot get tenders: %w", err)

@@ -11,17 +11,17 @@ import (
 )
 
 func (s *TenderService) RollbackTender(ctx context.Context, tenderId int, version int) (models.Tender, error) {
-	const op = "internal.service.tender.rollback.RollbackTender"
-	logger := s.logger.With("op", op)
+	const operationPlace = "internal.service.tender.rollback.RollbackTender"
+	logger := s.logger.With("op", operationPlace)
 
 	_, err := s.tenderRepo.GetTenderById(ctx, tenderId)
 	if err != nil {
 		if errors.Is(err, outerror.ErrTenderNotFound) {
 			logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", tenderId))
-			return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+			return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 		}
 		logger.Error(fmt.Sprintf("cannot get tender with id=\"%d\"", tenderId))
-		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
 
 	err = s.tenderRepo.FindTenderVersion(ctx, tenderId, version)
@@ -37,7 +37,7 @@ func (s *TenderService) RollbackTender(ctx context.Context, tenderId int, versio
 	tender, err := s.tenderRepo.RollbackTender(ctx, tenderId, version)
 	if err != nil {
 		logger.Error("cannot rollback tender", slog.String("err", err.Error()))
-		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
 
 	return tender, nil
