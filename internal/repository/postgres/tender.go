@@ -28,7 +28,8 @@ func (storage *Storage) CreateTender(ctx context.Context, tender models.Tender) 
 		"version":      1,
 	}
 	createQuery := `insert into tender values (@tender_id, @name, @desc, @service_type, @status, @org_id, @username, @version) 
-	returning name, description, service_type, organization_id, creator_username, status`
+						returning name, description, service_type, organization_id, creator_username, status
+	`
 	createdTender = models.Tender{}
 
 	tx, err := storage.connection.BeginTx(ctx, pgx.TxOptions{})
@@ -65,7 +66,8 @@ func (storage *Storage) GetAllTenders(ctx context.Context) ([]models.Tender, err
 	const operationPlace = "repository.postgres.tender.GetAllTenders"
 
 	query := `select name, description, service_type, status, organization_id, creator_username from tender
-	where selected_version = $1`
+				where selected_version = $1
+	`
 	tenders := []models.Tender{}
 
 	rows, err := storage.connection.Query(ctx, query, true)
@@ -99,8 +101,8 @@ func (storage *Storage) GetTendersByServiceType(ctx context.Context, serviceType
 	const operationPlace = "repository.postgres.tender.GetAllTenders"
 
 	query := `select name, description, service_type, status, organization_id, creator_username
-	from tender
-	where service_type=$1 and selected_version=$2`
+				from tender
+				where service_type=$1 and selected_version=$2`
 	tenders := []models.Tender{}
 
 	rows, err := storage.connection.Query(ctx, query, serviceType, true)
@@ -133,8 +135,8 @@ func (storage *Storage) GetTendersByServiceType(ctx context.Context, serviceType
 func (storage *Storage) GetEmployeeTenders(ctx context.Context, empl models.Employee) (t []models.Tender, err error) {
 	const operationPlace = "repository.postgres.tender.GetEmployeeTenders"
 	query := `select name, description, service_type, status, organization_id, creator_username 
-	from tender
-	where creator_username = $1 and selected_version=$2`
+				from tender
+				where creator_username = $1 and selected_version=$2`
 	tenders := []models.Tender{}
 
 	rows, err := storage.connection.Query(ctx, query, empl.Username, true)
@@ -260,7 +262,8 @@ func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVers
 	deactivateVersion := `update tender set selected_version = $1 where tender_id = $2`
 	rollbackQuery := `update tender set selected_version = $1 where tender_id = $2 and version = $3`
 	getRollbackTender := `select name, description, service_type, status, organization_id, creator_username
-	from tender where tender_id = $1 and selected_version = $2`
+							from tender
+							where tender_id = $1 and selected_version = $2`
 
 	tx, err := storage.connection.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -304,8 +307,8 @@ func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVers
 func (storage *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tender, error) {
 	const operationPlace = "repository.postgres.tender.GetTenderById"
 	query := `select name, description, service_type, status, organization_id, creator_username 
-	from tender
-	where tender_id = $1 and selected_version=$2`
+				from tender
+				where tender_id = $1 and selected_version=$2`
 
 	var tender models.Tender
 
