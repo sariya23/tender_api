@@ -13,4 +13,5 @@ var (
 	ErrUnknownTenderStatus                        = errors.New("unknown tender status")
 	ErrNothingToUpdate                            = errors.New("nothing to update")
 	ErrNewTenderCannotCreatedWithStatusNotCreated = errors.New("tender cannot be created with status not created")
+	ErrCannotSetThisTenderStatus                  = errors.New("cannot set tender status in this cases: PUBLISED -> CREATED, CLOSED -> CREATED")
 )

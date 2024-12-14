@@ -31,7 +31,6 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, up
 		logger.Error(fmt.Sprintf("tender status \"%s\" unknown", *updateTender.Status))
 		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrUnknownTenderStatus)
 	}
-
 	currTender, err := tenderSrv.tenderRepo.GetTenderById(ctx, tenderId)
 	if err != nil {
 		if errors.Is(err, outerror.ErrTenderNotFound) {
@@ -46,6 +45,10 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, up
 		return models.Tender{}, fmt.Errorf("cannot get tender by id: %w", err)
 	}
 
+	if !updateTender.CanSetThisTenderStatus(currTender.Status) {
+		logger.Error(fmt.Sprintf("cannot set status \"%s\" to tender with status \"%s\"", *updateTender.Status, currTender.Status))
+		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrCannotSetThisTenderStatus)
+	}
 	updatedUsername := updateTender.CreatorUsername
 	updatedOrgId := updateTender.OrganizationId
 

@@ -383,3 +383,24 @@ func TestUpdateTender_FailUnknownTenderStatus(t *testing.T) {
 	require.ErrorIs(t, err, outerror.ErrUnknownTenderStatus)
 	require.Equal(t, tender, models.Tender{})
 }
+
+func TestUpdateTender_FailCannotSetThisTenderStatus(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	newStatus := "PUBLISHED"
+	tenderToUpdate := models.TenderToUpdate{Status: &newStatus}
+	logger := slogdiscard.NewDiscardLogger()
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{Status: "CREATED"}, nil)
+
+	// Act
+	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate)
+
+	// Assert
+	require.ErrorIs(t, err, outerror.ErrCannotSetThisTenderStatus)
+	require.Equal(t, tender, models.Tender{})
+}

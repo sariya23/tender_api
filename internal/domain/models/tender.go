@@ -13,6 +13,12 @@ func (tender *Tender) IsNewTenderHasStatusCreated() bool {
 	return tender.Status == "CREATED"
 }
 
+const (
+	TenderCreatedStatus   = "CREATED"
+	TenderPublishedStatus = "PUBLISHED"
+	TenderClosedStatus    = "CLOSED"
+)
+
 type TenderToUpdate struct {
 	TenderName      *string `json:"name,omitempty"`
 	Description     *string `json:"description,omitempty"`
@@ -24,8 +30,25 @@ type TenderToUpdate struct {
 
 func (tender *TenderToUpdate) IsTenderStatusKnown() bool {
 	if tender.Status != nil {
-		return *tender.Status == "CREATED" || *tender.Status == "PUBLISHED" || *tender.Status == "CLOSED"
+		return *tender.Status == TenderCreatedStatus || *tender.Status == TenderPublishedStatus || *tender.Status == TenderClosedStatus
 	}
 
+	return true
+}
+
+// CanSetThisTenderStatus проверяет, может ли
+// новый статус тендера быть установлен.
+//
+// - нельзя перевести тендер из статуса PUBLISED в CREATED;
+//
+// - нельзя перевести тендер из статуса CLOSED в CREATED;
+func (tender *TenderToUpdate) CanSetThisTenderStatus(newTenderStatus string) bool {
+	if currTenderStatus := tender.Status; currTenderStatus != nil {
+		if *currTenderStatus == TenderPublishedStatus && newTenderStatus == TenderCreatedStatus {
+			return false
+		} else if *currTenderStatus == TenderClosedStatus && newTenderStatus == TenderCreatedStatus {
+			return false
+		}
+	}
 	return true
 }
