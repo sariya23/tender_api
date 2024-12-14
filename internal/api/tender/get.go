@@ -86,7 +86,7 @@ func (tenderSrv *TenderService) GetEmployeeTendersByUsername(ctx context.Context
 				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
-				ginContext.JSON(http.StatusInternalServerError, schema.GetEmployeeTendersResponse{Message: "internal error"})
+				ginContext.JSON(http.StatusInternalServerError, schema.GetEmployeeTendersResponse{Message: "internal error", Tenders: []models.Tender{}})
 				return
 			}
 		}
