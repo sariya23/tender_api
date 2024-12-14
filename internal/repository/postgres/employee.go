@@ -10,13 +10,13 @@ import (
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 
-func (s *Storage) GetEmployeeByUsername(ctx context.Context, username string) (models.Employee, error) {
+func (storage *Storage) GetEmployeeByUsername(ctx context.Context, username string) (models.Employee, error) {
 	const op = "repository.postgres.employee.GetEmployeeByUsername"
 	query := "select employee_id, username, first_name, last_name from employee where username = $1"
 
 	var employee models.Employee
 
-	row := s.connection.QueryRow(ctx, query, username)
+	row := storage.connection.QueryRow(ctx, query, username)
 	err := row.Scan(&employee.ID, &employee.Username, &employee.FirstName, &employee.LastName)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -29,6 +29,6 @@ func (s *Storage) GetEmployeeByUsername(ctx context.Context, username string) (m
 	return employee, nil
 }
 
-func (s *Storage) GetEmployeeById(ctx context.Context, id int) (models.Employee, error) {
+func (storage *Storage) GetEmployeeById(ctx context.Context, id int) (models.Employee, error) {
 	panic("impl me")
 }
