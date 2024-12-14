@@ -259,9 +259,9 @@ func (storage *Storage) EditTender(
 }
 func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (t models.Tender, err error) {
 	const operationPlace = "repository.postgres.tender.RollbackTender"
-	deactivateVersion := `update tender set selected_version = $1 where tender_id = $2`
+	deactivateVersionQuery := `update tender set selected_version = $1 where tender_id = $2`
 	rollbackQuery := `update tender set selected_version = $1 where tender_id = $2 and version = $3`
-	getRollbackTender := `select name, description, service_type, status, organization_id, creator_username
+	getRollbackTenderQuery := `select name, description, service_type, status, organization_id, creator_username
 							from tender
 							where tender_id = $1 and selected_version = $2`
 
@@ -277,7 +277,7 @@ func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVers
 		}
 	}()
 
-	_, err = tx.Exec(ctx, deactivateVersion, false, tenderId)
+	_, err = tx.Exec(ctx, deactivateVersionQuery, false, tenderId)
 	if err != nil {
 		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
@@ -290,7 +290,7 @@ func (storage *Storage) RollbackTender(ctx context.Context, tenderId int, toVers
 	// стоит ли это тоже помещать в транзакцию
 	var tender models.Tender
 	// row := s.connection.QueryRow(ctx, getRollbackTender, tenderId, true)
-	row := tx.QueryRow(ctx, getRollbackTender, tenderId, true)
+	row := tx.QueryRow(ctx, getRollbackTenderQuery, tenderId, true)
 	err = row.Scan(
 		&tender.TenderName,
 		&tender.Description,
