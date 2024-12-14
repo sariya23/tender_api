@@ -255,8 +255,51 @@ func (s *Storage) EditTender(
 
 	return tender, nil
 }
-func (s *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (models.Tender, error) {
-	panic("impl me")
+func (s *Storage) RollbackTender(ctx context.Context, tenderId int, toVersionRollback int) (t models.Tender, err error) {
+	const op = "repository.postgres.tender.RollbackTender"
+	deactivateVersion := `update tender set selected_version = $1 where tender_id = $2`
+	rollbackQuery := `update tender set selected_version = $1 where tender_id = $2 and version = $3`
+	getRollbackTender := `select name, description, service_type, status, organization_id, creator_username
+	from tender where tender_id = $1 and selected_version = $2`
+
+	tx, err := s.connection.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
+
+	_, err = tx.Exec(ctx, deactivateVersion, false, tenderId)
+	if err != nil {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	_, err = tx.Exec(ctx, rollbackQuery, true, tenderId, toVersionRollback)
+	if err != nil {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	// стоит ли это тоже помещать в транзакцию
+	var tender models.Tender
+	// row := s.connection.QueryRow(ctx, getRollbackTender, tenderId, true)
+	row := tx.QueryRow(ctx, getRollbackTender, tenderId, true)
+	err = row.Scan(
+		&tender.TenderName,
+		&tender.Description,
+		&tender.ServiceType,
+		&tender.Status,
+		&tender.OrganizationId,
+		&tender.CreatorUsername,
+	)
+	if err != nil {
+		return models.Tender{}, fmt.Errorf("%s: %w", op, err)
+	}
+	return tender, nil
 }
 func (s *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tender, error) {
 	const op = "repository.postgres.tender.GetTenderById"
@@ -287,7 +330,19 @@ func (s *Storage) GetTenderById(ctx context.Context, tenderId int) (models.Tende
 }
 
 func (s *Storage) FindTenderVersion(ctx context.Context, tenderId int, version int) error {
-	panic("impl me")
+	const op = "repository.postgres.tender.getLastInsertedTenderId"
+	query := `select tender_id from tender where tender_id = $1 and version = $2`
+	var id int
+	row := s.connection.QueryRow(ctx, query, tenderId, version)
+	err := row.Scan(&id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("%s: %w", op, outerror.ErrTenderVersionNotFound)
+		}
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
 }
 
 func (s *Storage) GetTenderStatus(ctx context.Context, tenderStatus string) (string, error) {
