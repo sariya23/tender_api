@@ -4,10 +4,17 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	tenderapi "github.com/sariya23/tender/internal/hanlders/tender"
 )
 
-func AddTenderRoutes(ctx context.Context, tn *tenderapi.TenderService, r *gin.RouterGroup) {
+type TenderServicer interface {
+	GetTenders(ctx context.Context) gin.HandlerFunc
+	GetEmployeeTendersByUsername(ctx context.Context) gin.HandlerFunc
+	CreateTender(ctx context.Context) gin.HandlerFunc
+	EditTender(ctx context.Context) gin.HandlerFunc
+	RollbackTender(ctx context.Context) gin.HandlerFunc
+}
+
+func AddTenderRoutes(ctx context.Context, tn TenderServicer, r *gin.RouterGroup) {
 	tender := r.Group("/tenders")
 	{
 		tender.GET("/", tn.GetTenders(ctx))
