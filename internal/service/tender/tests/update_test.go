@@ -26,7 +26,7 @@ func TestUpdateTender_SuccessChangeDesc(t *testing.T) {
 	name := "qwe"
 	desc := "qwe"
 	srvType := "qwer"
-	status := "qwe"
+	status := "CREATED"
 	orgId := 1
 	user := "qwe"
 	currTender := models.Tender{
@@ -384,18 +384,18 @@ func TestUpdateTender_FailUnknownTenderStatus(t *testing.T) {
 	require.Equal(t, tender, models.Tender{})
 }
 
-func TestUpdateTender_FailCannotSetThisTenderStatus(t *testing.T) {
+func TestUpdateTender_FailCannotSetStatusFromPUBLISEDToCREATED(t *testing.T) {
 	// Arrange
 	ctx := context.Background()
 	mockTenderRepo := new(mocks.MockTenderRepo)
 	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
 	mockOrgRepo := new(mocks.MockOrgRepo)
 	mockResponsibler := new(mocks.MockEmployeeResponsibler)
-	newStatus := "PUBLISHED"
+	newStatus := models.TenderCreatedStatus
 	tenderToUpdate := models.TenderToUpdate{Status: &newStatus}
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{Status: "CREATED"}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{Status: models.TenderPublishedStatus}, nil)
 
 	// Act
 	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate)
@@ -403,4 +403,70 @@ func TestUpdateTender_FailCannotSetThisTenderStatus(t *testing.T) {
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrCannotSetThisTenderStatus)
 	require.Equal(t, tender, models.Tender{})
+}
+
+func TestUpdateTender_FailCannotSetStatusFromCLOSEDToCREATED(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	newStatus := models.TenderCreatedStatus
+	tenderToUpdate := models.TenderToUpdate{Status: &newStatus}
+	logger := slogdiscard.NewDiscardLogger()
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{Status: models.TenderClosedStatus}, nil)
+
+	// Act
+	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate)
+
+	// Assert
+	require.ErrorIs(t, err, outerror.ErrCannotSetThisTenderStatus)
+	require.Equal(t, tender, models.Tender{})
+}
+
+func TestUpdateTender_CanSetStatusFromCREATEDToPUBLISED(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	logger := slogdiscard.NewDiscardLogger()
+	name := "qwe"
+	desc := "qwe"
+	srvType := "qwer"
+	currStatus := models.TenderCreatedStatus
+	newStatus := models.TenderPublishedStatus
+	orgId := 1
+	user := "qwe"
+	currTender := models.Tender{
+		TenderName:      name,
+		Description:     desc,
+		ServiceType:     srvType,
+		Status:          currStatus,
+		OrganizationId:  orgId,
+		CreatorUsername: user,
+	}
+	updateTender := models.TenderToUpdate{Status: &newStatus}
+	exptectedTender := models.Tender{
+		TenderName:      name,
+		Description:     desc,
+		ServiceType:     srvType,
+		Status:          newStatus,
+		OrganizationId:  orgId,
+		CreatorUsername: user,
+	}
+
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+	mockTenderRepo.On("GetTenderById", ctx, 1).Return(currTender, nil)
+	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
+
+	// Act
+	tender, err := tenderService.EditTender(ctx, 1, updateTender)
+
+	// Assert
+	require.NoError(t, err)
+	require.Equal(t, exptectedTender, tender)
 }

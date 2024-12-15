@@ -32,7 +32,6 @@ func (tender *TenderToUpdate) IsTenderStatusKnown() bool {
 	if tender.Status != nil {
 		return *tender.Status == TenderCreatedStatus || *tender.Status == TenderPublishedStatus || *tender.Status == TenderClosedStatus
 	}
-
 	return true
 }
 
@@ -42,11 +41,13 @@ func (tender *TenderToUpdate) IsTenderStatusKnown() bool {
 // - нельзя перевести тендер из статуса PUBLISED в CREATED;
 //
 // - нельзя перевести тендер из статуса CLOSED в CREATED;
-func (tender *TenderToUpdate) CanSetThisTenderStatus(newTenderStatus string) bool {
-	if currTenderStatus := tender.Status; currTenderStatus != nil {
-		if *currTenderStatus == TenderPublishedStatus && newTenderStatus == TenderCreatedStatus {
+//
+// Если передать также же статус, то его установить можно.
+func (tender *TenderToUpdate) CanSetThisTenderStatus(currTenderStatus string) bool {
+	if newStatus := tender.Status; newStatus != nil {
+		if currTenderStatus == TenderPublishedStatus && *newStatus == TenderCreatedStatus {
 			return false
-		} else if *currTenderStatus == TenderClosedStatus && newTenderStatus == TenderCreatedStatus {
+		} else if currTenderStatus == TenderClosedStatus && *newStatus == TenderCreatedStatus {
 			return false
 		}
 	}
