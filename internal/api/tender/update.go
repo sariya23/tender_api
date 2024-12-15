@@ -115,8 +115,17 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					},
 				)
 				return
-			}
-			if errors.Is(err, outerror.ErrCannotSetThisTenderStatus) {
+			} else if errors.Is(err, outerror.ErrCannotSetThisTenderStatus) {
+				logger.Warn("cannot set this tender status")
+				ginContext.JSON(
+					http.StatusBadRequest,
+					schema.EditTenderResponse{
+						Message:       "cannot set this tender status. Cannot set tender status from PUBLISHED to CREATED and from CLOSED to CREATED",
+						UpdatedTender: models.Tender{},
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrCannotSetThisTenderStatus) {
 				logger.Warn("cannot update tender status")
 				ginContext.JSON(
 					http.StatusBadRequest,
@@ -126,8 +135,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					},
 				)
 				return
-			}
-			if errors.Is(err, outerror.ErrTenderNotFound) {
+			} else if errors.Is(err, outerror.ErrTenderNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId))
 				ginContext.JSON(
 					http.StatusBadRequest,

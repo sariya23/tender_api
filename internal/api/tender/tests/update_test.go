@@ -673,6 +673,9 @@ func TestEditTender_FailEmployeeNotResponsibleForOrg(t *testing.T) {
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
+// TestEditTender_FailUnknownTenderStatus проверяет, что
+// в случае, когда пользователь хочет поменять статус тендера на несуществующий,
+// то возвращается код 400 и сообщение с ошибкой.
 func TestEditTender_FailUnknownTenderStatus(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -739,6 +742,14 @@ func TestEditTender_FailUnknownTenderStatus(t *testing.T) {
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
+// TestEditTender_FailCannotUpdateTenderStatus проверяет, что
+// в случае, когда нельзя поменять статус тендера:
+//
+// - PUBLISEHD -> CREATED
+//
+// - CLOSED -> CREATED
+//
+// возвращается код 400 и сообщение с ошибкой.
 func TestEditTender_FailCannotUpdateTenderStatus(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -784,7 +795,7 @@ func TestEditTender_FailCannotUpdateTenderStatus(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "cannot update tender status: cannot set tender status in this cases: PUBLISED -> CREATED, CLOSED -> CREATED"
+			"message": "cannot set this tender status. Cannot set tender status from PUBLISHED to CREATED and from CLOSED to CREATED"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
