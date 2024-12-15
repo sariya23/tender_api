@@ -102,7 +102,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 					http.StatusBadRequest,
 					schema.CreateTenderResponse{
 						Message: fmt.Sprintf(
-							"organization with id=%d not found",
+							"organization with id=\"%d\" not found",
 							createReq.Tender.OrganizationId,
 						),
 						Tender: models.Tender{},

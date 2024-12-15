@@ -307,7 +307,7 @@ func TestCreateTender_FailOrganizationNotFound(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	require.Equal(t, models.Tender{}, resp.Tender)
-	require.Equal(t, "organization with id=1 not found", resp.Message)
+	require.Equal(t, "organization with id=\"1\" not found", resp.Message)
 }
 
 // TestCreateTender_FailUserNotResponsibleForOrganization
