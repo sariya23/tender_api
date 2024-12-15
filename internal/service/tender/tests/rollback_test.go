@@ -112,3 +112,25 @@ func TestRollbackTender_FailCannotRollbackTender(t *testing.T) {
 	require.ErrorIs(t, err, someErr)
 	require.Equal(t, models.Tender{}, tender)
 }
+
+// TestRollbackTender_FailEmployeeNotResponsibleForTender проверяет, что
+// пользователь, который неответсвенный за тендер, который он хочет откатить, не
+// сможет этого сделать.
+func TestRollbackTender_FailEmployeeNotResponsibleForTender(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	logger := slogdiscard.NewDiscardLogger()
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{CreatorUsername: "qwe"}, nil)
+
+	// Act
+	tender, err := tenderService.RollbackTender(ctx, 2, 1, "zxc")
+
+	// Assert
+	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForTender)
+	require.Equal(t, models.Tender{}, tender)
+}
