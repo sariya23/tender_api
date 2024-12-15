@@ -64,7 +64,7 @@ func (tenderSrv *TenderService) GetEmployeeTendersByUsername(ctx context.Context
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn(fmt.Sprintf("employee with username=\"%s\" not found", username))
 				ginContext.JSON(
-					http.StatusBadRequest,
+					http.StatusNotFound,
 					schema.GetEmployeeTendersResponse{
 						Message: fmt.Sprintf("employee with username \"%s\" not found", username),
 						Tenders: []models.Tender{},

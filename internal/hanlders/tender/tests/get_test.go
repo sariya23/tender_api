@@ -201,7 +201,7 @@ func TestGetEmployeeTenders_FailEmployeeNotFound(t *testing.T) {
 	handler(c)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
