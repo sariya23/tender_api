@@ -42,7 +42,7 @@ func (m *MockTenderServiceProvider) EditTender(ctx context.Context, tenderId int
 	return args.Get(0).(models.Tender), args.Error(1)
 }
 
-func (m *MockTenderServiceProvider) RollbackTender(ctx context.Context, tenderId int, version int) (models.Tender, error) {
-	args := m.Called(ctx, tenderId, version)
+func (m *MockTenderServiceProvider) RollbackTender(ctx context.Context, tenderId int, version int, username string) (models.Tender, error) {
+	args := m.Called(ctx, tenderId, version, username)
 	return args.Get(0).(models.Tender), args.Error(1)
 }

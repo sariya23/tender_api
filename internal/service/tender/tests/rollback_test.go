@@ -33,13 +33,13 @@ func TestRollbackTender_Success(t *testing.T) {
 	}
 
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{}, nil).Once()
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{CreatorUsername: "qwe"}, nil).Once()
 	mockTenderRepo.On("GetTenderById", ctx, 2).Return(expectedTender, nil).Once()
 	mockTenderRepo.On("FindTenderVersion", ctx, 2, 1).Return(nil)
 	mockTenderRepo.On("RollbackTender", ctx, 2, 1).Return(nil)
 
 	// Act
-	tender, err := tenderService.RollbackTender(ctx, 2, 1)
+	tender, err := tenderService.RollbackTender(ctx, 2, 1, "qwe")
 
 	// Assert
 	require.NoError(t, err)
@@ -60,7 +60,7 @@ func TestRollbackTender_FailTenderNotFound(t *testing.T) {
 	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{}, outerror.ErrTenderNotFound)
 
 	// Act
-	tender, err := tenderService.RollbackTender(ctx, 2, 1)
+	tender, err := tenderService.RollbackTender(ctx, 2, 1, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrTenderNotFound)
@@ -78,11 +78,11 @@ func TestRollbackTender_FailVersionNotFound(t *testing.T) {
 	mockResponsibler := new(mocks.MockEmployeeResponsibler)
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{CreatorUsername: "qwe"}, nil)
 	mockTenderRepo.On("FindTenderVersion", ctx, 2, 1).Return(outerror.ErrTenderVersionNotFound)
 
 	// Act
-	tender, err := tenderService.RollbackTender(ctx, 2, 1)
+	tender, err := tenderService.RollbackTender(ctx, 2, 1, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrTenderVersionNotFound)
@@ -101,12 +101,12 @@ func TestRollbackTender_FailCannotRollbackTender(t *testing.T) {
 	logger := slogdiscard.NewDiscardLogger()
 	someErr := errors.New("some err")
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{CreatorUsername: "qwe"}, nil)
 	mockTenderRepo.On("FindTenderVersion", ctx, 2, 1).Return(nil)
 	mockTenderRepo.On("RollbackTender", ctx, 2, 1).Return(someErr)
 
 	// Act
-	tender, err := tenderService.RollbackTender(ctx, 2, 1)
+	tender, err := tenderService.RollbackTender(ctx, 2, 1, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, someErr)

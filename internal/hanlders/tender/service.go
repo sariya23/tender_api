@@ -12,7 +12,7 @@ type TenderServiceProvider interface {
 	GetTenders(ctx context.Context, serviceType string) ([]models.Tender, error)
 	GetEmployeeTendersByUsername(ctx context.Context, username string) ([]models.Tender, error)
 	EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate, username string) (models.Tender, error)
-	RollbackTender(ctx context.Context, tenderId int, version int) (models.Tender, error)
+	RollbackTender(ctx context.Context, tenderId int, version int, username string) (models.Tender, error)
 }
 
 type TenderService struct {

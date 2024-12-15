@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -34,7 +35,10 @@ func TestRollbackTender_Success(t *testing.T) {
 		OrganizationId:  1,
 		CreatorUsername: "qwe",
 	}
-
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
 	expectedBody := `
 		{
 			"rollback_tender": {
@@ -49,10 +53,10 @@ func TestRollbackTender_Success(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("RollbackTender", ctx, 2, 3).Return(mockTender, nil)
+	mockTenderService.On("RollbackTender", ctx, 2, 3, "qwe").Return(mockTender, nil)
 	router := gin.New()
 	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
-	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", nil)
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(w)
@@ -76,7 +80,10 @@ func TestRollbackTender_FailTenderIdIsNotInt(t *testing.T) {
 
 	logger := slogdiscard.NewDiscardLogger()
 	mockTenderService := new(mocks.MockTenderServiceProvider)
-
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
 	expectedBody := `
 		{
 			"rollback_tender": {
@@ -93,7 +100,7 @@ func TestRollbackTender_FailTenderIdIsNotInt(t *testing.T) {
 
 	router := gin.New()
 	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
-	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2.34/rollback/3", nil)
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2.34/rollback/3", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(w)
@@ -117,7 +124,10 @@ func TestRollbackTender_FailVersionIsNotInt(t *testing.T) {
 
 	logger := slogdiscard.NewDiscardLogger()
 	mockTenderService := new(mocks.MockTenderServiceProvider)
-
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
 	expectedBody := `
 		{
 			"rollback_tender": {
@@ -134,7 +144,7 @@ func TestRollbackTender_FailVersionIsNotInt(t *testing.T) {
 
 	router := gin.New()
 	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
-	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/qwe", nil)
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/qwe", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(w)
@@ -158,7 +168,10 @@ func TestRollbackTender_FailTenderNotFound(t *testing.T) {
 
 	logger := slogdiscard.NewDiscardLogger()
 	mockTenderService := new(mocks.MockTenderServiceProvider)
-
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
 	expectedBody := `
 		{
 			"rollback_tender": {
@@ -173,10 +186,10 @@ func TestRollbackTender_FailTenderNotFound(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("RollbackTender", ctx, 2, 3).Return(models.Tender{}, outerror.ErrTenderNotFound)
+	mockTenderService.On("RollbackTender", ctx, 2, 3, "qwe").Return(models.Tender{}, outerror.ErrTenderNotFound)
 	router := gin.New()
 	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
-	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", nil)
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(w)
@@ -200,7 +213,10 @@ func TestRollbackTender_FailVersionNotFound(t *testing.T) {
 
 	logger := slogdiscard.NewDiscardLogger()
 	mockTenderService := new(mocks.MockTenderServiceProvider)
-
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
 	expectedBody := `
 		{
 			"rollback_tender": {
@@ -215,10 +231,10 @@ func TestRollbackTender_FailVersionNotFound(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("RollbackTender", ctx, 2, 3).Return(models.Tender{}, outerror.ErrTenderVersionNotFound)
+	mockTenderService.On("RollbackTender", ctx, 2, 3, "qwe").Return(models.Tender{}, outerror.ErrTenderVersionNotFound)
 	router := gin.New()
 	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
-	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", nil)
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(w)
@@ -242,7 +258,10 @@ func TestRollbackTender_FailInternalError(t *testing.T) {
 
 	logger := slogdiscard.NewDiscardLogger()
 	mockTenderService := new(mocks.MockTenderServiceProvider)
-
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
 	expectedBody := `
 		{
 			"rollback_tender": {
@@ -257,10 +276,10 @@ func TestRollbackTender_FailInternalError(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 	someErr := errors.New("some err")
-	mockTenderService.On("RollbackTender", ctx, 2, 3).Return(models.Tender{}, someErr)
+	mockTenderService.On("RollbackTender", ctx, 2, 3, "qwe").Return(models.Tender{}, someErr)
 	router := gin.New()
 	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
-	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", nil)
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(w)

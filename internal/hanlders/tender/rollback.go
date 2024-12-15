@@ -68,11 +68,11 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 		bodyData, err := io.ReadAll(body)
 		if err != nil {
 			logger.Error("cannot read body", slog.String("err", err.Error()))
-			ginContext.JSON(http.StatusInternalServerError, schema.CreateTenderResponse{Message: "internal error", Tender: models.Tender{}})
+			ginContext.JSON(http.StatusInternalServerError, schema.RollbackTenderResponse{Message: "internal error", RollbackTender: models.Tender{}})
 			return
 		}
 		logger.Info("success read body")
-		createReq, err := unmarshal.RollbackRequest([]byte(bodyData))
+		rollbackReq, err := unmarshal.RollbackRequest([]byte(bodyData))
 		if err != nil {
 			if errors.Is(err, unmarshal.ErrSyntax) {
 				logger.Warn("req syntax error", slog.String("err", err.Error()))
@@ -103,7 +103,7 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 		logger.Info("success unmarshal request")
 
 		validate := validator.New(validator.WithRequiredStructEnabled())
-		err = validate.Struct(&createReq)
+		err = validate.Struct(&rollbackReq)
 		if err != nil {
 			logger.Error("validation error", slog.String("err", err.Error()))
 			ginContext.JSON(
@@ -117,7 +117,7 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 		}
 		logger.Info("validate success")
 
-		tender, err := tenderSrv.tenderService.RollbackTender(ctx, convertedTenderId, convertedVersion)
+		tender, err := tenderSrv.tenderService.RollbackTender(ctx, convertedTenderId, convertedVersion, rollbackReq.Username)
 		if err != nil {
 			if errors.Is(err, outerror.ErrTenderNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=<%d> not found", convertedTenderId))
