@@ -829,6 +829,58 @@ func TestEditTender_FailCannotUpdateTenderStatus(t *testing.T) {
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
+func TestEditTender_FailEmployeeNotRespobsibleForTender(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+
+	tenderName := "update Tender 1"
+
+	tenderToUpdate := models.TenderToUpdate{
+		TenderName: &tenderName,
+	}
+	reqBody := `
+		{
+			"update_tender_data": {
+				"name": "update Tender 1"
+			},
+			"username": "qwe"
+		}`
+
+	expectedBody := `
+		{
+			"updated_tender": {
+				"name": "",
+				"description": "",
+				"service_type": "",
+				"status": "",
+				"organization_id": 0,
+				"creator_username": ""
+			},
+			"message": "employee with username \"qwe\" not creator of tender with id \"2\""
+		}`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(models.Tender{}, outerror.ErrEmployeeNotResponsibleForTender)
+	router := gin.New()
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
+	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusForbidden, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
 func TestEditTender_FailCannotUpdateTender(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)

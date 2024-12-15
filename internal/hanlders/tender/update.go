@@ -138,16 +138,17 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForTender) {
 				logger.Warn("employee not respobsible for tender")
 				ginContext.JSON(
-					http.StatusBadRequest,
+					http.StatusForbidden,
 					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
-							"employee with username \"%s\" not respobsible for tender with id \"%d\"",
+							"employee with username \"%s\" not creator of tender with id \"%d\"",
 							updatedReq.Username,
 							convertedTenderId,
 						),
 						UpdatedTender: models.Tender{},
 					},
 				)
+				return
 			} else if errors.Is(err, outerror.ErrTenderNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId))
 				ginContext.JSON(
