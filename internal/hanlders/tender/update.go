@@ -142,7 +142,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 			} else if errors.Is(err, outerror.ErrTenderNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=<%d> not found", convertedTenderId))
 				ginContext.JSON(
-					http.StatusBadRequest,
+					http.StatusNotFound,
 					schema.EditTenderResponse{
 						Message:       fmt.Sprintf("tender with id=<%d> not found", convertedTenderId),
 						UpdatedTender: models.Tender{},
