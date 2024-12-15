@@ -31,6 +31,10 @@ type EditTenderResponse struct {
 	Message       string        `json:"message"`
 }
 
+type RollbackTenderRequest struct {
+	Username string `json:"username" validate:"required"`
+}
+
 type RollbackTenderResponse struct {
 	RollbackTender models.Tender `json:"rollback_tender,omitempty"`
 	Message        string        `json:"message"`

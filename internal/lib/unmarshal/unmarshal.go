@@ -47,3 +47,23 @@ func EditRequest(body []byte) (schema.EditTenderRequest, error) {
 
 	return req, nil
 }
+
+func RollbackRequest(body []byte) (schema.RollbackTenderRequest, error) {
+	var req schema.RollbackTenderRequest
+	err := json.Unmarshal(body, &req)
+
+	if err != nil {
+		var syntaxErr *json.SyntaxError
+		var typeErr *json.UnmarshalTypeError
+
+		if errors.As(err, &syntaxErr) {
+			return schema.RollbackTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrSyntax)
+		} else if errors.As(err, &typeErr) {
+			return schema.RollbackTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrType)
+		} else {
+			return schema.RollbackTenderRequest{}, fmt.Errorf("%s: %w", err.Error(), ErrUnknown)
+		}
+	}
+
+	return req, nil
+}
