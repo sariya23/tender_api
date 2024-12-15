@@ -3,8 +3,8 @@ package unmarshal_test
 import (
 	"testing"
 
-	schema "github.com/sariya23/tender/internal/api"
 	"github.com/sariya23/tender/internal/domain/models"
+	schema "github.com/sariya23/tender/internal/hanlders"
 	"github.com/sariya23/tender/internal/lib/unmarshal"
 	"github.com/stretchr/testify/require"
 )

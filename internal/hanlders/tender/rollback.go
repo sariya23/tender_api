@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	schema "github.com/sariya23/tender/internal/api"
+	schema "github.com/sariya23/tender/internal/hanlders"
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 

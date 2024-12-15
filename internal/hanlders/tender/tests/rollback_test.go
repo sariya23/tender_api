@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	tenderapi "github.com/sariya23/tender/internal/api/tender"
-	"github.com/sariya23/tender/internal/api/tender/mocks"
 	"github.com/sariya23/tender/internal/domain/models"
+	tenderapi "github.com/sariya23/tender/internal/hanlders/tender"
+	"github.com/sariya23/tender/internal/hanlders/tender/mocks"
 	"github.com/sariya23/tender/internal/lib/logger/slogdiscard"
 	outerror "github.com/sariya23/tender/internal/out_error"
 	"github.com/stretchr/testify/assert"

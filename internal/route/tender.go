@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	tenderapi "github.com/sariya23/tender/internal/api/tender"
+	tenderapi "github.com/sariya23/tender/internal/hanlders/tender"
 )
 
 func AddTenderRoutes(ctx context.Context, tn *tenderapi.TenderService, r *gin.RouterGroup) {

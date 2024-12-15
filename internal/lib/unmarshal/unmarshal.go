@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	schema "github.com/sariya23/tender/internal/api"
+	schema "github.com/sariya23/tender/internal/hanlders"
 )
 
 func CreateRequest(body []byte) (schema.CreateTenderRequest, error) {

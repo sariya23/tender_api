@@ -8,8 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	schema "github.com/sariya23/tender/internal/api"
 	"github.com/sariya23/tender/internal/domain/models"
+	schema "github.com/sariya23/tender/internal/hanlders"
 	outerror "github.com/sariya23/tender/internal/out_error"
 )
 

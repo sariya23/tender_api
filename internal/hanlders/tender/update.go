@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	schema "github.com/sariya23/tender/internal/api"
 	"github.com/sariya23/tender/internal/domain/models"
+	schema "github.com/sariya23/tender/internal/hanlders"
 	"github.com/sariya23/tender/internal/lib/unmarshal"
 	outerror "github.com/sariya23/tender/internal/out_error"
 )

@@ -3,7 +3,7 @@ package tenderapp
 import (
 	"log/slog"
 
-	tenderapi "github.com/sariya23/tender/internal/api/tender"
+	tenderapi "github.com/sariya23/tender/internal/hanlders/tender"
 	"github.com/sariya23/tender/internal/repository"
 	tendersrv "github.com/sariya23/tender/internal/service/tender"
 )
