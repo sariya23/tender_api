@@ -10,7 +10,7 @@ type Tender struct {
 }
 
 func (tender *Tender) IsNewTenderHasStatusCreated() bool {
-	return tender.Status == "CREATED"
+	return tender.Status == TenderCreatedStatus
 }
 
 const (

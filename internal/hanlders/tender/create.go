@@ -123,12 +123,12 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 					},
 				)
 				return
-			} else if errors.Is(err, outerror.ErrUnknownTenderStatus) {
-				logger.Warn("unknown tender status", slog.String("status", createReq.Tender.Status))
+			} else if errors.Is(err, outerror.ErrNewTenderCannotCreatedWithStatusNotCreated) {
+				logger.Warn("cannot create tender with status", slog.String("status", createReq.Tender.Status))
 				ginContext.JSON(
 					http.StatusBadRequest,
 					schema.CreateTenderResponse{
-						Message: fmt.Sprintf("unknown tender status \"%s\"", createReq.Tender.Status),
+						Message: fmt.Sprintf("cannot create tender with status \"%s\"", createReq.Tender.Status),
 						Tender:  models.Tender{},
 					},
 				)

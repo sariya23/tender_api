@@ -360,3 +360,53 @@ func TestCreateTender_FailEmployeerNotResponsibleForOrganization(t *testing.T) {
 	require.Equal(t, models.Tender{}, resp.Tender)
 	require.Equal(t, "employee \"qwe\" not responsible for organization with id=1", resp.Message)
 }
+
+func TestCreateTender_FailWrongTenderStatus(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+
+	mockTender := models.Tender{
+		TenderName:      "Tender 1",
+		Description:     "qwe",
+		ServiceType:     "op",
+		Status:          "open",
+		OrganizationId:  1,
+		CreatorUsername: "qwe",
+	}
+	reqBody := `
+	{
+		"tender": {
+			"name": "Tender 1",
+			"description": "qwe",
+			"service_type": "op",
+			"status": "open",
+			"organization_id": 1,
+			"creator_username": "qwe"
+		}
+	}`
+
+	svc := tenderapi.New(logger, mockTenderService)
+
+	mockTenderService.On("CreateTender", ctx, mockTender).Return(models.Tender{}, outerror.ErrNewTenderCannotCreatedWithStatusNotCreated)
+	req := httptest.NewRequest(http.MethodPost, "/tenders/new", strings.NewReader(reqBody))
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	handler := svc.CreateTender(ctx)
+	handler(c)
+
+	// Assert
+	var resp schema.CreateTenderResponse
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	require.Equal(t, models.Tender{}, resp.Tender)
+	require.Equal(t, "cannot create tender with status \"open\"", resp.Message)
+}
