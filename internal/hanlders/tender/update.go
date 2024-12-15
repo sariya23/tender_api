@@ -102,7 +102,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 		}
 		logger.Info("validate success")
 
-		tender, err := tenderSrv.tenderService.EditTender(ctx, convertedTenderId, updatedReq.UpdateTenderData)
+		tender, err := tenderSrv.tenderService.EditTender(ctx, convertedTenderId, updatedReq.UpdateTenderData, updatedReq.Username)
 
 		if err != nil {
 			if errors.Is(err, outerror.ErrUnknownTenderStatus) {
@@ -131,6 +131,20 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					http.StatusBadRequest,
 					schema.EditTenderResponse{
 						Message:       fmt.Sprintf("cannot update tender status: %v", err.Error()),
+						UpdatedTender: models.Tender{},
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForTender) {
+				logger.Warn("employee not respobsible for tender")
+				ginContext.JSON(
+					http.StatusForbidden,
+					schema.EditTenderResponse{
+						Message: fmt.Sprintf(
+							"employee with username \"%s\" not creator of tender with id \"%d\"",
+							updatedReq.Username,
+							convertedTenderId,
+						),
 						UpdatedTender: models.Tender{},
 					},
 				)

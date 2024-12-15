@@ -19,7 +19,7 @@ import (
 // - Поля организации без поля юзера (и другие поля), то проверяется существует ли эта организация и ответсвенный ли за него текущий юзер
 //
 // - И оля юзера, и поля организации (и другие поля), то проверяется существует ли этот юзер и организация и ответсвенный ли этот юзер за новую организацию.
-func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate) (models.Tender, error) {
+func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, updateTender models.TenderToUpdate, username string) (models.Tender, error) {
 	const operationPlace = "internal.service.tender.update.Edit"
 	logger := tenderSrv.logger.With("op", operationPlace)
 
@@ -43,6 +43,11 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, up
 			slog.String("err", err.Error()),
 		)
 		return models.Tender{}, fmt.Errorf("cannot get tender by id: %w", err)
+	}
+
+	if currTender.CreatorUsername != username {
+		logger.Warn(fmt.Sprintf("employee with username \"%s\" not creator of tender with id \"%d\"", username, tenderId))
+		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrEmployeeNotResponsibleForTender)
 	}
 
 	if !updateTender.CanSetThisTenderStatus(currTender.Status) {

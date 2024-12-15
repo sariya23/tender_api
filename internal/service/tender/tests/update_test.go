@@ -28,7 +28,7 @@ func TestUpdateTender_SuccessChangeDesc(t *testing.T) {
 	srvType := "qwer"
 	status := "CREATED"
 	orgId := 1
-	user := "qwe"
+	user := "test"
 	currTender := models.Tender{
 		TenderName:      name,
 		Description:     "zxc",
@@ -52,7 +52,7 @@ func TestUpdateTender_SuccessChangeDesc(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender, "test")
 
 	// Assert
 	require.NoError(t, err)
@@ -102,7 +102,7 @@ func TestUpdateTender_SuccessChangeOnlyUser(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender, "zxc")
 
 	// Assert
 	require.NoError(t, err)
@@ -153,7 +153,7 @@ func TestUpdateTender_SuccessChangeOnlyOrg(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender, user)
 
 	// Assert
 	require.NoError(t, err)
@@ -204,7 +204,7 @@ func TestUpdateTender_SuccessChangeOrgAndUser(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender, "zxc")
 
 	// Assert
 	require.NoError(t, err)
@@ -228,7 +228,7 @@ func TestUpdateTender_FailTenderNotFound(t *testing.T) {
 	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{}, outerror.ErrTenderNotFound)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrTenderNotFound)
@@ -248,11 +248,11 @@ func TestUpdateTender_FailNewUserNotFound(t *testing.T) {
 	tenderToUpdate := models.TenderToUpdate{CreatorUsername: &user}
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{CreatorUsername: "zxc"}, nil)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, user).Return(models.Employee{}, outerror.ErrEmployeeNotFound)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "zxc")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotFound)
@@ -272,11 +272,11 @@ func TestUpdateTender_FailNewOrgNotFound(t *testing.T) {
 	tenderToUpdate := models.TenderToUpdate{OrganizationId: &orgId}
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{CreatorUsername: "qwe"}, nil)
 	mockOrgRepo.On("GetOrganizationById", ctx, orgId).Return(models.Organization{}, outerror.ErrOrganizationNotFound)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrOrganizationNotFound)
@@ -298,13 +298,13 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForNewOrg(t *testing.T) {
 	tenderToUpdate := models.TenderToUpdate{OrganizationId: &newOrgId, CreatorUsername: &newUser}
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{CreatorUsername: "qwe"}, nil)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, newUser).Return(models.Employee{}, nil)
 	mockOrgRepo.On("GetOrganizationById", ctx, newOrgId).Return(models.Organization{ID: 1}, nil)
 	mockResponsibler.On("CheckResponsibility", ctx, 0, 1).Return(outerror.ErrEmployeeNotResponsibleForOrganization)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
@@ -325,12 +325,12 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForCurrOrg(t *testing.T) {
 	tenderToUpdate := models.TenderToUpdate{CreatorUsername: &newUser}
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{CreatorUsername: "qwe"}, nil)
 	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, newUser).Return(models.Employee{}, nil)
 	mockResponsibler.On("CheckResponsibility", ctx, 0, 0).Return(outerror.ErrEmployeeNotResponsibleForOrganization)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
@@ -351,13 +351,13 @@ func TestUpdateTender_FailCurrUserNotResponsibleForNewOrg(t *testing.T) {
 	tenderToUpdate := models.TenderToUpdate{OrganizationId: &newOrg}
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 1).Return(models.Tender{CreatorUsername: "qwe"}, nil)
 	mockOrgRepo.On("GetOrganizationById", ctx, 1).Return(models.Organization{}, nil)
-	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "").Return(models.Employee{}, nil)
+	mockEmployeeRepo.On("GetEmployeeByUsername", ctx, "qwe").Return(models.Employee{}, nil)
 	mockResponsibler.On("CheckResponsibility", ctx, 0, 1).Return(outerror.ErrEmployeeNotResponsibleForOrganization)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
@@ -377,7 +377,7 @@ func TestUpdateTender_FailUnknownTenderStatus(t *testing.T) {
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrUnknownTenderStatus)
@@ -395,10 +395,10 @@ func TestUpdateTender_FailCannotSetStatusFromPUBLISEDToCREATED(t *testing.T) {
 	tenderToUpdate := models.TenderToUpdate{Status: &newStatus}
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{Status: models.TenderPublishedStatus}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{Status: models.TenderPublishedStatus, CreatorUsername: "qwe"}, nil)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrCannotSetThisTenderStatus)
@@ -416,10 +416,10 @@ func TestUpdateTender_FailCannotSetStatusFromCLOSEDToCREATED(t *testing.T) {
 	tenderToUpdate := models.TenderToUpdate{Status: &newStatus}
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
-	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{Status: models.TenderClosedStatus}, nil)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{Status: models.TenderClosedStatus, CreatorUsername: "qwe"}, nil)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate)
+	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate, "qwe")
 
 	// Assert
 	require.ErrorIs(t, err, outerror.ErrCannotSetThisTenderStatus)
@@ -464,9 +464,33 @@ func TestUpdateTender_CanSetStatusFromCREATEDToPUBLISED(t *testing.T) {
 	mockTenderRepo.On("EditTender", ctx, currTender, 1, updateTender).Return(exptectedTender, nil)
 
 	// Act
-	tender, err := tenderService.EditTender(ctx, 1, updateTender)
+	tender, err := tenderService.EditTender(ctx, 1, updateTender, user)
 
 	// Assert
 	require.NoError(t, err)
 	require.Equal(t, exptectedTender, tender)
+}
+
+// TestUpdateTender_FailEmployeeNotRespobsibleForThisTender проверяет, что
+// если сотрудник, неответственный за тендер, который он хочет изменить, то возваращается
+// ошибка.
+func TestUpdateTender_FailEmployeeNotRespobsibleForThisTender(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	newStatus := models.TenderCreatedStatus
+	tenderToUpdate := models.TenderToUpdate{Status: &newStatus}
+	logger := slogdiscard.NewDiscardLogger()
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{CreatorUsername: "qwe"}, nil)
+
+	// Act
+	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate, "zxc")
+
+	// Assert
+	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForTender)
+	require.Equal(t, tender, models.Tender{})
 }
