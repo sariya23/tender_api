@@ -58,7 +58,8 @@ func TestEditTender_SuccessAllFiedsUpdate(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -75,7 +76,7 @@ func TestEditTender_SuccessAllFiedsUpdate(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(mockTender, nil)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(mockTender, nil)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -124,7 +125,8 @@ func TestEditTender_SuccessPartFiedsUpdate(t *testing.T) {
 			"update_tender_data": {
 				"description": "update qwe",
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -140,7 +142,7 @@ func TestEditTender_SuccessPartFiedsUpdate(t *testing.T) {
 			"message": "ok"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(mockTender, nil)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(mockTender, nil)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -190,7 +192,8 @@ func TestEditTender_SuccessUndefinedFields(t *testing.T) {
 				"description": "update qwe",
 				"creator_username": "update qwe",
 				"aboba": "qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -206,7 +209,7 @@ func TestEditTender_SuccessUndefinedFields(t *testing.T) {
 			"message": "ok"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(mockTender, nil)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(mockTender, nil)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -243,7 +246,8 @@ func TestEditTender_FailInvalidTenderId(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -295,7 +299,8 @@ func TestEditTender_FailJsonSyntaxError(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	svc := tenderapi.New(logger, mockTenderService)
@@ -335,7 +340,8 @@ func TestEditTender_FailJsonTypeError(t *testing.T) {
 				"status": 123,
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	svc := tenderapi.New(logger, mockTenderService)
@@ -376,7 +382,8 @@ func TestEditTender_FailValidationError(t *testing.T) {
 				"status": "qwe",
 				"organization_id": -2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	svc := tenderapi.New(logger, mockTenderService)
@@ -432,7 +439,8 @@ func TestEditTender_FailTenderNotFound(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -449,7 +457,7 @@ func TestEditTender_FailTenderNotFound(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrTenderNotFound)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(models.Tender{}, outerror.ErrTenderNotFound)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -501,7 +509,8 @@ func TestEditTender_FailEmployeeNotFound(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -518,7 +527,7 @@ func TestEditTender_FailEmployeeNotFound(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrEmployeeNotFound)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(models.Tender{}, outerror.ErrEmployeeNotFound)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -570,7 +579,8 @@ func TestEditTender_FailOrgNotFound(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -587,7 +597,7 @@ func TestEditTender_FailOrgNotFound(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrOrganizationNotFound)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(models.Tender{}, outerror.ErrOrganizationNotFound)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -639,7 +649,8 @@ func TestEditTender_FailEmployeeNotResponsibleForOrg(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -656,7 +667,7 @@ func TestEditTender_FailEmployeeNotResponsibleForOrg(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrEmployeeNotResponsibleForOrganization)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(models.Tender{}, outerror.ErrEmployeeNotResponsibleForOrganization)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -708,7 +719,8 @@ func TestEditTender_FailUnknownTenderStatus(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -725,7 +737,7 @@ func TestEditTender_FailUnknownTenderStatus(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrUnknownTenderStatus)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(models.Tender{}, outerror.ErrUnknownTenderStatus)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -782,7 +794,8 @@ func TestEditTender_FailCannotUpdateTenderStatus(t *testing.T) {
 				"status": "CLOSED",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -799,7 +812,7 @@ func TestEditTender_FailCannotUpdateTenderStatus(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, outerror.ErrCannotSetThisTenderStatus)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(models.Tender{}, outerror.ErrCannotSetThisTenderStatus)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))
@@ -848,7 +861,8 @@ func TestEditTender_FailCannotUpdateTender(t *testing.T) {
 				"status": "update open",
 				"organization_id": 2,
 				"creator_username": "update qwe"
-			}
+			},
+			"username": "qwe"
 		}`
 
 	expectedBody := `
@@ -865,7 +879,7 @@ func TestEditTender_FailCannotUpdateTender(t *testing.T) {
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 	someErr := errors.New("some error")
-	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate).Return(models.Tender{}, someErr)
+	mockTenderService.On("EditTender", ctx, 2, tenderToUpdate, "qwe").Return(models.Tender{}, someErr)
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/2/edit", strings.NewReader(reqBody))

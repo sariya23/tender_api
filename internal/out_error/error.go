@@ -14,4 +14,5 @@ var (
 	ErrNothingToUpdate                            = errors.New("nothing to update")
 	ErrNewTenderCannotCreatedWithStatusNotCreated = errors.New("tender cannot be created with status not created")
 	ErrCannotSetThisTenderStatus                  = errors.New("cannot set tender status in this cases: PUBLISED -> CREATED, CLOSED -> CREATED")
+	ErrEmployeeNotResponsibleForTender            = errors.New("employee not respobsible for this tender")
 )

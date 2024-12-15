@@ -23,6 +23,7 @@ type GetEmployeeTendersResponse struct {
 
 type EditTenderRequest struct {
 	UpdateTenderData models.TenderToUpdate `json:"update_tender_data"`
+	Username         string                `json:"username" validate:"required"`
 }
 
 type EditTenderResponse struct {
