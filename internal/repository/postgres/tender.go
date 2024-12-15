@@ -66,11 +66,11 @@ func (storage *Storage) GetAllTenders(ctx context.Context) ([]models.Tender, err
 	const operationPlace = "repository.postgres.tender.GetAllTenders"
 
 	query := `select name, description, service_type, status, organization_id, creator_username from tender
-				where is_active_version = $1
+				where is_active_version = $1 and status = $2
 	`
 	tenders := []models.Tender{}
 
-	rows, err := storage.connection.Query(ctx, query, true)
+	rows, err := storage.connection.Query(ctx, query, true, models.TenderPublishedStatus)
 	if err != nil {
 		return []models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
@@ -102,10 +102,10 @@ func (storage *Storage) GetTendersByServiceType(ctx context.Context, serviceType
 
 	query := `select name, description, service_type, status, organization_id, creator_username
 				from tender
-				where service_type=$1 and is_active_version=$2`
+				where service_type=$1 and is_active_version=$2 and status = $3`
 	tenders := []models.Tender{}
 
-	rows, err := storage.connection.Query(ctx, query, serviceType, true)
+	rows, err := storage.connection.Query(ctx, query, serviceType, true, models.TenderPublishedStatus)
 
 	if err != nil {
 		return []models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
@@ -136,10 +136,10 @@ func (storage *Storage) GetEmployeeTenders(ctx context.Context, empl models.Empl
 	const operationPlace = "repository.postgres.tender.GetEmployeeTenders"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 				from tender
-				where creator_username = $1 and is_active_version=$2`
+				where creator_username = $1 and is_active_version=$2 and status = $3`
 	tenders := []models.Tender{}
 
-	rows, err := storage.connection.Query(ctx, query, empl.Username, true)
+	rows, err := storage.connection.Query(ctx, query, empl.Username, true, models.TenderPublishedStatus)
 	if err != nil {
 		return []models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
@@ -340,6 +340,9 @@ func (storage *Storage) GetLastInsertedTenderId(ctx context.Context) (int, error
 	var tenderId int
 	err := row.Scan(&tenderId)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, nil
+		}
 		return 0, fmt.Errorf("%s: %w", operationPlace, err)
 	}
 	return tenderId, nil
