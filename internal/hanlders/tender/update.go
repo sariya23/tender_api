@@ -106,11 +106,11 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 
 		if err != nil {
 			if errors.Is(err, outerror.ErrUnknownTenderStatus) {
-				logger.Warn(fmt.Sprintf("tender status \"%s\" is unknown", *updatedReq.UpdateTenderData.Status))
+				logger.Warn(fmt.Sprintf("tender status <%s> is unknown", *updatedReq.UpdateTenderData.Status))
 				ginContext.JSON(
 					http.StatusBadRequest,
 					schema.EditTenderResponse{
-						Message:       fmt.Sprintf("tender status \"%s\" is unknown", *updatedReq.UpdateTenderData.Status),
+						Message:       fmt.Sprintf("tender status=<%s> is unknown", *updatedReq.UpdateTenderData.Status),
 						UpdatedTender: models.Tender{},
 					},
 				)
@@ -131,7 +131,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					http.StatusForbidden,
 					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
-							"employee with username \"%s\" not creator of tender with id \"%d\"",
+							"employee with username=<%s> not creator of tender with id=<%d>",
 							updatedReq.Username,
 							convertedTenderId,
 						),
@@ -140,11 +140,11 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 				)
 				return
 			} else if errors.Is(err, outerror.ErrTenderNotFound) {
-				logger.Warn(fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId))
+				logger.Warn(fmt.Sprintf("tender with id=<%d> not found", convertedTenderId))
 				ginContext.JSON(
 					http.StatusBadRequest,
 					schema.EditTenderResponse{
-						Message:       fmt.Sprintf("tender with id=\"%d\" not found", convertedTenderId),
+						Message:       fmt.Sprintf("tender with id=<%d> not found", convertedTenderId),
 						UpdatedTender: models.Tender{},
 					},
 				)
@@ -152,7 +152,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 			} else if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn(
 					fmt.Sprintf(
-						"updated employee with username=\"%s\" not found",
+						"updated employee with username=<%s> not found",
 						*updatedReq.UpdateTenderData.CreatorUsername,
 					),
 				)
@@ -160,7 +160,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					http.StatusBadRequest,
 					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
-							"updated employee with username=\"%s\" not found",
+							"updated employee with username=<%s> not found",
 							*updatedReq.UpdateTenderData.CreatorUsername,
 						),
 						UpdatedTender: models.Tender{},
@@ -170,7 +170,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 			} else if errors.Is(err, outerror.ErrOrganizationNotFound) {
 				logger.Warn(
 					fmt.Sprintf(
-						"updated organization with id=\"%d\" not found",
+						"updated organization with id=<%d> not found",
 						*updatedReq.UpdateTenderData.OrganizationId,
 					),
 				)
@@ -178,7 +178,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					http.StatusBadRequest,
 					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
-							"updated organization with id=\"%d\" not found",
+							"updated organization with id=<%d> not found",
 							*updatedReq.UpdateTenderData.OrganizationId,
 						),
 						UpdatedTender: models.Tender{},
@@ -188,7 +188,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn(
 					fmt.Sprintf(
-						"new employee with username=\"%s\" not responsible for new organization with id=\"%d\"",
+						"new employee with username=<%s> not responsible for new organization with id=<%d>",
 						*updatedReq.UpdateTenderData.CreatorUsername,
 						*updatedReq.UpdateTenderData.OrganizationId,
 					),
@@ -197,7 +197,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					http.StatusBadRequest,
 					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
-							"employee with username=\"%s\" not responsible for organization with id=\"%d\"",
+							"employee with username=<%s> not responsible for organization with id=<%d>",
 							*updatedReq.UpdateTenderData.CreatorUsername,
 							*updatedReq.UpdateTenderData.OrganizationId,
 						),

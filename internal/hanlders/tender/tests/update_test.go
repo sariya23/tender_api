@@ -453,7 +453,7 @@ func TestEditTender_FailTenderNotFound(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "tender with id=\"2\" not found"
+			"message": "tender with id=<2> not found"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -523,7 +523,7 @@ func TestEditTender_FailEmployeeNotFound(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "updated employee with username=\"update qwe\" not found"
+			"message": "updated employee with username=<update qwe> not found"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -593,7 +593,7 @@ func TestEditTender_FailOrgNotFound(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "updated organization with id=\"2\" not found"
+			"message": "updated organization with id=<2> not found"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -663,7 +663,7 @@ func TestEditTender_FailEmployeeNotResponsibleForOrg(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "employee with username=\"update qwe\" not responsible for organization with id=\"2\""
+			"message": "employee with username=<update qwe> not responsible for organization with id=<2>"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -733,7 +733,7 @@ func TestEditTender_FailUnknownTenderStatus(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "tender status \"update open\" is unknown"
+			"message": "tender status=<update open> is unknown"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -860,7 +860,7 @@ func TestEditTender_FailEmployeeNotRespobsibleForTender(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "employee with username \"qwe\" not creator of tender with id \"2\""
+			"message": "employee with username=<qwe> not creator of tender with id=<2>"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
