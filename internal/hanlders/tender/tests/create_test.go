@@ -254,7 +254,7 @@ func TestCreateTender_FailEmployeeNotFound(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	require.Equal(t, models.Tender{}, resp.Tender)
-	require.Equal(t, "employee with username=\"qwe\" not found", resp.Message)
+	require.Equal(t, "employee with username=<qwe> not found", resp.Message)
 }
 
 // TestCreateTender_FailOrganizationNotFound проверяет, что
@@ -307,7 +307,7 @@ func TestCreateTender_FailOrganizationNotFound(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	require.Equal(t, models.Tender{}, resp.Tender)
-	require.Equal(t, "organization with id=\"1\" not found", resp.Message)
+	require.Equal(t, "organization with id=<1> not found", resp.Message)
 }
 
 // TestCreateTender_FailUserNotResponsibleForOrganization
@@ -358,7 +358,7 @@ func TestCreateTender_FailEmployeerNotResponsibleForOrganization(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	require.Equal(t, models.Tender{}, resp.Tender)
-	require.Equal(t, "employee \"qwe\" not responsible for organization with id=1", resp.Message)
+	require.Equal(t, "employee <qwe> not responsible for organization with id=<1>", resp.Message)
 }
 
 func TestCreateTender_FailWrongTenderStatus(t *testing.T) {
@@ -408,5 +408,5 @@ func TestCreateTender_FailWrongTenderStatus(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	require.Equal(t, models.Tender{}, resp.Tender)
-	require.Equal(t, "cannot create tender with status \"open\"", resp.Message)
+	require.Equal(t, "cannot create tender with status <open>", resp.Message)
 }

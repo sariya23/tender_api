@@ -89,7 +89,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 					http.StatusBadRequest,
 					schema.CreateTenderResponse{
 						Message: fmt.Sprintf(
-							"employee with username=\"%s\" not found",
+							"employee with username=<%s> not found",
 							createReq.Tender.CreatorUsername,
 						),
 						Tender: models.Tender{},
@@ -102,7 +102,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 					http.StatusBadRequest,
 					schema.CreateTenderResponse{
 						Message: fmt.Sprintf(
-							"organization with id=\"%d\" not found",
+							"organization with id=<%d> not found",
 							createReq.Tender.OrganizationId,
 						),
 						Tender: models.Tender{},
@@ -115,7 +115,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 					http.StatusBadRequest,
 					schema.CreateTenderResponse{
 						Message: fmt.Sprintf(
-							"employee \"%s\" not responsible for organization with id=%d",
+							"employee <%s> not responsible for organization with id=<%d>",
 							createReq.Tender.CreatorUsername,
 							createReq.Tender.OrganizationId,
 						),
@@ -128,7 +128,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 				ginContext.JSON(
 					http.StatusBadRequest,
 					schema.CreateTenderResponse{
-						Message: fmt.Sprintf("cannot create tender with status \"%s\"", createReq.Tender.Status),
+						Message: fmt.Sprintf("cannot create tender with status <%s>", createReq.Tender.Status),
 						Tender:  models.Tender{},
 					},
 				)
