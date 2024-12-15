@@ -31,7 +31,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 				slog.String("tender id", tenderId),
 				slog.String("err", err.Error()),
 			)
-			ginContext.JSON(http.StatusNotFound, schema.EditTenderResponse{Message: "wrong path", UpdatedTender: models.Tender{}})
+			ginContext.JSON(http.StatusNotFound, schema.EditTenderResponse{Message: "tenderId must be positive integer number", UpdatedTender: models.Tender{}})
 			return
 		}
 

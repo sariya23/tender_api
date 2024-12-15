@@ -260,7 +260,7 @@ func TestEditTender_FailInvalidTenderId(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "wrong path"
+			"message": "tenderId must be positive integer number"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
