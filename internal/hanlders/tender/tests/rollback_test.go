@@ -87,7 +87,7 @@ func TestRollbackTender_FailTenderIdIsNotInt(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "wrong path: /api/tenders/2.34/rollback/3"
+			"message": "tenderId must be positive integer number"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -103,7 +103,7 @@ func TestRollbackTender_FailTenderIdIsNotInt(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
@@ -128,7 +128,7 @@ func TestRollbackTender_FailVersionIsNotInt(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "wrong path: /api/tenders/2/rollback/qwe"
+			"message": "version must be positive integer number"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -144,7 +144,7 @@ func TestRollbackTender_FailVersionIsNotInt(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
@@ -169,7 +169,7 @@ func TestRollbackTender_FailTenderNotFound(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "tender with id=\"2\" not found"
+			"message": "tender with id=<2> not found"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -186,7 +186,7 @@ func TestRollbackTender_FailTenderNotFound(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
@@ -211,7 +211,7 @@ func TestRollbackTender_FailVersionNotFound(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "tender with id=\"2\" doesnt have version \"3\""
+			"message": "tender with id=<2> doesnt have version=<3>"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -228,7 +228,7 @@ func TestRollbackTender_FailVersionNotFound(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
