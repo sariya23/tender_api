@@ -470,3 +470,27 @@ func TestUpdateTender_CanSetStatusFromCREATEDToPUBLISED(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, exptectedTender, tender)
 }
+
+// TestUpdateTender_FailEmployeeNotRespobsibleForThisTender проверяет, что
+// если сотрудник, неответственный за тендер, который он хочет изменить, то возваращается
+// ошибка.
+func TestUpdateTender_FailEmployeeNotRespobsibleForThisTender(t *testing.T) {
+	// Arrange
+	ctx := context.Background()
+	mockTenderRepo := new(mocks.MockTenderRepo)
+	mockEmployeeRepo := new(mocks.MockEmployeeRepo)
+	mockOrgRepo := new(mocks.MockOrgRepo)
+	mockResponsibler := new(mocks.MockEmployeeResponsibler)
+	newStatus := models.TenderCreatedStatus
+	tenderToUpdate := models.TenderToUpdate{Status: &newStatus}
+	logger := slogdiscard.NewDiscardLogger()
+	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
+	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{CreatorUsername: "qwe"}, nil)
+
+	// Act
+	tender, err := tenderService.EditTender(ctx, 2, tenderToUpdate, "zxc")
+
+	// Assert
+	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForTender)
+	require.Equal(t, tender, models.Tender{})
+}
