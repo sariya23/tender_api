@@ -73,7 +73,7 @@ func TestGetAllTenders_SuccessTendersNotFound(t *testing.T) {
 	expectedBody := `
 	{	
 		"tenders": [],
-		"message":"no tenders found with service type: qwe"
+		"message":"no tenders found with service type=<qwe>"
 	}
 	`
 	svc := tenderapi.New(logger, mockTenderService)
@@ -184,7 +184,7 @@ func TestGetEmployeeTenders_FailEmployeeNotFound(t *testing.T) {
 	expectedBody := `
 	{
 		"tenders": [],
-		"message": "employee with username \"qwe\" not found"
+		"message": "employee with username=<qwe> not found"
 	}
 	`
 	svc := tenderapi.New(logger, mockTenderService)
@@ -218,7 +218,7 @@ func TestGetEmployeeTenders_SuccessEmployeeTendersNotFound(t *testing.T) {
 	expectedBody := `
 	{
 		"tenders": [],
-		"message": "not found tenders for employee with username \"qwe\""
+		"message": "not found tenders for employee with username=<qwe>"
 	}
 	`
 	svc := tenderapi.New(logger, mockTenderService)

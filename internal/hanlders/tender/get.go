@@ -27,7 +27,7 @@ func (tenderSrv *TenderService) GetTenders(ctx context.Context) gin.HandlerFunc 
 					http.StatusOK,
 					schema.GetTendersResponse{
 						Message: fmt.Sprintf(
-							"no tenders found with service type: %s",
+							"no tenders found with service type=<%s>",
 							serviceType,
 						),
 						Tenders: tenders,
@@ -62,22 +62,22 @@ func (tenderSrv *TenderService) GetEmployeeTendersByUsername(ctx context.Context
 		tenders, err := tenderSrv.tenderService.GetEmployeeTendersByUsername(ctx, username)
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
-				logger.Warn(fmt.Sprintf("employee with username=\"%s\" not found", username))
+				logger.Warn(fmt.Sprintf("employee with username=<%s> not found", username))
 				ginContext.JSON(
 					http.StatusNotFound,
 					schema.GetEmployeeTendersResponse{
-						Message: fmt.Sprintf("employee with username \"%s\" not found", username),
+						Message: fmt.Sprintf("employee with username=<%s> not found", username),
 						Tenders: []models.Tender{},
 					},
 				)
 				return
 			} else if errors.Is(err, outerror.ErrEmployeeTendersNotFound) {
-				logger.Warn(fmt.Sprintf("not found tenders for employee with username \"%s\"", username))
+				logger.Warn(fmt.Sprintf("not found tenders for employee with username=<%s>", username))
 				ginContext.JSON(
 					http.StatusOK,
 					schema.GetEmployeeTendersResponse{
 						Message: fmt.Sprintf(
-							"not found tenders for employee with username \"%s\"",
+							"not found tenders for employee with username=<%s>",
 							username,
 						),
 						Tenders: []models.Tender{},
