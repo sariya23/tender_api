@@ -125,16 +125,6 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					},
 				)
 				return
-			} else if errors.Is(err, outerror.ErrCannotSetThisTenderStatus) {
-				logger.Warn("cannot update tender status")
-				ginContext.JSON(
-					http.StatusBadRequest,
-					schema.EditTenderResponse{
-						Message:       fmt.Sprintf("cannot update tender status: %v", err.Error()),
-						UpdatedTender: models.Tender{},
-					},
-				)
-				return
 			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForTender) {
 				logger.Warn("employee not respobsible for tender")
 				ginContext.JSON(
