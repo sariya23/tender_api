@@ -292,3 +292,44 @@ func TestRollbackTender_FailInternalError(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
+
+func TestRollbackTender_FailEmployeeNotCreatorOfTender(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
+	expectedBody := `
+		{
+			"rollback_tender": {
+				"name": "",
+				"description": "",
+				"service_type": "",
+				"status": "",
+				"organization_id": 0,
+				"creator_username": ""
+			},
+			"message": "employee with username=<qwe> not creator of tender with id=<2>"
+		}`
+	svc := tenderapi.New(logger, mockTenderService)
+	mockTenderService.On("RollbackTender", ctx, 2, 3, "qwe").Return(models.Tender{}, outerror.ErrEmployeeNotResponsibleForTender)
+	router := gin.New()
+	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/3", strings.NewReader(reqBody))
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusForbidden, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}

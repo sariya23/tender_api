@@ -137,6 +137,15 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 					},
 				)
 				return
+			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForTender) {
+				logger.Warn(fmt.Sprintf("employee with username=<%s> not creator of tender with id=<%d>", rollbackReq.Username, convertedTenderId))
+				ginContext.JSON(
+					http.StatusForbidden,
+					schema.RollbackTenderResponse{
+						Message: fmt.Sprintf("employee with username=<%s> not creator of tender with id=<%d>", rollbackReq.Username, convertedTenderId),
+					},
+				)
+				return
 			} else {
 				logger.Error("unexpected error", slog.String("err", err.Error()))
 				ginContext.JSON(http.StatusInternalServerError, schema.RollbackTenderResponse{Message: "internal error"})
