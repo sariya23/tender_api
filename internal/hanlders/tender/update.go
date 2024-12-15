@@ -125,6 +125,25 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					},
 				)
 				return
+
+			} else if errors.Is(err, outerror.ErrEmployeeNotFound) {
+				logger.Warn(
+					fmt.Sprintf(
+						"updated employee with username=<%s> not found",
+						*updatedReq.UpdateTenderData.CreatorUsername,
+					),
+				)
+				ginContext.JSON(
+					http.StatusBadRequest,
+					schema.EditTenderResponse{
+						Message: fmt.Sprintf(
+							"updated employee with username=<%s> not found",
+							*updatedReq.UpdateTenderData.CreatorUsername,
+						),
+						UpdatedTender: models.Tender{},
+					},
+				)
+				return
 			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForTender) {
 				logger.Warn("employee not respobsible for tender")
 				ginContext.JSON(
@@ -145,24 +164,6 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					http.StatusNotFound,
 					schema.EditTenderResponse{
 						Message:       fmt.Sprintf("tender with id=<%d> not found", convertedTenderId),
-						UpdatedTender: models.Tender{},
-					},
-				)
-				return
-			} else if errors.Is(err, outerror.ErrEmployeeNotFound) {
-				logger.Warn(
-					fmt.Sprintf(
-						"updated employee with username=<%s> not found",
-						*updatedReq.UpdateTenderData.CreatorUsername,
-					),
-				)
-				ginContext.JSON(
-					http.StatusBadRequest,
-					schema.EditTenderResponse{
-						Message: fmt.Sprintf(
-							"updated employee with username=<%s> not found",
-							*updatedReq.UpdateTenderData.CreatorUsername,
-						),
 						UpdatedTender: models.Tender{},
 					},
 				)

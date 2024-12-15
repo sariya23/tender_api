@@ -210,7 +210,7 @@ RESPONSE:
 ```
 REQUEST:
 POST /api/tenders/new
-REQUEST BODY
+REQUEST BODY:
 
 {
     "tender": {
@@ -252,7 +252,7 @@ RESPONSE:
 ```
 REQUEST:
 POST /api/tenders/new
-REQUEST BODY
+REQUEST BODY:
 {
     "tender": {
     "name": "Tender 2",
@@ -287,7 +287,7 @@ RESPONSE:
 ```
 REQUEST:
 POST /api/tenders/new
-REQUEST BODY
+REQUEST BODY:
 {
     "tender": {
     "name": "Tender 1",
@@ -320,7 +320,7 @@ RESPONSE:
 ```
 REQUEST:
 POST /api/tensers/new
-REQUEST BODY
+REQUEST BODY:
 {
     "tender": {
     "name": "Tender 1",
@@ -354,7 +354,7 @@ RESPONSE:
 ```
 REQUEST:
 POST /api/tenders/new
-REQUEST BODY
+REQUEST BODY:
 {
     "tender": {
         "name": "Tender 1",
@@ -388,7 +388,7 @@ RESPONSE:
 ```
 REQUEST:
 POST /api/tenders/new
-REQUEST BODY 
+REQUEST BODY:
 {
     "tender": {
         "name": "Tender 1",
@@ -422,7 +422,7 @@ RESPONSE:
 ```
 REQUEST:
 POST /api/tenders/new
-REQUEST BODY
+REQUEST BODY:
 {
     "tender": {
         "name": "Tender 1",
@@ -456,7 +456,7 @@ RESPONSE:
 ```
 REQUEST:
 POST /api/tenders/new
-REQUEST BODY
+REQUEST BODY:
 {
     "tender": {
     "name": "Tender 1",
@@ -487,7 +487,7 @@ RESPONSE:
 ```
 REQUEST:
 PATCH /api/tenders/:tenderId/edit
-REQUEST BODY
+REQUEST BODY:
 {
     "update_tender_data": {
         "name": "Updated tender name"
@@ -525,6 +525,34 @@ RESPONSE:
 - поле `username` в теле запроса обязательно.
 
 ### Примеры ответов 
+
+#### Успешное обновление тендера
+```
+REQUEST:
+PATCH /api/tenders/1/edit
+REQUEST BODY:
+{
+    "update_tender_data": {
+        "name": "Updated Tender"
+    },
+    "username": "sariya"
+}
+
+RESPONSE:
+200 OK
+{
+    "updated_tender": {
+        "name": "Updated Tender",
+        "description": "first created tender",
+        "service_type": "sell",
+        "status": "PUBLISHED",
+        "organization_id": 1,
+        "creator_username": "sariya"
+    },
+    "message": "ok"
+}
+```
+
 #### `tenderId` не число
 
 Если `tenderId` в URL не является целым положительным числом, то вернется код `404` и пустой тендер
@@ -532,7 +560,7 @@ RESPONSE:
 ```
 REQUEST:
 PATCH /api/tenders/qwe/edit
-REQUEST BODY
+REQUEST BODY:
 {
     "update_tender_data": {
         "status": "CLOSED"
@@ -562,7 +590,7 @@ RESPONSE:
 ```
 REQUEST:
 PATCH /api/tenders/1/edit
-REQUEST BODY
+REQUEST BODY:
 {
     "update_tender_data": {
         "status": "qwe"
@@ -582,5 +610,216 @@ RESPONSE:
         "creator_username": ""
     },
     "message": "tender status=<qwe> is unknown"
+}
+```
+
+#### Нельзя изменить статус
+
+(
+если хотите обновить статус тендера, то учьтите, что тендер из статуса `PUBLISHED` нельзя перевести в `CREATED` и из статуса `CLOSED` в `CREATED`.
+)
+
+Если в запросе прилетает обновление статуса на `CREATED`, а текущий статус тендера, например, `CLOSED`, то вернется код `400` и пустой тендер
+
+```
+REQUEST:
+PATCH /api/tenders/1/edit
+REQUEST BODY:
+{
+    "update_tender_data": {
+        "status": "CREATED"
+    },
+    "username": "sariya"
+}
+
+RESPONSE:
+400 BAD REQUEST
+{
+    "updated_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "cannot set this tender status. Cannot set tender status from PUBLISHED to CREATED and from CLOSED to CREATED"
+}
+```
+
+#### Указанный в теле пользователь неответсвенный за тендер
+
+Если в теле запроса указан пользователь, который неответсвенный за обновляемый тендер, то вернется код `403` и пустой тендер
+
+```
+REQUEST:
+PATCH /api/tenders/1/edit
+REQUEST BODY:
+{
+    "update_tender_data": {
+        "status": "CLOSED"
+    },
+    "username": "zxc"
+}
+
+RESPONSE:
+403 FORBIDDEN
+{
+    "updated_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "employee with username=<zxc> not creator of tender with id=<1>"
+}
+```
+
+#### Тендера с таким tenderId не существует
+
+Если в URL указать id тендера, которого не существует, то вернется код 404 и пустой тендер
+
+```
+REQUEST:
+PATCH /api/tenders/10/edit
+REQUEST BODY:
+{
+    "update_tender_data": {
+        "status": "CLOSED"
+    },
+    "username": "zxc"
+}
+
+RESPONSE:
+404 NOT FOUND
+{
+    "updated_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "tender with id=<10> not found"
+}
+```
+
+#### Обновленного сотрудника не существует
+Если попытаться обновить сотрудника тендера, которого не сущесвует, то вернется код `400` и пустой тендер
+
+```
+REQUEST:
+PATCH /api/tenders/1/edit
+REQUEST BODY:
+{
+    "update_tender_data": {
+        "creator_username": "shrek"
+    },
+    "username": "sariya"
+}
+
+RESPONSE:
+400 BAD REQUEST
+{
+    "updated_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "updated employee with username=<shrek> not found"
+}
+```
+
+#### Обновленной организации не существует
+Если попытаться обновить организацию на ту, которая не существует, то вернется код 400 и пустой тендер
+
+```
+REQUEST:
+PATCH /api/tenders/1/edit
+REQUEST BODY:
+{
+    "update_tender_data": {
+        "organization_id": 20
+    },
+    "username": "sariya"
+}
+
+RESPONSE:
+400 BAD REQUEST
+{
+    "updated_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "updated organization with id=<20> not found"
+}
+```
+
+#### Обновленный сотрудник неответсвенный за обновеленную организацию
+Если обновеленный пользователь неответсвенный за новую организацию, то вернется код 400 и пустой тендер
+
+```
+REQUEST:
+PATCH /api/tenders/1/edit
+REQUEST BODY:
+{
+    "update_tender_data": {
+        "creator_username": "aboba",
+        "organization_id": 2
+    },
+    "username": "sariya"
+}
+
+RESPONSE:
+400 BAD REQUEST
+{
+    "updated_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "employee with username=<aboba> not responsible for organization with id=<2>"
+}
+```
+
+#### Что-то пошло не так
+В случае ошибки на сервере вернется код 500 и пустой тендер
+
+```
+REQUEST:
+PATCH /api/tenders/1/edit
+REQUEST BODY:
+{
+    "update_tender_data": {
+        "name": "Updated Tender"
+    },
+    "username": "sariya"
+}
+
+RESPONSE:
+500 INTERNAL SERVER ERROR
+{
+    "updated_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "internal error"
 }
 ```
