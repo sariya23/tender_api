@@ -24,11 +24,6 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context, tenderId int
 		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
 
-	if tender.CreatorUsername != username {
-		logger.Warn(fmt.Sprintf("employee with username=<%s> not responsible for tender with id=<%d>", tender.CreatorUsername, tenderId))
-		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrEmployeeNotResponsibleForTender)
-	}
-
 	err = tenderSrv.tenderRepo.FindTenderVersion(ctx, tenderId, version)
 	if err != nil {
 		if errors.Is(err, outerror.ErrTenderVersionNotFound) {
@@ -38,7 +33,10 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context, tenderId int
 		logger.Error("cannot get tender version")
 		return models.Tender{}, err
 	}
-
+	if tender.CreatorUsername != username {
+		logger.Warn(fmt.Sprintf("employee with username=<%s> not responsible for tender with id=<%d>", tender.CreatorUsername, tenderId))
+		return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrEmployeeNotResponsibleForTender)
+	}
 	err = tenderSrv.tenderRepo.RollbackTender(ctx, tenderId, version)
 	if err != nil {
 		logger.Error("cannot rollback tender", slog.String("err", err.Error()))

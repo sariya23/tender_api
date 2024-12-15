@@ -1,6 +1,6 @@
 # 📜 Tender API
 
-Tender API - это API, которая позволяет создать, редактировать тендеры. 
+Tender API - это API, которая позволяет создавать, редактировать тендеры. 
 
 Текущий функионал:
 - создание тендера;
@@ -21,7 +21,7 @@ API реализовано на Go веб-фреймворке [Gin](https://git
 Инструмент для миграции - [goose](https://github.com/pressly/goose).
 
 
-## REST API
+## REST API SPECIFICATION
 
 ### Получение всех тендеров
 
@@ -485,6 +485,8 @@ RESPONSE:
 
 ### Обновление тендера
 ```
+При обновлении тендера его версия увеличивается автоматически и возвращатся при получении будет именно она. Обновить тендер может только тот пользователь, который его создал.
+
 REQUEST:
 PATCH /api/tenders/:tenderId/edit
 REQUEST BODY:
@@ -813,6 +815,213 @@ RESPONSE:
 500 INTERNAL SERVER ERROR
 {
     "updated_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "internal error"
+}
+```
+
+### Откат версии тендера
+
+```
+REQUEST:
+PUT /api/tenders/tenderId/rollback/version
+REQUEST BODY:
+{
+    "username": "kapi"
+}
+
+RESPONSE:
+CODE
+{
+    {
+    "rollback_tender": {
+        ...
+    },
+    "message": "..."
+}
+}
+```
+
+При откате версии тендера автоматически деактивируется предыдущая версия и активной становится та версия, которая указана в запросе. Откатить тендер может тот пользователь, который его создал.
+
+### Примеры ответов
+
+#### Успешный откат
+Откатить тендер получится если тендер с таким `tenderId` есть, у него есть версия, указанная в `version` и в теле передается пользователь, который создал этот тендер
+
+```
+REQUEST:
+PUT /api/tenders/1/rollback/2
+REQUEST BODY:
+{
+    "username": "kapi"
+}
+
+RESPONSE:
+200 OK
+{
+    "rollback_tender": {
+        "name": "Tender 1",
+        "description": "first created tender",
+        "service_type": "sell",
+        "status": "PUBLISHED",
+        "organization_id": 1,
+        "creator_username": "kapi"
+    },
+    "message": "ok"
+}
+```
+
+#### `tenderId` не число
+
+В случае если `tenderId` в URL не целое положительное число, то вернется код `404` и пустой тендер
+
+```
+REQUEST:
+PUT api/tenders/qwe/rolback/2
+REQUEST BODY:
+{
+    "username": "kapi"
+}
+
+RESPONSE:
+404 NOT FOUND
+{
+    "rollback_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "tenderId must be positive integer number"
+}
+```
+
+#### `version` не число
+
+В случае если `version` в URL не целое положительное число, то вернется код 404 и пустой тендер
+
+```
+REQUEST:
+PUT /api/tenders/1/rollback/qwe
+REQUEST BODY:
+{
+    "username": "kapi"
+}
+
+RESPONSE:
+404 NOT FOUND
+{
+    "rollback_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "version must be positive integer number"
+}
+```
+
+#### Тендер с таким `tenderId` не существует
+```
+REQUEST:
+PUT /api/tenders/10/rollback/2
+REQUEST BODY:
+{
+    "username": "sariya"
+}
+
+RESPONSE:
+404 NOT FOUND
+{
+    "rollback_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "tender with id=<10> not found"
+}
+```
+
+#### У тендера нет указанной версии
+```
+REQUEST:
+PUT /api/tenders/1/rollback/20
+REQUEST BODY:
+{
+    "username": "kapi"
+}
+
+RESPONSE:
+404 NOT FOUND
+{
+    "rollback_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "tender with id=<1> doesnt have version=<20>"
+}
+```
+
+#### Пользователь не создатель тендера
+
+Если пользователь, который не создавал тендер, попытается откатить его, то он получить код 403)
+
+```
+REQUEST:
+PUT api/tenders/1/rollback/2
+REQUEST BODY:
+{
+    "username": "ne kapi"
+}
+
+RESPONSE:
+403 FORBIDDEN
+{
+    "rollback_tender": {
+        "name": "",
+        "description": "",
+        "service_type": "",
+        "status": "",
+        "organization_id": 0,
+        "creator_username": ""
+    },
+    "message": "employee with username=<ne kapi> not creator of tender with id=<1>"
+}
+```
+
+#### Что-то пошло не так
+В случае ошибки на сервере вернется код 500 и пустой тендер
+
+```
+REQUEST:
+PUT api/tenders/1/rollback/2
+REQUEST BODY:
+{
+    "username": "kapi"
+}
+
+RESPONSE:
+500 INTERNAL SERVER ERROR
+{
+    "rollback_tender": {
         "name": "",
         "description": "",
         "service_type": "",
