@@ -207,7 +207,7 @@ paths:
               schema:
                 oneOf:
                   - type: object
-                    description: Синтаксическая ошибка json.
+                    description: Синтаксическая ошибка json или ошибка валидации.
                     properties:
                       tender:
                         $ref: "#/components/schemas/EmptyTender"
@@ -325,7 +325,7 @@ paths:
                     type: string
                     example: tenderId must be positive integer number
         "400":
-          description: Тело запроса синтаксически неверно или указаны невалидные данные, например, происходит обновление из статуса `CLOSED` в `CREATED`.
+          description: Синтаксическая ошибка json, или ошибка валидации, или указано обновление из статуса `CLOSED` в `CREATED`.
           content:
             application/json:
               schema:
@@ -582,6 +582,7 @@ components:
       properties:
         message:
           type: string
+          example: ok
     Tender:
       type: object
       required:
