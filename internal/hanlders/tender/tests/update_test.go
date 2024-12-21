@@ -260,13 +260,67 @@ func TestEditTender_FailInvalidTenderId(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "tenderId must be positive integer number"
+			"message": "cannot convert tender id to integer"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
 	router := gin.New()
 	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
 	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/qwe/edit", strings.NewReader(reqBody))
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
+// TestEditTender_FailTenderIdNegativeInt проверяет, что
+// если параметр пути tenderId отрицательное число, то возвращается
+// код 404.
+func TestEditTender_FailTenderIdNegativeInt(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+
+	reqBody := `
+		{
+			"update_tender_data": {
+				"name": "update Tender 1",
+				"description": "update qwe",
+				"service_type": "update op",
+				"status": "update open",
+				"organization_id": 2,
+				"creator_username": "update qwe"
+			},
+			"username": "qwe"
+		}`
+
+	expectedBody := `
+		{
+			"updated_tender": {
+				"name": "",
+				"description": "",
+				"service_type": "",
+				"status": "",
+				"organization_id": 0,
+				"creator_username": ""
+			},
+			"message": "tender id must me positive integer"
+		}`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	router := gin.New()
+	router.PATCH("/api/tenders/:tenderId/edit", svc.EditTender(ctx))
+	req := httptest.NewRequest(http.MethodPatch, "/api/tenders/-1/edit", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(w)

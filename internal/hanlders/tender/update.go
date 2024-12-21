@@ -31,7 +31,12 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 				slog.String("tender id", tenderId),
 				slog.String("err", err.Error()),
 			)
-			ginContext.JSON(http.StatusNotFound, schema.EditTenderResponse{Message: "tenderId must be positive integer number", UpdatedTender: models.Tender{}})
+			ginContext.JSON(http.StatusNotFound, schema.EditTenderResponse{Message: "cannot convert tender id to integer", UpdatedTender: models.Tender{}})
+			return
+		}
+		if convertedTenderId < 0 {
+			logger.Error("tender id is not positive integer", slog.String("tender id", tenderId))
+			ginContext.JSON(http.StatusNotFound, schema.EditTenderResponse{Message: "tender id must me positive integer", UpdatedTender: models.Tender{}})
 			return
 		}
 
