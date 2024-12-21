@@ -754,6 +754,9 @@ func TestEditTender_FailNewEmployeeNotRespobsibleForCurrentOrg(t *testing.T) {
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
+// TestEditTender_FailCurrEmployeeNotRespobsibleForNewOrg проверяет, что
+// если текущий сотрудник неответсвенный за обновленную организацию, то
+// возвращается код 403 и сообщение с ошибкой.
 func TestEditTender_FailCurrEmployeeNotRespobsibleForNewOrg(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
