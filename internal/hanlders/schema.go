@@ -36,6 +36,6 @@ type RollbackTenderRequest struct {
 }
 
 type RollbackTenderResponse struct {
-	RollbackTender models.Tender `json:"rollback_tender,omitempty"`
+	RollbackTender models.Tender `json:"rollback_tender"`
 	Message        string        `json:"message"`
 }
