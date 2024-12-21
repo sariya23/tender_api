@@ -1,4 +1,12 @@
+.PHONY: run migrate
+
+include .env
+
 run:
-	go run cmd/main.go --config=./config/local.yaml
-migrate_up:
-	goose -dir db/migrations postgres "postgresql://admin:1234@localhost:5432/db?sslmode=disable" up
+	go run cmd/main.go --config=.env
+
+migrate:
+	goose -dir db/migrations postgres "postgresql://$(POSTGRES_USERNAME):$(POSTRGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable" up
+
+test:
+	go test -v ./... 

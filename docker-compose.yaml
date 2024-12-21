@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    env_file: ".env"
+    restart: "always"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${USERNAME}
+      POSTGRES_PASSWORD: ${PASSWORD}
+    ports:
+      - "5432:5432"
+  
+  migration:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: dev
+    depends_on:
+      - db
+    command: make migrate
+  
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: dev
+    env_file: ".env"
+    restart: "always"
+    ports:
+      - "44044:44044"
+    depends_on:
+      - db
+    command: make run
