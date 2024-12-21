@@ -86,7 +86,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 			if errors.Is(err, outerror.ErrEmployeeNotFound) {
 				logger.Warn("employee not found", slog.String("err", err.Error()))
 				ginContext.JSON(
-					http.StatusBadRequest,
+					http.StatusUnprocessableEntity,
 					schema.CreateTenderResponse{
 						Message: fmt.Sprintf(
 							"employee with username=<%s> not found",

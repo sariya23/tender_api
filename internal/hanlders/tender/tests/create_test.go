@@ -252,7 +252,7 @@ func TestCreateTender_FailEmployeeNotFound(t *testing.T) {
 	var resp schema.CreateTenderResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 	require.Equal(t, models.Tender{}, resp.Tender)
 	require.Equal(t, "employee with username=<qwe> not found", resp.Message)
 }
