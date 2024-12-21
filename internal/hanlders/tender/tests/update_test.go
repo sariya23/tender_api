@@ -470,13 +470,13 @@ func TestEditTender_FailTenderNotFound(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
 // TestEditTender_FailEmployeeNotFound проверяет, что
 // если сотрудника с таким username не существует, то возвращается
-// ошибка и код 400.
+// ошибка и код 422.
 func TestEditTender_FailEmployeeNotFound(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -540,13 +540,13 @@ func TestEditTender_FailEmployeeNotFound(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
 // TestEditTender_FailOrgNotFound проверяет, что
 // если организации с таким id не существует, то возвращается
-// ошибка и код 400.
+// ошибка и код 422.
 func TestEditTender_FailOrgNotFound(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -610,13 +610,13 @@ func TestEditTender_FailOrgNotFound(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
 // TestEditTender_FailEmployeeNotResponsibleForOrg проверяет, что
 // если обновленный сотрудник не ответсвенный за новую организацию, то
-// возвращается ошибка и код 400.
+// возвращается ошибка и код 403.
 func TestEditTender_FailEmployeeNotResponsibleForOrg(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -680,7 +680,7 @@ func TestEditTender_FailEmployeeNotResponsibleForOrg(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusForbidden, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
