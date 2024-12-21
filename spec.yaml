@@ -40,16 +40,30 @@ paths:
           content:
             application/json:
               schema:
-                  type: object
-                  description: Тендеры с указанным типом услуг получены
-                  properties:
-                    tenders:
-                      type: array
-                      items:
-                        $ref: "#/components/schemas/Tender"
-                    message:
-                      type: string
-                      example: "ok"
+                oneOf:
+                  - type: object
+                    description: Тендеры с указанным типом услуг найдены
+                    properties:
+                      tenders:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tender"
+                      message:
+                        type: string
+                        example: ok
+                  - type: object
+                    description: Тендеров с указанным типом услуг не найдено
+                    properties:
+                      tenders:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tender"
+                        example: []
+                      message:
+                        type: string
+                        example: no tenders found with service type=<development>
+                            
+                      
         "500":
           description: Ошибка на сервере
           content:
@@ -66,6 +80,180 @@ paths:
                   message:
                     type: string
                     example: "internal error"
+  /api/tenders/my:
+    get:
+      summary: Возврщает список тендеров сотрдуника. 
+      description: Возвращает список ВСЕХ тендеров сотруднкиа. Вернутся тендеры как и CREATED, так и CLOSED, и PUBLISHED
+      parameters:
+        - in: query
+          name: username
+          required: true
+          schema:
+            type: string
+          description: username сотрудника
+      tags:
+        - tenders
+      responses:
+        "200":
+          description: Тенедры сотрудника по его username получены. Если тендеров нет, то вернется пустой список.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Тендеры сотрудника
+                    properties:
+                      tenders:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tender"
+                      message:
+                        type: string
+                        example: ok
+                  - type: object
+                    description: У сотрудника нет тендеров
+                    properties:
+                      tenders:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tender"
+                        example: []
+                      message:
+                        type: string
+                        example: not found tenders for employee with username=<sariya23>
+                  
+        "400":
+          description: Не указан username
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Сообщение с ошибкой
+                properties:
+                  tenders:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Tender"
+                    example: []
+                  message:
+                    type: string
+                    example: username query parameter not specified
+        "404":
+          description: Указан несуществующий сотрудник
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Указан несуществующий сотрудник
+                properties:
+                  tenders:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Tender"
+                    example: []
+                  message:
+                    type: string
+                    example: employee with username=<qwe> not found
+        "500":
+          description: Ошибка на сервере
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Ошибка на сервере
+                properties:
+                  tenders:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Tender"
+                    example: []
+                  message:
+                    type: string
+                    example: "internal error"
+  /api/tenders/new:
+    post:
+      description: Создание нового тендера. Указанный сотрудник должен существовать, указанная организация должна существовать, указанный сотрудник должен быть ответсвенным за указанную организацию. Создание тендера допускается только со статусом CREATED. При успешном создании возвращаются данные только что созданного тендра.
+      summary: Создание нового тендера 
+      tags:
+        - tenders
+      requestBody:
+        description: Данные для создания нового тендера
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tender:
+                  $ref: "#/components/schemas/TenderToCreate"
+      responses:
+        "200":
+          description: Тендер успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Созданный тендер
+                properties:
+                  tender:
+                    $ref: "#/components/schemas/TenderToCreate"
+                  message:
+                    type: string
+                    example: ok
+        "400":
+          description: Прислан невалидный или неверный синтаксически json. Также если при создании тендера указан статус отличный от CREATED.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Синтаксическая ошибка json.
+                    properties:
+                      tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: "json syntax err: invalid character '\"' after object key:value pair: syntax error"
+                  - type: object
+                    description: Указан статус отличный от CREATED.
+                    properties:
+                      tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: cannot create tender with status <CLOSED>
+                        
+                    
+        "422":
+          description: Тендер не удалось создать, так как либо указан несуществующий сотрудник, либо несуществующая организация.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Указана несуществующая организация
+                    properties:
+                      tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: organization with id=<56> not found
+                  - type: object
+                    description: Указан несуществующий сотрудник
+                    properties:
+                      tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: employee with username=<kapi> not found
+                    
+              
+          
+          
+          
+          
+          
+            
   
 components:
   schemas:
@@ -102,8 +290,77 @@ components:
           example: PUBLISHED
         organization_id:
           type: integer
+          minimum: 0
           example: 2
         creator_username:
           type: string
           example: sariya23
+    
+    TenderToCreate:
+      type: object
+      required:
+        - name
+        - description
+        - service_type
+        - status
+        - organization_id
+        - creator_username
+      properties:
+        name:
+          type: string
+          example: Тендер 1 
+        description:
+          type: string
+          example: Первый тендер
+        service_type:
+          type: string
+          example: Development
+        status:
+          type: string
+          enum:
+            - PUBLISHED
+            - CREATED
+            - CLOSED
+          example: CREATED
+        organization_id:
+          type: integer
+          minimum: 0
+          example: 2
+        creator_username:
+          type: string
+          example: sariya23
+          
+    EmptyTender:
+      type: object
+      required:
+        - name
+        - description
+        - service_type
+        - status
+        - organization_id
+        - creator_username
+      properties:
+        name:
+          type: string
+          example: ""
+        description:
+          type: string
+          example: ""
+        service_type:
+          type: string
+          example: ""
+        status:
+          type: string
+          enum:
+            - PUBLISHED
+            - CREATED
+            - CLOSED
+          example: ""
+        organization_id:
+          type: integer
+          minimum: 0
+          example: 0
+        creator_username:
+          type: string
+          example: ""
       
