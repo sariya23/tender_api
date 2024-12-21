@@ -99,7 +99,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 			} else if errors.Is(err, outerror.ErrOrganizationNotFound) {
 				logger.Warn("organization not found", slog.String("err", err.Error()))
 				ginContext.JSON(
-					http.StatusBadRequest,
+					http.StatusUnprocessableEntity,
 					schema.CreateTenderResponse{
 						Message: fmt.Sprintf(
 							"organization with id=<%d> not found",
