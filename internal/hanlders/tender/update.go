@@ -186,7 +186,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					},
 				)
 				return
-			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
+			} else if errors.Is(err, outerror.ErrUpdatedEmployeeNotResponsibleForUpdatedOrg) {
 				logger.Warn(
 					fmt.Sprintf(
 						"new employee with username=<%s> not responsible for new organization with id=<%d>",
@@ -198,8 +198,44 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context) gin.HandlerFunc 
 					http.StatusForbidden,
 					schema.EditTenderResponse{
 						Message: fmt.Sprintf(
-							"employee with username=<%s> not responsible for organization with id=<%d>",
+							"new employee with username=<%s> not responsible for new organization with id=<%d>",
 							*updatedReq.UpdateTenderData.CreatorUsername,
+							*updatedReq.UpdateTenderData.OrganizationId,
+						),
+						UpdatedTender: models.Tender{},
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrUpdatedEmployeeNotResponsibleForCurrentOrg) {
+				logger.Warn(
+					fmt.Sprintf(
+						"new employee with username=<%s> not responsible for current organization",
+						*updatedReq.UpdateTenderData.CreatorUsername,
+					),
+				)
+				ginContext.JSON(
+					http.StatusForbidden,
+					schema.EditTenderResponse{
+						Message: fmt.Sprintf(
+							"new employee with username=<%s> not responsible for current organization",
+							*updatedReq.UpdateTenderData.CreatorUsername,
+						),
+						UpdatedTender: models.Tender{},
+					},
+				)
+				return
+			} else if errors.Is(err, outerror.ErrCurrentEmployeeNotResponsibleForUpdatedOrg) {
+				logger.Warn(
+					fmt.Sprintf(
+						"current employee not responsible for updated organization with id=<%d>",
+						*updatedReq.UpdateTenderData.OrganizationId,
+					),
+				)
+				ginContext.JSON(
+					http.StatusForbidden,
+					schema.EditTenderResponse{
+						Message: fmt.Sprintf(
+							"current employee not responsible for updated organization with id=<%d>",
 							*updatedReq.UpdateTenderData.OrganizationId,
 						),
 						UpdatedTender: models.Tender{},
