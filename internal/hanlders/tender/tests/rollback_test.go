@@ -94,7 +94,7 @@ func TestRollbackTender_FailTenderIdIsNotInt(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "cannot convert tender it to integer"
+			"message": "cannot convert tenderId to integer"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -246,7 +246,7 @@ func TestRollbackTender_FailVersionIsNegativeInt(t *testing.T) {
 
 // TestRollbackTender_FailTenderNotFound проверяет, что
 // если нет тендера с id, который указан в пути, то возвращается
-// ошибка и код 400.
+// ошибка и код 422.
 func TestRollbackTender_FailTenderNotFound(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -285,13 +285,13 @@ func TestRollbackTender_FailTenderNotFound(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
 // TestRollbackTender_FailVersionNotFound проверяет, что
 // если у тендера нет версии, которая указана в пути, то
-// возвращается ошибка и код 400.
+// возвращается ошибка и код 422.
 func TestRollbackTender_FailVersionNotFound(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -330,7 +330,7 @@ func TestRollbackTender_FailVersionNotFound(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusUnprocessableEntity, w.Code)
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 

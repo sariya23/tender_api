@@ -34,7 +34,7 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 			ginContext.JSON(
 				http.StatusNotFound,
 				schema.RollbackTenderResponse{
-					Message: "cannot convert tender it to integer",
+					Message: "cannot convert tenderId to integer",
 				},
 			)
 			return
@@ -134,7 +134,7 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 			if errors.Is(err, outerror.ErrTenderNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=<%d> not found", convertedTenderId))
 				ginContext.JSON(
-					http.StatusNotFound,
+					http.StatusUnprocessableEntity,
 					schema.RollbackTenderResponse{
 						Message: fmt.Sprintf("tender with id=<%d> not found", convertedTenderId),
 					},
@@ -143,7 +143,7 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 			} else if errors.Is(err, outerror.ErrTenderVersionNotFound) {
 				logger.Warn(fmt.Sprintf("tender with id=<%d> doesnt have version=<%d>", convertedTenderId, convertedVersion))
 				ginContext.JSON(
-					http.StatusNotFound,
+					http.StatusUnprocessableEntity,
 					schema.RollbackTenderResponse{
 						Message: fmt.Sprintf("tender with id=<%d> doesnt have version=<%d>", convertedTenderId, convertedVersion),
 					},
