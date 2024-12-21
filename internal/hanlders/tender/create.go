@@ -112,7 +112,7 @@ func (tenderSrv *TenderService) CreateTender(ctx context.Context) gin.HandlerFun
 			} else if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("employee not responsible for organization", slog.String("err", err.Error()))
 				ginContext.JSON(
-					http.StatusBadRequest,
+					http.StatusForbidden,
 					schema.CreateTenderResponse{
 						Message: fmt.Sprintf(
 							"employee <%s> not responsible for organization with id=<%d>",

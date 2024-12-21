@@ -356,7 +356,7 @@ func TestCreateTender_FailEmployeerNotResponsibleForOrganization(t *testing.T) {
 	var resp schema.CreateTenderResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusForbidden, w.Code)
 	require.Equal(t, models.Tender{}, resp.Tender)
 	require.Equal(t, "employee <qwe> not responsible for organization with id=<1>", resp.Message)
 }
