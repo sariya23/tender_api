@@ -126,6 +126,7 @@ func TestRollbackTender_FailEmployeeNotResponsibleForTender(t *testing.T) {
 	logger := slogdiscard.NewDiscardLogger()
 	tenderService := tender.New(logger, mockTenderRepo, mockEmployeeRepo, mockOrgRepo, mockResponsibler)
 	mockTenderRepo.On("GetTenderById", ctx, 2).Return(models.Tender{CreatorUsername: "qwe"}, nil)
+	mockTenderRepo.On("FindTenderVersion", ctx, 2, 1).Return(nil)
 
 	// Act
 	tender, err := tenderService.RollbackTender(ctx, 2, 1, "zxc")
