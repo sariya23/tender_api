@@ -72,7 +72,7 @@ func TestRollbackTender_Success(t *testing.T) {
 
 // TestRollbackTender_FailTenderIdIsNotInt проверяет, что
 // если параметр tenderId в пути не получается конвертировать в int, то
-// возвращается ошибка и код 400.
+// возвращается ошибка и код 404.
 func TestRollbackTender_FailTenderIdIsNotInt(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -94,7 +94,7 @@ func TestRollbackTender_FailTenderIdIsNotInt(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "tenderId must be positive integer number"
+			"message": "cannot convert tender it to integer"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
@@ -114,9 +114,52 @@ func TestRollbackTender_FailTenderIdIsNotInt(t *testing.T) {
 	require.JSONEq(t, expectedBody, w.Body.String())
 }
 
+// TestRollbackTender_FailTenderIdIsNegative проверяет, что
+// если tenderId отрицательный, то ворвращается 404.
+func TestRollbackTender_FailTenderIdIsNegative(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
+	expectedBody := `
+		{
+			"rollback_tender": {
+				"name": "",
+				"description": "",
+				"service_type": "",
+				"status": "",
+				"organization_id": 0,
+				"creator_username": ""
+			},
+			"message": "version must be positive integer"
+		}`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	router := gin.New()
+	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/-3", strings.NewReader(reqBody))
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
 // TestRollbackTender_FailVersionIsNotInt проверяет, что
 // если параметр version в пути не получается конвертировать в int,
-// то возвращается ошибка и код 400.
+// то возвращается ошибка и код 404.
 func TestRollbackTender_FailVersionIsNotInt(t *testing.T) {
 	// Arrange
 	gin.SetMode(gin.TestMode)
@@ -138,13 +181,56 @@ func TestRollbackTender_FailVersionIsNotInt(t *testing.T) {
 				"organization_id": 0,
 				"creator_username": ""
 			},
-			"message": "version must be positive integer number"
+			"message": "cannot convert version to integer"
 		}`
 	svc := tenderapi.New(logger, mockTenderService)
 
 	router := gin.New()
 	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
 	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/qwe", strings.NewReader(reqBody))
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	require.JSONEq(t, expectedBody, w.Body.String())
+}
+
+// TestRollbackTender_FailVersionIsNegativeInt проверяет, что
+// если version отрицательное число, то возвращается код 404.
+func TestRollbackTender_FailVersionIsNegativeInt(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	ctx := context.Background()
+
+	logger := slogdiscard.NewDiscardLogger()
+	mockTenderService := new(mocks.MockTenderServiceProvider)
+	reqBody := `
+	{
+		"username": "qwe"
+	}`
+	expectedBody := `
+		{
+			"rollback_tender": {
+				"name": "",
+				"description": "",
+				"service_type": "",
+				"status": "",
+				"organization_id": 0,
+				"creator_username": ""
+			},
+			"message": "version must be positive integer"
+		}`
+	svc := tenderapi.New(logger, mockTenderService)
+
+	router := gin.New()
+	router.PUT("/api/tenders/:tenderId/rollback/:version", svc.RollbackTender(ctx))
+	req := httptest.NewRequest(http.MethodPut, "/api/tenders/2/rollback/-2", strings.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(w)

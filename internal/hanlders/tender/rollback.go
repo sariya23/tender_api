@@ -34,9 +34,15 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 			ginContext.JSON(
 				http.StatusNotFound,
 				schema.RollbackTenderResponse{
-					Message: "tenderId must be positive integer number",
+					Message: "cannot convert tender it to integer",
 				},
 			)
+			return
+		}
+
+		if convertedTenderId < 0 {
+			logger.Error("tender id is not positive integer", slog.String("tender id", tenderId))
+			ginContext.JSON(http.StatusNotFound, schema.RollbackTenderResponse{Message: "tender id must be positive integer"})
 			return
 		}
 
@@ -51,9 +57,15 @@ func (tenderSrv *TenderService) RollbackTender(ctx context.Context) gin.HandlerF
 			ginContext.JSON(
 				http.StatusNotFound,
 				schema.RollbackTenderResponse{
-					Message: "version must be positive integer number",
+					Message: "cannot convert version to integer",
 				},
 			)
+			return
+		}
+
+		if convertedVersion < 0 {
+			logger.Error("version is not positive integer", slog.String("version", version))
+			ginContext.JSON(http.StatusNotFound, schema.RollbackTenderResponse{Message: "version must be positive integer"})
 			return
 		}
 
