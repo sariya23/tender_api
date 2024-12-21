@@ -120,7 +120,7 @@ paths:
                         example: []
                       message:
                         type: string
-                        example: not found tenders for employee with username=<sariya23>
+                        example: not found tenders for employee with username=<kapi>
                   
         "400":
           description: Не указан username
@@ -298,7 +298,7 @@ paths:
                   $ref: "#/components/schemas/TenderToUpdate"
                 username:
                   type: string
-                  example: sariya23
+                  example: kapi
       responses:
         "200":
           description: Успешное обновление тендера
@@ -313,7 +313,7 @@ paths:
                     type: string
                     example: ok
         "404":
-          description: tenderId не число
+          description: tenderId не число или отрицательное число.
           content:
             application/json:
               schema:
@@ -376,20 +376,204 @@ paths:
                       message:
                         type: string
                         example: updated organization with id=<2> not found
+        "403":
+          description: Тендер пытается обновить сотрудник, который его не создавал или при обновлении тендера возникнет ситуация, что сотрудник окажется неответсвенным за организацию.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Обновленный сотрудник неответсвенный за обновленную организацию.
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: new employee with username=<kapi> not responsible for new organization with id=<2>
+                  - type: object
+                    description: Обновленный сотрудник неответсвенный за текущую организацию.
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: new employee with username=<kapi> not responsible for current organization
+                  - type: object
+                    description: Текущий сотрудник неответсвенный за обновленую организацию.
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: current employee not responsible for updated organization with id=<2>
+                  - type: object
+                    description: Тендер пытается обновить не его создатель
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: employee with username=<kapi> not creator of tender with id=<42>
+        "500":
+          description: Ошибка на сервере
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Ошибка на сервере
+                properties:
+                  updated_tender:
+                    $ref: "#/components/schemas/EmptyTender"
+                  message:
+                    type: string
+                    example: "internal error"
+  /api/tenders/{tenderId}/rollback/{version}:
+    put:
+      tags:
+        - tenders
+      parameters:
+        - in: path
+          name: tenderId
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+          description: Id тедера для обновления
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+      requestBody:
+        description: Username того, кто хочет откатить тендер.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: kapi
+      responses:
+        "200":
+          description: Успешный откат тендера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rollback_tender:
+                    $ref: "#/components/schemas/Tender"
+                  message:
+                    type: string
+                    example: ok
+        "404":
+          description: Если параметры запроса невалидны, т.е `tenderId` не число или отрицательно число - аналогично с `version`.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: tenderId не число
+                    properties:
+                      rollback_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: cannot convert tenderId to integer
+                  - type: object
+                    description: tenderId отрицательное число
+                    properties:
+                      rollback_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: tender id must be positive integer
+                  - type: object
+                    description: version не число
+                    properties:
+                      rollback_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: version must be positive integer
+                  - type: object
+                    description: version отрицательное число
+                    properties:
+                      rollback_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: version must be positive integer
+        "400":
+          description: Ситнаксические/типовые ошибки в json или не указан `username`
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Ошибка в теле запроса.
+                properties:
+                  rollback_tender:
+                    $ref: "#/components/schemas/EmptyTender"
+                  message:
+                    type: string
+                    example: "validation failed: Key: 'RollbackTenderRequest.Username' Error:Field validation for 'Username' failed on the 'required' tag"
+        "422":
+          description: Тендера с таким `tenderId` не существует или у такого `tenderId` нет указанной `version`
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Тендера с таким tenderId не существует
+                    properties:
+                      rollback_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: tender with id=<42> not found
+                  - type: object
+                    description: У тендера с таким tenderId нет версии version
+                    properties:
+                      rollback_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: tender with id=<42> doesnt have version=<42>
+        "403":
+          description: Тендер пытается откатить не его создатель
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rollback_tender:
+                    $ref: "#/components/schemas/EmptyTender"
+                  message:
+                    type: string
+                    example: employee with username=<kapi> not creator of tender with id=<42>
+        "500":
+          description: Ошибка на сервере
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Ошибка на сервере
+                properties:
+                  updated_tender:
+                    $ref: "#/components/schemas/EmptyTender"
+                  message:
+                    type: string
+                    example: "internal error"
+                      
                   
-                        
-                
-                  
-                
-                
-                    
-              
+                          
+                      
           
-          
-          
-          
-          
-            
+    
+
   
 components:
   schemas:
@@ -430,7 +614,7 @@ components:
           example: 2
         creator_username:
           type: string
-          example: sariya23
+          example: kapi
     
     TenderToCreate:
       type: object
@@ -464,7 +648,7 @@ components:
           example: 2
         creator_username:
           type: string
-          example: sariya23
+          example: kapi
           
     EmptyTender:
       type: object
@@ -525,4 +709,4 @@ components:
           example: 2
         creator_username:
           type: string
-          example: sariya23
+          example: kapi
