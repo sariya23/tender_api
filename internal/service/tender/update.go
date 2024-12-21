@@ -101,7 +101,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, up
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("updated employee not responsible for updated organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", updatedOrg.ID))
-				return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrEmployeeNotResponsibleForOrganization)
+				return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrUpdatedEmployeeNotResponsibleForUpdatedOrg)
 			}
 			logger.Error(
 				"cannot check new employee responsibility to new org",
@@ -119,7 +119,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, up
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("updated employee not responsible for current organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", currTender.OrganizationId))
-				return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrEmployeeNotResponsibleForOrganization)
+				return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrUpdatedEmployeeNotResponsibleForCurrentOrg)
 			}
 			logger.Error(
 				"cannot check new employee responsibility to current org",
@@ -144,7 +144,7 @@ func (tenderSrv *TenderService) EditTender(ctx context.Context, tenderId int, up
 		if err != nil {
 			if errors.Is(err, outerror.ErrEmployeeNotResponsibleForOrganization) {
 				logger.Warn("current employee not responsible for updated organization", slog.Int("employee id", updatedEmpl.ID), slog.Int("org id", currTender.OrganizationId))
-				return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrEmployeeNotResponsibleForOrganization)
+				return models.Tender{}, fmt.Errorf("%s: %w", operationPlace, outerror.ErrCurrentEmployeeNotResponsibleForUpdatedOrg)
 			}
 			logger.Error(
 				"cannot check current employee responsobility for updated org",

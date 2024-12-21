@@ -286,7 +286,7 @@ func TestUpdateTender_FailNewOrgNotFound(t *testing.T) {
 // TestUpdateTender_FailNewNewUserNotResponsibleForNewOrg проверяет,
 // что если новый юзер не ответсвенный за новую организацию, то возвращается
 // пустой тендер и ошибка.
-func TestUpdateTender_FailNewNewUserNotResponsibleForNewOrg(t *testing.T) {
+func TestUpdateTender_FailNewEmployeeNotResponsibleForNewOrg(t *testing.T) {
 	// Arrange
 	ctx := context.Background()
 	mockTenderRepo := new(mocks.MockTenderRepo)
@@ -307,14 +307,14 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForNewOrg(t *testing.T) {
 	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "qwe")
 
 	// Assert
-	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
+	require.ErrorIs(t, err, outerror.ErrUpdatedEmployeeNotResponsibleForUpdatedOrg)
 	require.Equal(t, tender, models.Tender{})
 }
 
 // TestUpdateTender_FailNewNewUserNotResponsibleForCurrOrg проверяет,
 // что если новый юзер не ответсвенный за текущую организацию, то возвращается пустой
 // тендер и ошибка.
-func TestUpdateTender_FailNewNewUserNotResponsibleForCurrOrg(t *testing.T) {
+func TestUpdateTender_FailNewNewEmployeeNotResponsibleForCurrOrg(t *testing.T) {
 	// Arrange
 	ctx := context.Background()
 	mockTenderRepo := new(mocks.MockTenderRepo)
@@ -333,7 +333,7 @@ func TestUpdateTender_FailNewNewUserNotResponsibleForCurrOrg(t *testing.T) {
 	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "qwe")
 
 	// Assert
-	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
+	require.ErrorIs(t, err, outerror.ErrUpdatedEmployeeNotResponsibleForCurrentOrg)
 	require.Equal(t, tender, models.Tender{})
 }
 
@@ -360,7 +360,7 @@ func TestUpdateTender_FailCurrUserNotResponsibleForNewOrg(t *testing.T) {
 	tender, err := tenderService.EditTender(ctx, 1, tenderToUpdate, "qwe")
 
 	// Assert
-	require.ErrorIs(t, err, outerror.ErrEmployeeNotResponsibleForOrganization)
+	require.ErrorIs(t, err, outerror.ErrCurrentEmployeeNotResponsibleForUpdatedOrg)
 	require.Equal(t, tender, models.Tender{})
 }
 
