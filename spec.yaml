@@ -172,7 +172,7 @@ paths:
                     example: "internal error"
   /api/tenders/new:
     post:
-      description: Создание нового тендера. Указанный сотрудник должен существовать, указанная организация должна существовать, указанный сотрудник должен быть ответсвенным за указанную организацию. Создание тендера допускается только со статусом CREATED. При успешном создании возвращаются данные только что созданного тендра.
+      description: Создание нового тендера. Указанный сотрудник должен существовать, указанная организация должна существовать, указанный сотрудник должен быть ответсвенным за указанную организацию. Создание тендера допускается только со статусом `CREATED`. При успешном создании возвращаются данные только что созданного тендра.
       summary: Создание нового тендера 
       tags:
         - tenders
@@ -201,7 +201,7 @@ paths:
                     type: string
                     example: ok
         "400":
-          description: Прислан невалидный или неверный синтаксически json. Также если при создании тендера указан статус отличный от CREATED.
+          description: Прислан невалидный или неверный синтаксически json. Также если при создании тендера указан статус отличный от `CREATED`.
           content:
             application/json:
               schema:
@@ -246,6 +246,142 @@ paths:
                       message:
                         type: string
                         example: employee with username=<kapi> not found
+        "403":
+          description: Указанный сотрудник неответсвенный за организацию.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Указанный сотрудник неответсвенный за организацию.
+                properties:
+                  tender: 
+                    $ref: "#/components/schemas/EmptyTender"
+                  message:
+                    type: string
+                    example: employee <kapi> not responsible for organization with id=<crocodile & KO>
+        "500":
+          description: Ошибка на сервере
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Ошибка на сервере
+                properties:
+                  tender:
+                    $ref: "#/components/schemas/EmptyTender"
+                  message:
+                    type: string
+                    example: "internal error"
+  /api/tenders/{tenderId}/edit:
+    patch:
+      parameters:
+        - in: path
+          name: tenderId
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+          description: Id тедера для обновления
+      tags:
+        - tenders
+      summary: Обновление тендера
+      description: Обновление тендера. Обновление доступно только создателю тендера. После обновления версия тендера автоматически увеличится и станет активной. При обновлении тендера нельзя перевести тендер из статуса `PUBLISHED` в `CREATED` и из статуса `CLOSED` в `CREATED`. При обновлении орагнизации она должна существовать. При обновлении сотрудника он должен существовать. Если обновляется и сотрудник и организация, то обновленный сотрудник должен быть ответсвенным за обновленную организацию. Если обновляется сотрудник, но не организация, то он должен быть ответсвенным за организацию, которая указана в тендере. Если обновляется организация, но не сотрудник, то указанный в тендере сотрудник должен быть ответсвенным за обновленную организацию.
+      requestBody:
+        description: Данные для обновления тендера.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tender:
+                  $ref: "#/components/schemas/TenderToUpdate"
+                username:
+                  type: string
+                  example: sariya23
+      responses:
+        "200":
+          description: Успешное обновление тендера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated_tender:
+                    $ref: "#/components/schemas/TenderToUpdate"
+                  message:
+                    type: string
+                    example: ok
+        "404":
+          description: tenderId не число
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated_tender:
+                    $ref: "#/components/schemas/EmptyTender"
+                  message:
+                    type: string
+                    example: tenderId must be positive integer number
+        "400":
+          description: Тело запроса синтаксически неверно или указаны невалидные данные, например, происходит обновление из статуса `CLOSED` в `CREATED`.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Синтаксическая ошибка json
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: "json syntax err: invalid character '\"' after object key:value pair: syntax error"
+                  - type: object
+                    description: Указан невалидный статус
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: cannot set this tender status. Cannot set tender status from PUBLISHED to CREATED and from CLOSED to CREATED
+        "422":
+          description: Указан либо несуществующий `tenderId`, либо несуществующая организация, либо несуществующий сотрудник
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Указан несуществующий `tenderId`
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: tender with id=<2> not found
+                  - type: object
+                    description: Указан несуществующий сотрудник
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: updated employee with username=<kapi> not found
+                  - type: object
+                    description: Указана несуществующая организация
+                    properties:
+                      updated_tender:
+                        $ref: "#/components/schemas/EmptyTender"
+                      message:
+                        type: string
+                        example: updated organization with id=<2> not found
+                  
+                        
+                
+                  
+                
+                
                     
               
           
@@ -363,4 +499,30 @@ components:
         creator_username:
           type: string
           example: ""
-      
+
+    TenderToUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Обновленный тендер 1 
+        description:
+          type: string
+          example: Обновленный первый тендер
+        service_type:
+          type: string
+          example: Updated Development
+        status:
+          type: string
+          enum:
+            - PUBLISHED
+            - CREATED
+            - CLOSED
+          example: CLOSED
+        organization_id:
+          type: integer
+          minimum: 0
+          example: 2
+        creator_username:
+          type: string
+          example: sariya23
