@@ -136,10 +136,10 @@ func (storage *Storage) GetEmployeeTenders(ctx context.Context, empl models.Empl
 	const operationPlace = "repository.postgres.tender.GetEmployeeTenders"
 	query := `select name, description, service_type, status, organization_id, creator_username 
 				from tender
-				where creator_username = $1 and is_active_version=$2 and status = $3`
+				where creator_username = $1 and is_active_version=$2`
 	tenders := []models.Tender{}
 
-	rows, err := storage.connection.Query(ctx, query, empl.Username, true, models.TenderPublishedStatus)
+	rows, err := storage.connection.Query(ctx, query, empl.Username, true)
 	if err != nil {
 		return []models.Tender{}, fmt.Errorf("%s: %w", operationPlace, err)
 	}
