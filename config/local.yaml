@@ -1,8 +1,0 @@
-server_address: localhost:8000
-postgress_conn: postgres://admin:1234@localhost:5432/db
-postgres_jdbc_conn: jdbc:postgresql://localhost:5432/db
-postgres_username: admin
-postgres_password: 1234
-postgres_host: localhost
-postgres_port: 5432
-postgres_database: db

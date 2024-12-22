@@ -20,6 +20,7 @@ func New(
 	dbURL string,
 	logger *slog.Logger,
 	serverAddr string,
+	serverPort string,
 ) *App {
 	db := dbapp.New(ctx, dbURL)
 	logger.Info("DB init success")
@@ -31,7 +32,7 @@ func New(
 	route.AddTenderRoutes(ctx, tender.TenderHandlers, apiRouterGroup)
 	route.AddPingRoute(apiRouterGroup)
 
-	serverApp := serverapp.New(serverAddr, router)
+	serverApp := serverapp.New(serverAddr, serverPort, router)
 
 	return &App{serverApp}
 }
