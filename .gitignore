@@ -1,3 +1,4 @@
-.env
+local.env
+docker.env
 te/
 /doc/task.md
