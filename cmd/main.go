@@ -19,7 +19,7 @@ func main() {
 	cfg := config.MustLoad()
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	logger.Info("starting app at", slog.String("addr", cfg.ServerAddress), slog.String("port", cfg.ServerPort))
-	app := app.New(ctx, cfg.PostgresConn, logger, cfg.ServerAddress, cfg.ServerPort)
+	app := app.New(ctx, cfg.PostgresConn, logger, cfg.ServerAddress, cfg.ServerPort, cfg.Timeout)
 	logger.Info("app init success")
 	go app.Server.MustRun()
 

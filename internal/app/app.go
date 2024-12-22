@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	dbapp "github.com/sariya23/tender/internal/app/db"
@@ -21,6 +22,7 @@ func New(
 	logger *slog.Logger,
 	serverAddr string,
 	serverPort string,
+	timeout int,
 ) *App {
 	db := dbapp.New(ctx, dbURL)
 	logger.Info("DB init success")
@@ -32,7 +34,8 @@ func New(
 	route.AddTenderRoutes(ctx, tender.TenderHandlers, apiRouterGroup)
 	route.AddPingRoute(apiRouterGroup)
 
-	serverApp := serverapp.New(serverAddr, serverPort, router)
+	serverTimeout := time.Duration(timeout) * time.Second
+	serverApp := serverapp.New(serverAddr, serverPort, serverTimeout, router)
 
 	return &App{serverApp}
 }

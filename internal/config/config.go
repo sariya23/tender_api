@@ -7,9 +7,12 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+type Seconds int
+
 type AppConfig struct {
 	ServerAddress    string `env:"SERVER_ADDRESS"`
 	ServerPort       string `env:"SERVER_PORT"`
+	Timeout          int    `env:"TIMEOUT"`
 	PostgresConn     string `env:"POSTGRESS_CONN"`
 	PosthresJDBC_URL string `env:"POSTGRES_JDBC_CONN"`
 	PostgresUsername string `env:"POSTGRES_USERNAME"`

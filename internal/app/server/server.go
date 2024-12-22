@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 type ServerApp struct {
 	Server *http.Server
 }
 
-func New(serverAddress string, serverPort string, handler http.Handler) *ServerApp {
+func New(serverAddress string, serverPort string, timeout time.Duration, handler http.Handler) *ServerApp {
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", serverAddress, serverPort),
-		Handler: handler,
+		Addr:        fmt.Sprintf("%s:%s", serverAddress, serverPort),
+		Handler:     handler,
+		ReadTimeout: timeout,
 	}
 	return &ServerApp{Server: server}
 }
