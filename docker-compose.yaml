@@ -10,15 +10,26 @@ services:
       POSTGRES_PASSWORD: ${POSTRGRES_PASSWORD}
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   
   migration:
     build:
       dockerfile: Dockerfile
       context: .
       target: dev
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTRGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     depends_on:
-      - db
-    command: make migrate
+      db:
+        condition: service_healthy
+    command: sh -c "until pg_isready -h db -p 5432; do sleep 1; done; make migrate"
   
   app:
     build:
