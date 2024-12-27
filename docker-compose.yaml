@@ -29,7 +29,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "until pg_isready -h db -p 5432; do sleep 1; done; make ENV=docker migrate"
+    command: sh -c "until pg_isready -h db -p ${POSTGRES_PORT}; do sleep 1; done; make ENV=docker migrate"
   
   app:
     build:
@@ -40,6 +40,12 @@ services:
     restart: "always"
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:${SERVER_PORT}/api/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     command: make ENV=docker run

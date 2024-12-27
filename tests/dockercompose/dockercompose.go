@@ -21,7 +21,8 @@ func StartComposeApp(ctx context.Context, pathToDockerCompose string) tc.Compose
 		"POSTGRES_PORT":      testdata.PostgresPort,
 		"SERVER_PORT":        testdata.ServerPort,
 	})
-	err = composeWithEnvs.WaitForService("app", wait.ForHTTP("/api/ping").WithPort("8080/tcp").WithStartupTimeout(10*time.Second)).Up(ctx, tc.Wait(true))
+	err = composeWithEnvs.
+		WaitForService("app", wait.ForHTTP("app/api/ping").WithPort("8080").WithStartupTimeout(90*time.Second)).Up(ctx, tc.Wait(true))
 	if err != nil {
 		panic(err)
 	}
