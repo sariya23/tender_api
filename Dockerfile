@@ -7,5 +7,5 @@ COPY . .
 EXPOSE 44044
 RUN apk update
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest
-RUN apk add --no-cache postgresql-client
+RUN apk update && apk add --no-cache postgresql-client
 RUN apk add make 
