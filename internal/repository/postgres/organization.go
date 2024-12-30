@@ -11,7 +11,7 @@ import (
 )
 
 func (storage *Storage) GetOrganizationById(ctx context.Context, orgId int) (models.Organization, error) {
-	const operationPlace = "repository.postgres.employee.GetOrganizationById"
+	const operationPlace = "repository.postgres.organization.GetOrganizationById"
 	queryGetOrg := "select organization_id, name, description, organization_type_id from organization where organization_id = $1"
 	queryGetOrgType := "select type from nsi_organization_type where nsi_organization_type_id = $1"
 
@@ -38,7 +38,7 @@ func (storage *Storage) GetOrganizationById(ctx context.Context, orgId int) (mod
 }
 
 func (storage *Storage) CheckResponsibility(ctx context.Context, emplId int, orgId int) error {
-	const operationPlace = "repository.postgres.employee.CheckResponsibility"
+	const operationPlace = "repository.postgres.organization.CheckResponsibility"
 	query := "select organization_responsible_id from organization_responsible where organization_id = $1 and employee_id = $2"
 
 	var id int
@@ -56,7 +56,7 @@ func (storage *Storage) CheckResponsibility(ctx context.Context, emplId int, org
 }
 
 func (storage *Storage) CreateOrganization(ctx context.Context, organization models.Organization) error {
-	const operationPlace = "repository.postgres.employee.CreateOrganization"
+	const operationPlace = "repository.postgres.organization.CreateOrganization"
 	queryGetOrgType := "select type_id from nsi_organization_type where type = $1"
 	insertOrg := "insert into otganization(name, description, organization_type_id) values (@name, @desc, @orgTypeId)"
 	var typeId int
