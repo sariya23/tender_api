@@ -6,7 +6,7 @@ var TestOrganization = models.Organization{
 	ID:          1,
 	Name:        "Test Organization",
 	Description: "Test Organization",
-	Type:        "OSI",
+	Type:        "LLC",
 }
 
 var TestEmployee = models.Employee{

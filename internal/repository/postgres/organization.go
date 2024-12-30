@@ -57,8 +57,8 @@ func (storage *Storage) CheckResponsibility(ctx context.Context, emplId int, org
 
 func (storage *Storage) CreateOrganization(ctx context.Context, organization models.Organization) error {
 	const operationPlace = "repository.postgres.organization.CreateOrganization"
-	queryGetOrgType := "select type_id from nsi_organization_type where type = $1"
-	insertOrg := "insert into otganization(name, description, organization_type_id) values (@name, @desc, @orgTypeId)"
+	queryGetOrgType := "select nsi_organization_type_id from nsi_organization_type where type = $1"
+	insertOrg := "insert into organization(name, description, organization_type_id) values (@name, @desc, @orgTypeId)"
 	var typeId int
 
 	row := storage.connection.QueryRow(ctx, queryGetOrgType, organization.Type)

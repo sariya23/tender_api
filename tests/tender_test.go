@@ -8,8 +8,11 @@ import (
 	"os"
 	"testing"
 
+	"github.com/sariya23/tender/internal/config"
 	"github.com/sariya23/tender/internal/domain/models"
 	schema "github.com/sariya23/tender/internal/hanlders"
+	"github.com/sariya23/tender/internal/repository/postgres"
+	"github.com/sariya23/tender/testdata"
 	"github.com/sariya23/tender/tests/dockercompose"
 	"github.com/sariya23/tender/tests/suite"
 	"github.com/stretchr/testify/require"
@@ -20,9 +23,20 @@ func TestMain(m *testing.M) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	app := dockercompose.StartComposeApp(ctx, "../docker-compose.yaml")
-	// cfg := config.MustLoadByPath("../local.env")
-	// db := postgres.MustNewConnection(ctx, cfg.PostgresConn)
-	// db.CreateTender(ctx, models.Tender{})
+	cfg := config.MustLoadByPath("../local.env")
+	db := postgres.MustNewConnection(ctx, cfg.PostgresConn)
+	err := db.CreateEmployee(ctx, testdata.TestEmployee)
+	if err != nil {
+		panic(err)
+	}
+	err = db.CreateOrganization(ctx, testdata.TestOrganization)
+	if err != nil {
+		panic(err)
+	}
+	_, err = db.CreateTender(ctx, testdata.TestTender)
+	if err != nil {
+		panic(err)
+	}
 	exitCode := m.Run()
 	dockercompose.StopComposeApp(ctx, app)
 	os.Exit(exitCode)
