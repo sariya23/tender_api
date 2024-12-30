@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	app := dockercompose.StartComposeApp(ctx, "../docker-compose.yaml")
-	cfg := config.MustLoadByPath("../local.env")
+	cfg := config.MustLoadByPath("../docker.env")
 	db := postgres.MustNewConnection(ctx, cfg.PostgresConn)
 	err := db.CreateEmployee(ctx, testdata.TestEmployee)
 	if err != nil {
