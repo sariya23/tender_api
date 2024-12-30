@@ -33,7 +33,7 @@ func StartComposeApp(ctx context.Context, pathToDockerCompose string) tc.Compose
 }
 
 func StopComposeApp(ctx context.Context, composeApp tc.ComposeStack) {
-	err := composeApp.Down(ctx, tc.RemoveImagesAll)
+	err := composeApp.Down(ctx, tc.RemoveImagesAll, tc.RemoveOrphans(true), tc.RemoveImagesLocal)
 	if err != nil {
 		panic(err)
 	}
