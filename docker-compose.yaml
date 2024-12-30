@@ -41,11 +41,12 @@ services:
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:${SERVER_PORT}/api/ping"]
+      test: ["CMD", "curl", "-f", "http://app:${SERVER_PORT}/api/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     depends_on:
       db:
         condition: service_healthy
-    command: make ENV=docker run
+    command: ./api --config=docker.env
