@@ -20,7 +20,7 @@ var TestTender = models.Tender{
 	TenderName:      "Test Tender",
 	Description:     "Test Tender",
 	ServiceType:     "testing",
-	Status:          "OPEN",
+	Status:          "CREATED",
 	OrganizationId:  TestOrganization.ID,
 	CreatorUsername: TestEmployee.Username,
 }
