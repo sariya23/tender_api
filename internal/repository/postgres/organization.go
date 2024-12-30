@@ -54,3 +54,31 @@ func (storage *Storage) CheckResponsibility(ctx context.Context, emplId int, org
 
 	return nil
 }
+
+func (storage *Storage) CreateOrganization(ctx context.Context, organization models.Organization) error {
+	const operationPlace = "repository.postgres.employee.CreateOrganization"
+	queryGetOrgType := "select type_id from nsi_organization_type where type = $1"
+	insertOrg := "insert into otganization(name, description, organization_type_id) values (@name, @desc, @orgTypeId)"
+	var typeId int
+
+	row := storage.connection.QueryRow(ctx, queryGetOrgType, organization.Type)
+	err := row.Scan(&typeId)
+	if err != nil {
+		return fmt.Errorf("%s: %w", operationPlace, err)
+	}
+
+	_, err = storage.connection.Exec(
+		ctx,
+		insertOrg,
+		pgx.NamedArgs{
+			"name":      organization.Name,
+			"desc":      organization.Description,
+			"orgTypeId": typeId,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("%s: %w", operationPlace, err)
+	}
+
+	return nil
+}
