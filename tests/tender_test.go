@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestGetAllTenders(t *testing.T) {
-	_, st := suite.New(t)
+	st := suite.New(t)
 	resp, err := st.Client.Get("http://127.0.0.1:8000/api/tenders")
 	require.NoError(t, err)
 	b := resp.Body
