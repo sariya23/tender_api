@@ -4,22 +4,23 @@ import (
 	"context"
 	"time"
 
-	"github.com/sariya23/tender/testdata"
+	"github.com/docker/go-connections/nat"
+	"github.com/sariya23/tender/internal/config"
 	tc "github.com/testcontainers/testcontainers-go/modules/compose"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func StartComposeApp(ctx context.Context, pathToDockerCompose string) tc.ComposeStack {
+func StartComposeApp(ctx context.Context, pathToDockerCompose string, cfg *config.AppConfig) tc.ComposeStack {
 	compose, err := tc.NewDockerCompose(pathToDockerCompose)
 	if err != nil {
 		panic(err)
 	}
 	composeWithEnvs := compose.WithEnv(map[string]string{
-		"POSTGRES_DB":        testdata.PostgresDBName,
-		"POSTGRES_USERNAME":  testdata.PostgresUsername,
-		"POSTRGRES_PASSWORD": testdata.PostgresPassword,
-		"POSTGRES_PORT":      testdata.PostgresPort,
-		"SERVER_PORT":        testdata.ServerPort,
+		"POSTGRES_DB":        cfg.PostgresDatabase,
+		"POSTGRES_USERNAME":  cfg.PostgresUsername,
+		"POSTRGRES_PASSWORD": cfg.PostgresPassword,
+		"POSTGRES_PORT":      cfg.PostgresPassword,
+		"SERVER_PORT":        cfg.ServerPort,
 	})
 	err = composeWithEnvs.Up(ctx, tc.Wait(false))
 	if err != nil {
@@ -27,7 +28,7 @@ func StartComposeApp(ctx context.Context, pathToDockerCompose string) tc.Compose
 	}
 	composeWithEnvs.WaitForService("app",
 		wait.ForHTTP("/api/ping").
-			WithPort(testdata.ServerPort).
+			WithPort(nat.Port(cfg.ServerPort)).
 			WithStartupTimeout(90*time.Second))
 	return composeWithEnvs
 }
