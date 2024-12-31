@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 	defer cancel()
 	app := dockercompose.StartComposeApp(ctx, "../docker-compose.yaml")
 	cfg := config.MustLoadByPath("../docker.env")
-	db := postgres.MustNewConnection(ctx, cfg.PostgresConn)
+	db := postgres.MustNewConnection(ctx, cfg.PostgresConnOutside)
 	err := db.CreateEmployee(ctx, testdata.TestEmployee)
 	if err != nil {
 		panic(err)

@@ -48,8 +48,10 @@ API реализовано на Go веб-фреймворке [Gin](https://git
 SERVER_ADDRESS=0.0.0.0 - адрес сервера
 SERVER_PORT=SERVER_PORT - порт сервера
 TIMEOUT=TIMEOUT - таймаут на чтение у сервера 
-POSTGRESS_CONN=postgres://POSTGRES_USERNAME:POSTGRES_PASSWORD@POSTGRES_HOST:POSTGRES_PORT/DB_NAME - строка подключения к postgresql
-POSTGRES_JDBC_CONN=jdbc:postgresql://POSTGRES_HOST:POSTGRES_PORT/DB_NAME - строка подключения к postgresql в формате jdbc
+POSTGRESS_CONN=postgres://POSTGRES_USERNAME:POSTGRES_PASSWORD@POSTGRES_HOST:POSTGRES_PORT/DB_NAME - строка подключения к БД
+POSTGRESS_CONN_OUTSIDE=postgres://POSTGRES_USERNAME:POSTGRES_PASSWORD@POSTGRES_HOST:POSTGRES_PORT/DB_NAME - строка подключения с БД, которая крутится к контейнере. Добавить нужно и в docker.env и в local.env для совместимости
+POSTGRES_JDBC_CONN=jdbc:postgresql://POSTGRES_HOST:POSTGRES_PORT/DB_NAME - строка подключения к БД в формате jdbc
+POSTGRES_JDBC_CONN_OUTSIDE=jdbc:postgresql://POSTGRES_HOST:POSTGRES_PORT/DB_NAME - строка подключения к БД, которая крутится в контейнере. Добавить нужно и в docker.env и в local.env для совместимости  
 POSTGRES_USERNAME=POSTGRES_USERNAME - имя пользователя postgres
 POSTRGRES_PASSWORD=POSTRGRES_PASSWORD - пароль от postgres
 POSTGRES_HOST=POSTGRES_HOST - адрес postgres

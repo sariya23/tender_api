@@ -10,16 +10,18 @@ import (
 type Seconds int
 
 type AppConfig struct {
-	ServerAddress    string `env:"SERVER_ADDRESS"`
-	ServerPort       string `env:"SERVER_PORT"`
-	Timeout          int    `env:"TIMEOUT"`
-	PostgresConn     string `env:"POSTGRESS_CONN"`
-	PosthresJDBC_URL string `env:"POSTGRES_JDBC_CONN"`
-	PostgresUsername string `env:"POSTGRES_USERNAME"`
-	PostgresPassword string `env:"POSTRGRES_PASSWORD"`
-	PostgresHost     string `env:"POSTGRES_HOST"`
-	PostgresPort     int    `env:"POSTGRES_PORT"`
-	PostgresDatabase string `env:"POSTGRES_DB"`
+	ServerAddress           string `env:"SERVER_ADDRESS"`
+	ServerPort              string `env:"SERVER_PORT"`
+	Timeout                 int    `env:"TIMEOUT"`
+	PostgresConn            string `env:"POSTGRESS_CONN"`
+	PostgresConnOutside     string `env:"POSTGRES_JDBC_CONN_OUTSIDE"`
+	PosthresJDBC_URL        string `env:"POSTGRES_JDBC_CONN"`
+	PosthresJDBC_URLOutside string `env:"POSTGRES_JDBC_CONN_OUTSIDE"`
+	PostgresUsername        string `env:"POSTGRES_USERNAME"`
+	PostgresPassword        string `env:"POSTRGRES_PASSWORD"`
+	PostgresHost            string `env:"POSTGRES_HOST"`
+	PostgresPort            int    `env:"POSTGRES_PORT"`
+	PostgresDatabase        string `env:"POSTGRES_DB"`
 }
 
 func MustLoad() *AppConfig {
