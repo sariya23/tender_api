@@ -13,7 +13,7 @@ func (tender *Tender) IsNewTenderHasStatusCreated() bool {
 	return tender.Status == TenderCreatedStatus
 }
 
-const (
+var (
 	TenderCreatedStatus   = "CREATED"
 	TenderPublishedStatus = "PUBLISHED"
 	TenderClosedStatus    = "CLOSED"

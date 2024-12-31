@@ -33,7 +33,11 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.CreateTender(ctx, testdata.TestTender)
+	tender, err := db.CreateTender(ctx, testdata.TestTender)
+	if err != nil {
+		panic(err)
+	}
+	_, err = db.EditTender(ctx, tender, 1, models.TenderToUpdate{Status: &models.TenderPublishedStatus})
 	if err != nil {
 		panic(err)
 	}

@@ -14,7 +14,7 @@ type AppConfig struct {
 	ServerPort              string `env:"SERVER_PORT"`
 	Timeout                 int    `env:"TIMEOUT"`
 	PostgresConn            string `env:"POSTGRESS_CONN"`
-	PostgresConnOutside     string `env:"POSTGRES_JDBC_CONN_OUTSIDE"`
+	PostgresConnOutside     string `env:"POSTGRESS_CONN_OUTSIDE"`
 	PosthresJDBC_URL        string `env:"POSTGRES_JDBC_CONN"`
 	PosthresJDBC_URLOutside string `env:"POSTGRES_JDBC_CONN_OUTSIDE"`
 	PostgresUsername        string `env:"POSTGRES_USERNAME"`
